@@ -16,4 +16,8 @@
     <string name="enter_item_name">Enter item name</string>
     <string name="textview">TextView</string>
     <string name="add_items">Add items</string>
+    <string name="add_photo">Add Photo</string>
+    <string name="itemsss">Add items</string>
+    <string name="todo01">TODO</string>
+    <string name="add_items011">Add Items</string>
 </resources>
