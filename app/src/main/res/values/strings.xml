@@ -20,4 +20,7 @@
     <string name="itemsss">Add items</string>
     <string name="todo01">TODO</string>
     <string name="add_items011">Add Items</string>
+    <string name="select_category">Select Category</string>
+    <string name="quantity">Quantity</string>
+    <string name="select_quantity">Select Quantity</string>
 </resources>
