@@ -26,11 +26,12 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/textView3"
+                    android:id="@+id/pfp_txt_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Porfile"
+                    android:text="Profile"
+                    android:layout_margin="5dp"
                     android:textSize="32dp"
                     android:textStyle="bold" />
 
@@ -51,7 +52,7 @@
                     android:gravity="center">
 
                     <ImageView
-                        android:id="@+id/imageView6"
+                        android:id="@+id/pfp_img_add"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_gravity="center"
@@ -59,7 +60,7 @@
                         android:src="@drawable/round_camera_alt_24" />
 
                     <TextView
-                        android:id="@+id/textView25"
+                        android:id="@+id/pfp_txt01"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAlignment="center"
@@ -71,7 +72,7 @@
             </androidx.cardview.widget.CardView>
 
             <TextView
-                android:id="@+id/textView22"
+                android:id="@+id/pfp_username_show"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="TextView"
@@ -81,7 +82,7 @@
                 android:textSize="25sp"/>
 
             <TextView
-                android:id="@+id/textView23"
+                android:id="@+id/pfp_user_email_show"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="TextView"
@@ -94,40 +95,43 @@
                 android:layout_width="400dp"
                 android:layout_gravity="center"
                 android:layout_height="50dp"
+                android:layout_marginTop="5dp"
                 android:backgroundTint="@color/white"
                 app:cardCornerRadius="20dp">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="391dp"
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:id="@+id/imageView12"
+                        android:id="@+id/pfp_edit_icon"
                         android:layout_width="40dp"
                         android:layout_height="37dp"
                         android:layout_gravity="center"
+                        android:layout_marginStart="15dp"
                         android:layout_weight="1"
-                        android:src="@drawable/pfp_img" />
+                        android:src="@drawable/outline_person_24" />
 
                     <TextView
-                        android:id="@+id/textView24"
-                        android:layout_width="284dp"
-                        android:layout_height="24dp"
+                        android:id="@+id/pfp_txt02"
+                        android:layout_width="270dp"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:layout_marginStart="15dp"
                         android:layout_weight="1"
+                        android:paddingLeft="4dp"
                         android:text="Edit Profile"
-                        android:textAlignment=""
-                        android:textSize="15sp"
+                        android:textSize="18sp"
                         android:textStyle="bold" />
 
                     <ImageView
-                        android:id="@+id/imageView13"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/pfp_nav_arrow01"
+                        android:layout_width="37dp"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:layout_weight="1"
-                        android:src="@drawable/outline_chevron_right_24"
-                        android:layout_gravity="center"/>
+                        android:src="@drawable/outline_chevron_right_24" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -141,24 +145,39 @@
             app:cardCornerRadius="20dp"
             android:layout_marginTop="5dp">
 
-        </androidx.cardview.widget.CardView>
+            <LinearLayout
+                android:layout_width="391dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="400dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:backgroundTint="@color/white"
-            app:cardCornerRadius="20dp" >
+                <ImageView
+                    android:id="@+id/pfp_noty_setting_img"
+                    android:layout_width="40dp"
+                    android:layout_height="37dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="15dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/sharp_circle_notifications_24" />
 
-        </androidx.cardview.widget.CardView>
+                <TextView
+                    android:id="@+id/pfp_txt03"
+                    android:layout_width="270dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="15dp"
+                    android:layout_weight="1"
+                    android:text="Notification Settings "
+                    android:textSize="18dp"
+                    android:textStyle="bold" />
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="400dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:backgroundTint="@color/white"
-            app:cardCornerRadius="20dp" >
-
+                <ImageView
+                    android:id="@+id/pfp_nav_arrow02"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:src="@drawable/outline_chevron_right_24" />
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -169,6 +188,65 @@
             android:backgroundTint="@color/white"
             app:cardCornerRadius="20dp" >
 
+            <LinearLayout
+                android:layout_width="391dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/pfp_help_icon"
+                    android:layout_width="40dp"
+                    android:layout_height="37dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="15dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/twotone_help_outline_24" />
+
+                <TextView
+                    android:id="@+id/pfp_txt04"
+                    android:layout_width="270dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="15dp"
+                    android:layout_weight="1"
+                    android:text="Help and Support"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/pfp_nav_arrow03"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:src="@drawable/outline_chevron_right_24" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="400dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:backgroundTint="#FF5608"
+            app:cardCornerRadius="20dp" >
+
+            <LinearLayout
+                android:layout_width="391dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/pfp_txt05"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:textAlignment="center"
+                    android:textSize="20sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:text="Development" />
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -181,7 +259,7 @@
             app:cardBackgroundColor="#FFF2F2">
 
             <TextView
-                android:id="@+id/textView18"
+                android:id="@+id/pfp_logout_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Log out"
