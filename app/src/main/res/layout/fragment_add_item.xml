@@ -337,7 +337,6 @@
                 android:layout_height="50dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="20dp"
-                android:backgroundTint="@color/white"
                 app:cardCornerRadius="15dp"
                 android:backgroundTint="#1C952F"
 
