@@ -76,8 +76,8 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:layout_width="342dp"
-                android:layout_height="50dp"
+                android:layout_width="345dp"
+                android:layout_height="65dp"
                 android:layout_marginTop="20dp"
                 android:backgroundTint="@color/white"
                 app:cardCornerRadius="15dp"
@@ -85,7 +85,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="49dp"
+                    android:layout_height="match_parent"
                     android:gravity="center"
                     android:orientation="horizontal">
 
@@ -103,12 +103,11 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:paddingEnd="8dp"
-                        android:paddingStart="0dp"
                         android:layout_weight="1">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="50dp"
                             android:layout_weight="1"
                             android:layout_gravity="center"
                             android:hint="@string/enter_item_name"
@@ -121,12 +120,12 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:layout_width="342dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="20dp"
+                android:layout_width="345dp"
+                android:layout_height="65dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="15dp"
                 android:backgroundTint="@color/white"
-                app:cardCornerRadius="15dp"
-                android:layout_gravity="center" >
+                app:cardCornerRadius="15dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -137,11 +136,11 @@
                         android:id="@+id/add_category_txt02"
                         android:layout_width="100dp"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:paddingStart="10dp"
                         android:paddingEnd="0dp"
                         android:text="@string/category"
                         android:textSize="18sp"
-                        android:layout_gravity="center"
                         android:textStyle="bold" />
 
                     <LinearLayout
@@ -152,35 +151,32 @@
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:paddingEnd="5dp"
-                            android:paddingStart="0dp"
-                            android:paddingBottom="5dp">
+                            android:gravity="center">
 
 
                             <MultiAutoCompleteTextView
                                 android:id="@+id/multiAutoCompleteTextView02"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
+                                android:layout_width="200dp"
+                                android:layout_height="49dp"
                                 android:layout_gravity="center_horizontal"
+                                android:gravity="center"
                                 android:layout_weight="1"
-                                android:textAlignment="center"
-                                android:text="@string/select_category"
-                                android:textSize="16sp"
-                                android:textColor="@color/text_gray"/>
+                                android:hint="@string/select_category"
+                                android:textColor="@color/text_gray"
+                                android:textSize="16sp" />
 
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="48dp"
                         android:layout_height="match_parent"
                         android:orientation="horizontal">
 
                         <Spinner
                             android:id="@+id/spinner2"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
+                            android:layout_width="48dp"
+                            android:layout_height="53dp"
                             android:layout_gravity="center"
                             android:layout_weight="1" />
                     </LinearLayout>
@@ -190,9 +186,9 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:layout_width="342dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="20dp"
+                android:layout_width="345dp"
+                android:layout_height="65dp"
+                android:layout_marginTop="15dp"
                 android:backgroundTint="@color/white"
                 app:cardCornerRadius="15dp"
                 android:layout_gravity="center" >
@@ -236,11 +232,10 @@
 
                         <Spinner
                             android:id="@+id/spinner3"
-                            android:layout_width="wrap_content"
+                            android:layout_width="50dp"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"
-                            android:layout_weight="1"
-                            />
+                            android:layout_weight="1" />
                     </LinearLayout>
 
                 </LinearLayout>
@@ -248,9 +243,9 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:layout_width="342dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="20dp"
+                android:layout_width="345dp"
+                android:layout_height="65dp"
+                android:layout_marginTop="15dp"
                 android:backgroundTint="@color/white"
                 app:cardCornerRadius="15dp"
                 android:layout_gravity="center" >
@@ -293,9 +288,9 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:layout_width="342dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="20dp"
+                android:layout_width="345dp"
+                android:layout_height="65dp"
+                android:layout_marginTop="15dp"
                 android:backgroundTint="@color/white"
                 app:cardCornerRadius="15dp"
                 android:layout_gravity="center" >
