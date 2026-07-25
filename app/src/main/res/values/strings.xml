@@ -23,4 +23,9 @@
     <string name="select_category">Select Category</string>
     <string name="quantity">Quantity</string>
     <string name="select_quantity">Select Quantity</string>
+    <string name="purchase_date">Purchase Date</string>
+    <string name="_15_may_2025">15 May 2025</string>
+    <string name="_18_may_2025">18 May 2025</string>
+    <string name="save">save</string>
+    <string name="category">Category</string>
 </resources>
