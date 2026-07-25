@@ -9,51 +9,66 @@
     <!-- TODO: Update blank fragment layout -->
 
 
-    <TextView
-        android:id="@+id/add_item_header"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="832dp"
-        android:text="@string/add_items011"
-        android:textColor="#000000"
-        android:textSize="25sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/scrollView3"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/scrollView3"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.45"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/back_arrow"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/outline_arrow_back_24" />
+
+        <TextView
+            android:id="@+id/textView13"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Add Item"
+            android:paddingEnd="20dp"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
 
     <ScrollView
         android:id="@+id/scrollView3"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="60dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.236">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="30dp" >
+            android:padding="5dp">
 
             <androidx.cardview.widget.CardView
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="50dp"
-                app:cardCornerRadius="90dp"
-                android:backgroundTint="#EAF3ED">
+                android:layout_gravity="center"
+                android:backgroundTint="#EAF3ED"
+                app:cardCornerRadius="90dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:orientation="vertical">
 
 
                     <ImageView
@@ -70,7 +85,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/add_photo"
                         android:textSize="15sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
@@ -78,10 +93,10 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="345dp"
                 android:layout_height="65dp"
+                android:layout_gravity="center"
                 android:layout_marginTop="20dp"
                 android:backgroundTint="@color/white"
-                app:cardCornerRadius="15dp"
-                android:layout_gravity="center">
+                app:cardCornerRadius="15dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -93,8 +108,8 @@
                         android:id="@+id/add_item_txt01"
                         android:layout_width="100dp"
                         android:layout_height="wrap_content"
-                        android:paddingEnd="10dp"
-                        android:paddingStart="0dp"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="0dp"
                         android:text="Add item"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -102,14 +117,14 @@
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:paddingEnd="8dp"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:paddingEnd="8dp">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:layout_weight="1"
                             android:layout_gravity="center"
+                            android:layout_weight="1"
                             android:hint="@string/enter_item_name"
                             android:textColorHint="@color/text_gray"
 
@@ -159,8 +174,9 @@
                                 android:layout_width="200dp"
                                 android:layout_height="49dp"
                                 android:layout_gravity="center_horizontal"
-                                android:gravity="center"
                                 android:layout_weight="1"
+                                android:gravity="center"
+                                android:layout_marginBottom="5dp"
                                 android:hint="@string/select_category"
                                 android:textColor="@color/text_gray"
                                 android:textSize="16sp" />
@@ -188,10 +204,10 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="345dp"
                 android:layout_height="65dp"
+                android:layout_gravity="center"
                 android:layout_marginTop="15dp"
                 android:backgroundTint="@color/white"
-                app:cardCornerRadius="15dp"
-                android:layout_gravity="center" >
+                app:cardCornerRadius="15dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -202,11 +218,11 @@
                         android:id="@+id/add_quantity_txt03"
                         android:layout_width="100dp"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:paddingStart="10dp"
                         android:paddingEnd="10dp"
                         android:text="@string/quantity"
-                        android:layout_gravity="center"
                         android:textSize="18sp"
-                        android:paddingStart="10dp"
                         android:textStyle="bold" />
 
                     <LinearLayout
@@ -232,7 +248,7 @@
 
                         <Spinner
                             android:id="@+id/spinner3"
-                            android:layout_width="50dp"
+                            android:layout_width="79dp"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"
                             android:layout_weight="1" />
@@ -245,10 +261,10 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="345dp"
                 android:layout_height="65dp"
+                android:layout_gravity="center"
                 android:layout_marginTop="15dp"
                 android:backgroundTint="@color/white"
-                app:cardCornerRadius="15dp"
-                android:layout_gravity="center" >
+                app:cardCornerRadius="15dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -281,8 +297,8 @@
                         android:id="@+id/imageView11"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_gravity="center"
+                        android:layout_weight="1"
                         android:src="@drawable/outline_calendar_month_24" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -290,10 +306,10 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="345dp"
                 android:layout_height="65dp"
+                android:layout_gravity="center"
                 android:layout_marginTop="15dp"
                 android:backgroundTint="@color/white"
-                app:cardCornerRadius="15dp"
-                android:layout_gravity="center" >
+                app:cardCornerRadius="15dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -326,8 +342,8 @@
                         android:id="@+id/imageView12"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_gravity="center"
+                        android:layout_weight="1"
                         android:src="@drawable/outline_calendar_month_24" />
                 </LinearLayout>
 
@@ -338,8 +354,8 @@
                 android:layout_height="50dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="20dp"
-                app:cardCornerRadius="15dp"
                 android:backgroundTint="#1C952F"
+                app:cardCornerRadius="15dp"
 
                 >
 
@@ -347,11 +363,11 @@
                     android:id="@+id/textView21"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/save"
                     android:layout_gravity="center"
+                    android:text="@string/save"
+                    android:textColor="@color/white"
                     android:textSize="25sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/white" />
+                    android:textStyle="bold" />
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>
