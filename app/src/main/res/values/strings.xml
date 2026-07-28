@@ -42,4 +42,17 @@
         <item>Medicine</item>
         <item>others</item>
     </string-array>
+    <!-- units section -->
+    <string-array name="quantity_units">
+        <item>Kg</item>
+        <item>Gram</item>
+        <item>Liter</item>
+        <item>ml</item>
+        <item>Pieces</item>
+        <item>Packet</item>
+        <item>Bottle</item>
+        <item>Can</item>
+        <item>Box</item>
+        <item>Dozen</item>
+    </string-array>
 </resources>

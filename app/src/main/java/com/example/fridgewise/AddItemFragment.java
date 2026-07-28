@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.Spinner;
 
 public class AddItemFragment extends Fragment {
 
@@ -66,15 +67,14 @@ public class AddItemFragment extends Fragment {
         String[] categories = getResources().getStringArray(R.array.category_array);
 
         // 2. Create the adapter
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(
                 requireContext(), 
                 android.R.layout.simple_dropdown_item_1line, 
                 categories
         );
 
         // 3. Connect adapter to the view
-        // AutoCompleteTextView handles single selection and doesn't require a Tokenizer.
-        categoryDropdown.setAdapter(adapter);
+        categoryDropdown.setAdapter(categoryAdapter);
 
         // 4. Optional: Show the list as soon as the user clicks the box
         categoryDropdown.setOnClickListener(new View.OnClickListener() {
@@ -83,6 +83,19 @@ public class AddItemFragment extends Fragment {
                 categoryDropdown.showDropDown();
             }
         });
+        
+        // --- Quantity Units Spinner Setup ---
+        Spinner quantitySpinner = view.findViewById(R.id.spinner_units);
+        
+        ArrayAdapter<CharSequence> unitAdapter = ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.quantity_units, 
+                android.R.layout.simple_spinner_item
+        );
+        unitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        
+        // Set the correct adapter for units
+        quantitySpinner.setAdapter(unitAdapter);
 
         return view;
     }
