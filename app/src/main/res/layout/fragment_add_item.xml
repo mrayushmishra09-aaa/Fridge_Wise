@@ -169,8 +169,8 @@
                             android:gravity="center">
 
 
-                            <MultiAutoCompleteTextView
-                                android:id="@+id/multiAutoCompleteTextView02"
+                            <AutoCompleteTextView
+                                android:id="@+id/categoryDropdown"
                                 android:layout_width="200dp"
                                 android:layout_height="49dp"
                                 android:layout_gravity="center_horizontal"

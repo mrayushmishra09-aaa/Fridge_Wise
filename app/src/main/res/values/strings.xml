@@ -28,4 +28,18 @@
     <string name="_18_may_2025">18 May 2025</string>
     <string name="save">save</string>
     <string name="category">Category</string>
+
+    <!-- category section -->
+    <string-array name="category_array">
+        <item>Dairy</item>
+        <item>Vegetable</item>
+        <item>Fruits</item>
+        <item>Meat</item>
+        <item>Drinks</item>
+        <item>Frozen Food</item>
+        <item>Snacks</item>
+        <item>Bakery</item>
+        <item>Medicine</item>
+        <item>others</item>
+    </string-array>
 </resources>

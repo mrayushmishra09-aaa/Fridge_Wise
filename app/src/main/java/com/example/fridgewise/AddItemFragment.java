@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 
 public class AddItemFragment extends Fragment {
@@ -15,7 +17,6 @@ public class AddItemFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    // 👇 THIS IS YOUR BACK ARROW VARIABLE
     private ImageView img_01;
 
     public AddItemFragment() {
@@ -43,25 +44,45 @@ public class AddItemFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Connect to your XML layout
         View view = inflater.inflate(R.layout.fragment_add_item, container, false);
 
-        // 👇 SET UP YOUR BACK ARROW BUTTON
+        // Set up back arrow
         img_01 = view.findViewById(R.id.back_arrow);
-        img_01.setOnClickListener(new View.OnClickListener() {
+        if (img_01 != null) {
+            img_01.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) {
+                        getActivity().onBackPressed();
+                    }
+                }
+            });
+        }
+
+        // --- Category Dropdown Setup ---
+        AutoCompleteTextView categoryDropdown = view.findViewById(R.id.categoryDropdown);
+        
+        // 1. Load the array from strings.xml
+        String[] categories = getResources().getStringArray(R.array.category_array);
+
+        // 2. Create the adapter
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(), 
+                android.R.layout.simple_dropdown_item_1line, 
+                categories
+        );
+
+        // 3. Connect adapter to the view
+        // AutoCompleteTextView handles single selection and doesn't require a Tokenizer.
+        categoryDropdown.setAdapter(adapter);
+
+        // 4. Optional: Show the list as soon as the user clicks the box
+        categoryDropdown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // This goes back to the previous screen
-                if (getActivity() != null) {
-                    getActivity().onBackPressed();
-                }
+                categoryDropdown.showDropDown();
             }
         });
-
-        // If you have other code (like save button, etc.), add it HERE
-        // Example:
-        // Button saveButton = view.findViewById(R.id.saveButton);
-        // saveButton.setOnClickListener(...);
 
         return view;
     }
