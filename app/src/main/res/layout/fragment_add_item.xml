@@ -283,7 +283,7 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/add_date_start_text"
+                        android:id="@+id/purchaseDateText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -294,7 +294,7 @@
                         android:textStyle="bold" />
 
                     <ImageView
-                        android:id="@+id/imageView11"
+                        android:id="@+id/purchaseCalendarIcon"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -328,7 +328,7 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/add_date_end"
+                        android:id="@+id/expiry_DateText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -339,7 +339,7 @@
                         android:textStyle="bold" />
 
                     <ImageView
-                        android:id="@+id/imageView12"
+                        android:id="@+id/expiry_DateIcon"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"

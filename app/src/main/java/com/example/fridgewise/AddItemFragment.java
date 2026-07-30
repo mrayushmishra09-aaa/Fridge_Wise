@@ -1,5 +1,6 @@
 package com.example.fridgewise;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
@@ -9,6 +10,9 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
+
+import java.util.Calendar;
 
 public class AddItemFragment extends Fragment {
 
@@ -97,6 +101,27 @@ public class AddItemFragment extends Fragment {
         // Set the correct adapter for units
         quantitySpinner.setAdapter(unitAdapter);
 
+        // Date picker
+        TextView purchaseDateText = view.findViewById(R.id.purchaseDateText);
+        ImageView purchaseCalendarIcon = view.findViewById(R.id.purchaseCalendarIcon);
+
+        purchaseCalendarIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar calendar = Calendar.getInstance();
+                int year = calendar.get(Calendar.YEAR);
+                int month = calendar.get(Calendar.MONTH);
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
+                        (view, year1, month1, dayOfMonth) -> {
+                            String selectedDate = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
+                            purchaseDateText.setText(selectedDate);
+                        }, year, month, day);
+                datePickerDialog.show();
+            }
+        });
         return view;
+
     }
 }
