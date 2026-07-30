@@ -101,9 +101,12 @@ public class AddItemFragment extends Fragment {
         // Set the correct adapter for units
         quantitySpinner.setAdapter(unitAdapter);
 
-        // Date picker
+        // Date picker initializations
         TextView purchaseDateText = view.findViewById(R.id.purchaseDateText);
         ImageView purchaseCalendarIcon = view.findViewById(R.id.purchaseCalendarIcon);
+        TextView expiry_DateText = view.findViewById(R.id.expiry_DateText);
+        ImageView expiry_DateIcon = view.findViewById(R.id.expiry_DateIcon);
+        
 
         purchaseCalendarIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,14 +117,32 @@ public class AddItemFragment extends Fragment {
                 int day = calendar.get(Calendar.DAY_OF_MONTH);
 
                 DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
-                        (view, year1, month1, dayOfMonth) -> {
+                        (view1, year1, month1, dayOfMonth) -> {
                             String selectedDate = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
                             purchaseDateText.setText(selectedDate);
                         }, year, month, day);
                 datePickerDialog.show();
             }
         });
-        return view;
+        
+        // Expiry Date set up
+        expiry_DateIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar calendar01 = Calendar.getInstance();
+                int year01 = calendar01.get(Calendar.YEAR);
+                int month01 = calendar01.get(Calendar.MONTH);
+                int day01 = calendar01.get(Calendar.DAY_OF_MONTH);
+                
+                DatePickerDialog datePickerDialog01 = new DatePickerDialog(requireContext(),
+                        (view1, year1, month1, dayOfMonth)->{
+                            String selectedDate = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
+                            expiry_DateText.setText(selectedDate);
+                        },year01,month01,day01);
+                datePickerDialog01.show();
+            }
+        });
 
+        return view;
     }
 }
