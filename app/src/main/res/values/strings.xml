@@ -28,6 +28,8 @@
     <string name="_18_may_2025">18 May 2025</string>
     <string name="save">save</string>
     <string name="category">Category</string>
+    <string name="savebutton">Save</string>
+    <string name="add_item">Add item</string>
 
     <!-- category section -->
     <string-array name="category_array">
