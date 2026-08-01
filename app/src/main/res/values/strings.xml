@@ -10,7 +10,6 @@
     <string name="inventory">Inventory</string>
     <string name="ai_chef">Ai Chef</string>
     <string name="profile">Profile</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="item_name">Item name</string>
     <string name="enter_item_name">Enter item name</string>
@@ -28,8 +27,6 @@
     <string name="_18_may_2025">18 May 2025</string>
     <string name="save">save</string>
     <string name="category">Category</string>
-    <string name="savebutton">Save</string>
-    <string name="add_item">Add item</string>
 
     <!-- category section -->
     <string-array name="category_array">
@@ -44,17 +41,14 @@
         <item>Medicine</item>
         <item>others</item>
     </string-array>
-    <!-- units section -->
+
+    <!-- quantity units section -->
     <string-array name="quantity_units">
-        <item>Kg</item>
-        <item>Gram</item>
-        <item>Liter</item>
+        <item>pcs</item>
+        <item>kg</item>
+        <item>g</item>
         <item>ml</item>
-        <item>Pieces</item>
-        <item>Packet</item>
-        <item>Bottle</item>
-        <item>Can</item>
-        <item>Box</item>
-        <item>Dozen</item>
+        <item>L</item>
+        <item>pkt</item>
     </string-array>
 </resources>

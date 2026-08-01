@@ -4,14 +4,13 @@ plugins {
 
 android {
     namespace = "com.example.fridgewise"
-    compileSdk {
-        version = release(36)
-    }
+    // API 35 is the stable Android 15 SDK
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.fridgewise"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -28,8 +27,9 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        // Java 17 is required for recent Android Gradle Plugin versions
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
@@ -42,6 +42,12 @@ dependencies {
     implementation(libs.cardview)
     implementation(libs.fragment)
     implementation(libs.recyclerview)
+
+    // Room Database
+    implementation(libs.roomruntime)
+    annotationProcessor(libs.roomcompiler)
+    implementation(libs.roomcommon)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
