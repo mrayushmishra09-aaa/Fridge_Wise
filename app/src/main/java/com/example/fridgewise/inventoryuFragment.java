@@ -1,85 +1,91 @@
 package com.example.fridgewise;
 
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link inventoryuFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.io.Serializable;
+import java.util.List;
+import java.util.concurrent.Executors;
+
 public class inventoryuFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private RecyclerView recyclerView;
+    private FoodAdapter adapter;
 
     public inventoryuFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment inventoryuFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static inventoryuFragment newInstance(String param1, String param2) {
-        inventoryuFragment fragment = new inventoryuFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_inventoryu, container, false);
     }
     
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
-        FloatingActionButton fab = view.findViewById(R.id.floatingActionButton);
         
-        fab.setOnClickListener(new View.OnClickListener(){
+        // Initialize RecyclerView
+        recyclerView = view.findViewById(R.id.recycler_inventory);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        adapter = new FoodAdapter(new FoodAdapter.onItemClickListener() {
             @Override
-            public void onClick(View v){
+            public void onEditClick(FoodItem foodItem) {
+                // Example: Navigate to AddItemFragment and pass the item to edit
+                AddItemFragment fragment = new AddItemFragment();
+                Bundle args = new Bundle();
+                args.putSerializable("foodItem", (Serializable) foodItem);
+                fragment.setArguments(args);
+
                 getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainerView2, new AddItemFragment())
+                        .replace(R.id.fragmentContainerView2, fragment)
                         .addToBackStack(null)
                         .commit();
             }
+
+            @Override
+            public void onDeleteClick(FoodItem foodItem) {
+                AppDatabase db = AppDatabase.getInstance(requireContext());
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    db.foodItemDao().delete(foodItem);
+                    loadItems();
+                });
+            }
         });
-        
+        recyclerView.setAdapter(adapter);
+
+        // Fetch items from Database
+        loadItems();
+
+        FloatingActionButton fab = view.findViewById(R.id.floatingActionButton);
+        fab.setOnClickListener(v -> {
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView2, new AddItemFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+    }
+
+    private void loadItems() {
+        AppDatabase db = AppDatabase.getInstance(requireContext());
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<FoodItem> items = db.foodItemDao().getAllItems();
+            
+            if (getActivity() != null) {
+                requireActivity().runOnUiThread(() -> {
+                    adapter.setFoodList(items);
+                });
+            }
+        });
     }
 }

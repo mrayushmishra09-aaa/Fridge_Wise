@@ -2,8 +2,6 @@ package com.example.fridgewise;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,40 +13,20 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Calendar;
+import java.util.concurrent.Executors;
 
 public class AddItemFragment extends Fragment {
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private String mParam2;
-
     private ImageView img_01;
+    private FoodItem editingItem = null; // Track if we are editing
 
     public AddItemFragment() {
         // Required empty public constructor
-    }
-
-    public static AddItemFragment newInstance(String param1, String param2) {
-        AddItemFragment fragment = new AddItemFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -68,126 +46,97 @@ public class AddItemFragment extends Fragment {
         ImageView expiry_DateIcon = view.findViewById(R.id.expiry_DateIcon);
         Button saveButton = view.findViewById(R.id.save_button);
 
-        // --- SET DEFAULT DATES ---
-        Calendar c = Calendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-
-        // Set Purchase Date to Today by default
-        String today = day + "/" + (month + 1) + "/" + year;
-        purchaseDateText.setText(today);
-
-        // Ensure Expiry Date is empty initially
-        expiry_DateText.setText("");
-
-        // --- Back Arrow Setup ---
-        if (img_01 != null) {
-            img_01.setOnClickListener(v -> {
-                if (getActivity() != null) {
-                    getActivity().onBackPressed();
-                }
-            });
+        // --- Check for Edit Mode ---
+        if (getArguments() != null && getArguments().containsKey("foodItem")) {
+            editingItem = (FoodItem) getArguments().getSerializable("foodItem");
+            if (editingItem != null) {
+                // Populate fields with existing data
+                itemNameEditText.setText(editingItem.getName());
+                quantityEditText.setText(String.valueOf(editingItem.getQuantity()));
+                categoryDropdown.setText(editingItem.getCategory());
+                purchaseDateText.setText(editingItem.getPurchaseDate());
+                expiry_DateText.setText(editingItem.getExpiryDate());
+                saveButton.setText("Update Item");
+            }
         }
 
-        // --- Category Dropdown Setup ---
+        // --- Default Date if not editing ---
+        if (editingItem == null) {
+            Calendar c = Calendar.getInstance();
+            String today = c.get(Calendar.DAY_OF_MONTH) + "/" + (c.get(Calendar.MONTH) + 1) + "/" + c.get(Calendar.YEAR);
+            purchaseDateText.setText(today);
+        }
+
+        // --- Setup Dropdowns/Spinners ---
         String[] categories = getResources().getStringArray(R.array.category_array);
-        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(
-                requireContext(), 
-                android.R.layout.simple_dropdown_item_1line, 
-                categories
-        );
-        categoryDropdown.setAdapter(categoryAdapter);
+        categoryDropdown.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, categories));
         categoryDropdown.setOnClickListener(v -> categoryDropdown.showDropDown());
-        
-        // --- Quantity Units Spinner Setup ---
-        ArrayAdapter<CharSequence> unitAdapter = ArrayAdapter.createFromResource(
-                requireContext(),
-                R.array.quantity_units, 
-                android.R.layout.simple_spinner_item
-        );
+
+        ArrayAdapter<CharSequence> unitAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.quantity_units, android.R.layout.simple_spinner_item);
         unitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         quantitySpinner.setAdapter(unitAdapter);
-
-        // --- Date Picker: Purchase Date ---
-        purchaseCalendarIcon.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            int pYear = calendar.get(Calendar.YEAR);
-            int pMonth = calendar.get(Calendar.MONTH);
-            int pDay = calendar.get(Calendar.DAY_OF_MONTH);
-
-            DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
-                    (view1, yearSelected, monthOfYear, dayOfMonth) -> {
-                        String selectedDate = dayOfMonth + "/" + (monthOfYear + 1) + "/" + yearSelected;
-                        purchaseDateText.setText(selectedDate);
-                        purchaseDateText.setError(null); // Clear error when date is picked
-                    }, pYear, pMonth, pDay);
-            datePickerDialog.show();
-        });
         
-        // --- Date Picker: Expiry Date ---
-        expiry_DateIcon.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            int eYear = calendar.get(Calendar.YEAR);
-            int eMonth = calendar.get(Calendar.MONTH);
-            int eDay = calendar.get(Calendar.DAY_OF_MONTH);
-            
-            DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
-                    (view1, yearSelected, monthOfYear, dayOfMonth) -> {
-                        String selectedDate = dayOfMonth + "/" + (monthOfYear + 1) + "/" + yearSelected;
-                        expiry_DateText.setText(selectedDate);
-                        expiry_DateText.setError(null); // Clear error when date is picked
-                    }, eYear, eMonth, eDay);
-            datePickerDialog.show();
-        });
+        // Select correct unit if editing
+        if (editingItem != null) {
+            int spinnerPosition = unitAdapter.getPosition(editingItem.getUnit());
+            quantitySpinner.setSelection(spinnerPosition);
+        }
 
-        // --- Save Button & Validation Logic ---
+        // --- Date Pickers ---
+        View.OnClickListener datePickerListener = v -> {
+            boolean isPurchase = v.getId() == R.id.purchaseCalendarIcon;
+            Calendar cal = Calendar.getInstance();
+            new DatePickerDialog(requireContext(), (view1, year, month, day) -> {
+                String date = day + "/" + (month + 1) + "/" + year;
+                if (isPurchase) purchaseDateText.setText(date);
+                else expiry_DateText.setText(date);
+            }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
+        };
+        purchaseCalendarIcon.setOnClickListener(datePickerListener);
+        expiry_DateIcon.setOnClickListener(datePickerListener);
+
+        if (img_01 != null) img_01.setOnClickListener(v -> requireActivity().onBackPressed());
+
+        // --- Save / Update Logic ---
         saveButton.setOnClickListener(v -> {
             String itemName = itemNameEditText.getText().toString().trim();
-            String quantity = quantityEditText.getText().toString().trim();
+            String quantityStr = quantityEditText.getText().toString().trim();
             String category = categoryDropdown.getText().toString().trim();
+            String unit = quantitySpinner.getSelectedItem().toString();
             String purchaseDate = purchaseDateText.getText().toString().trim();
             String expiryDate = expiry_DateText.getText().toString().trim();
 
-            // Clear previous errors
-            itemNameEditText.setError(null);
-            quantityEditText.setError(null);
-            categoryDropdown.setError(null);
-            purchaseDateText.setError(null);
-            expiry_DateText.setError(null);
-
-            if (itemName.isEmpty()) {
-                itemNameEditText.setError("Item name is required");
-                itemNameEditText.requestFocus();
+            if (itemName.isEmpty() || quantityStr.isEmpty() || category.isEmpty() || expiryDate.isEmpty()) {
+                Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (category.isEmpty()) {
-                categoryDropdown.setError("Please select a category");
-                categoryDropdown.requestFocus();
-                return;
-            }
+            double quantity = Double.parseDouble(quantityStr);
 
-            if (quantity.isEmpty()) {
-                quantityEditText.setError("Quantity is required");
-                quantityEditText.requestFocus();
-                return;
-            }
+            AppDatabase database = AppDatabase.getInstance(requireContext());
+            Executors.newSingleThreadExecutor().execute(() -> {
+                if (editingItem == null) {
+                    // INSERT new item
+                    FoodItem newItem = new FoodItem(itemName, quantity, unit, category, purchaseDate, expiryDate);
+                    database.foodItemDao().insert(newItem);
+                } else {
+                    // UPDATE existing item
+                    editingItem.setName(itemName);
+                    editingItem.setQuantity(quantity);
+                    editingItem.setUnit(unit);
+                    editingItem.setCategory(category);
+                    editingItem.setPurchaseDate(purchaseDate);
+                    editingItem.setExpiryDate(expiryDate);
+                    database.foodItemDao().update(editingItem);
+                }
 
-            if (purchaseDate.isEmpty() || purchaseDate.equals("Select Date")) {
-                purchaseDateText.setError("Purchase date is required");
-                purchaseDateText.requestFocus();
-                return;
-            }
-
-            if (expiryDate.isEmpty()) {
-                expiry_DateText.setError("Expiry date is required");
-                expiry_DateText.requestFocus();
-                return;
-            }
-
-            // Success!
-            Toast.makeText(requireContext(), "Item added successfully", Toast.LENGTH_SHORT).show();
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(requireContext(), editingItem == null ? "Item added" : "Item updated", Toast.LENGTH_SHORT).show();
+                    getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainerView2, new inventoryuFragment())
+                        .commit();
+                });
+            });
         });
 
         return view;
