@@ -30,4 +30,14 @@
     <color name="dark_background">#121212</color>
     <color name="dark_surface">#1E1E1E</color>
     <color name="dark_card">#2C2C2C</color>
+
+    <!-- Medicine Dashboard Colors -->
+    <color name="purple_primary">#7C4DFF</color>
+    <color name="purple_banner_start">#A594F9</color>
+    <color name="purple_banner_end">#CDC1FF</color>
+    <color name="text_header">#0D0E10</color>
+    <color name="text_body">#6E717C</color>
+    <color name="chip_green_bg">#E8F8EF</color>
+    <color name="chip_green_text">#27AE60</color>
+    <color name="card_bg">#FFFFFF</color>
 </resources>

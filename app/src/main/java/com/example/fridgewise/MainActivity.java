@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.nav_inventory) {
                 selectedFragment = new inventoryuFragment();
             } else if (itemId == R.id.nav_memory) {
-                selectedFragment = new chefassistentFragment();
+                selectedFragment = new Memory();
             } else if (itemId == R.id.nav_alerts) {
                 selectedFragment = new alertsFragment();
             } else if (itemId == R.id.nav_pfp) {

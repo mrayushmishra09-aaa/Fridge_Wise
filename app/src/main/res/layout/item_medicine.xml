@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardBackgroundColor="@color/card_bg"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/ivMedicineIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_card_rounded"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_agenda"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvMedicineTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Vitamin C"
+            android:textColor="@color/text_header"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@+id/switchMedicine"
+            app:layout_constraintStart_toEndOf="@+id/ivMedicineIcon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvMedicineSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="1 pill · After meal"
+            android:textColor="@color/text_body"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@+id/switchMedicine"
+            app:layout_constraintStart_toStartOf="@+id/tvMedicineTitle"
+            app:layout_constraintTop_toBottomOf="@+id/tvMedicineTitle" />
+
+        <TextView
+            android:id="@+id/tvMedicineTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="08:00 AM"
+            android:textColor="@color/text_header"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/tvMedicineTitle"
+            app:layout_constraintTop_toBottomOf="@+id/tvMedicineSubtitle" />
+
+        <TextView
+            android:id="@+id/tvStatusChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/bg_chip_green"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:text="Next in 2h"
+            android:textColor="@color/chip_green_text"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tvMedicineTime"
+            app:layout_constraintStart_toEndOf="@+id/tvMedicineTime"
+            app:layout_constraintTop_toTopOf="@+id/tvMedicineTime" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchMedicine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:thumbTint="@color/purple_primary"
+            app:trackTint="@color/purple_banner_end" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

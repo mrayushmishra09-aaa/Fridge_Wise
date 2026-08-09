@@ -10,10 +10,10 @@ import android.view.ViewGroup;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link chefassistentFragment#newInstance} factory method to
+ * Use the {@link Memory#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class chefassistentFragment extends Fragment {
+public class Memory extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -24,7 +24,7 @@ public class chefassistentFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public chefassistentFragment() {
+    public Memory() {
         // Required empty public constructor
     }
 
@@ -37,8 +37,8 @@ public class chefassistentFragment extends Fragment {
      * @return A new instance of fragment chefassistentFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static chefassistentFragment newInstance(String param1, String param2) {
-        chefassistentFragment fragment = new chefassistentFragment();
+    public static Memory newInstance(String param1, String param2) {
+        Memory fragment = new Memory();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -59,6 +59,6 @@ public class chefassistentFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_chefassistent, container, false);
+        return inflater.inflate(R.layout.fragment_memory, container, false);
     }
 }
