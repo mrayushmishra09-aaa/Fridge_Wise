@@ -15,19 +15,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="32dp">
+            <!--Back button-->
+
+            <ImageView
+                android:id="@+id/backBtn_medsec"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="12dp"
+                android:padding="8dp"
+                android:src="@drawable/outline_arrow_back_24"
+                app:layout_constraintBottom_toBottomOf="@+id/tvHeaderTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tvHeaderTitle" />
 
             <!-- Header -->
+
             <TextView
                 android:id="@+id/tvHeaderTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="24dp"
                 android:fontFamily="sans-serif-black"
                 android:text="Medicine"
                 android:textColor="@color/text_header"
                 android:textSize="28sp"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@id/backBtn_medsec"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -59,6 +72,8 @@
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="24dp"
                 android:background="@drawable/bg_banner_gradient"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 app:layout_constraintTop_toBottomOf="@+id/tvHeaderSubtitle">
 
                 <TextView
@@ -66,25 +81,26 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="44dp"
+                    android:layout_marginEnd="140dp"
                     android:text="Stay on track with timely reminders and stay healthy."
                     android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@+id/ivBannerIcon"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
                     android:id="@+id/ivBannerIcon"
-                    android:layout_width="150dp"
-                    android:layout_height="140dp"
+                    android:layout_width="190dp"
+                    android:layout_height="180dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/medbannertag_img"
+                    android:translationY="10dp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintEnd_toEndOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

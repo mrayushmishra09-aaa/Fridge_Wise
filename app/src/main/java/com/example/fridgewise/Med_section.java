@@ -7,6 +7,9 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+
+import com.google.android.material.button.MaterialButton;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,6 +62,21 @@ public class Med_section extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_med_section, container, false);
+        View view = inflater.inflate(R.layout.fragment_med_section, container, false);
+
+        ImageView backBtn = view.findViewById(R.id.backBtn_medsec);
+        backBtn.setOnClickListener(v -> {
+            getParentFragmentManager().popBackStack();
+        });
+
+        MaterialButton btnAddMedicine = view.findViewById(R.id.btnAddMedicine);
+        btnAddMedicine.setOnClickListener( v->{
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView2, new Medicen_addsection())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+        return view;
     }
 }

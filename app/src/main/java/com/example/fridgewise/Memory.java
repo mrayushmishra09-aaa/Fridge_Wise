@@ -2,11 +2,14 @@ package com.example.fridgewise;
 
 import android.os.Bundle;
 
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.android.material.card.MaterialCardView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +17,8 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class Memory extends Fragment {
+
+    MaterialCardView cardTodo;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -59,6 +64,26 @@ public class Memory extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_memory, container, false);
+        View view = inflater.inflate(R.layout.fragment_memory, container, false );
+        
+        // 1. Medicine section click listener
+        CardView cardMedicine = view.findViewById(R.id.cardMedicine);
+        cardMedicine.setOnClickListener(v ->{
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView2, new Med_section())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+        // 2. Todo section click listener
+        cardTodo = view.findViewById(R.id.cardTodo);
+        cardTodo.setOnClickListener(v ->{
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView2, new TodoListFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+        return view;
     }
 }
