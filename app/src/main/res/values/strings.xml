@@ -30,6 +30,11 @@
     <string name="Memory" />
     <string name="memory">Memory</string>
     <string name="alerts">Alerts</string>
+    <string name="stay_on_top_of_what_matters">Stay on top of what matters</string>
+    <string name="add_tasks_set_reminders_and_fridgewise_will_help_you_remember">Add tasks, set reminders and FridgeWise will help you remember.</string>
+    <string name="today">Today</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
 
     <!-- category section -->
     <string-array name="category_array">
