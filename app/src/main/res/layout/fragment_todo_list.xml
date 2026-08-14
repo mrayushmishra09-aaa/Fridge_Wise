@@ -122,9 +122,9 @@
 
                     <ImageView
                         android:id="@+id/ivBanner"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:src="@drawable/img_todo_banner"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:src="@drawable/to_do_banner_icon"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
