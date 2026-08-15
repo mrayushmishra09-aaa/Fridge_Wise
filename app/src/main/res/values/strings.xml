@@ -35,6 +35,7 @@
     <string name="today">Today</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
+    <string name="add_medicine">Add Medicine</string>
 
     <!-- category section -->
     <string-array name="category_array">

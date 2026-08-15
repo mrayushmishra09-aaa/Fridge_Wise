@@ -5,11 +5,13 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {FoodItem.class, TodoItem.class}, version = 2, exportSchema = false)
+@Database(entities = {FoodItem.class, TodoItem.class, MedicineEntity.class}, version = 3, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract FoodItemDao foodItemDao();
     public abstract TodoDao todoDao();
+
+    public abstract MedicineDao medicineDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -26,4 +28,8 @@ public abstract class AppDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
+
+
+
+
 }

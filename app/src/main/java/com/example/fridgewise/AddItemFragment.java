@@ -1,6 +1,8 @@
 package com.example.fridgewise;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -113,7 +115,9 @@ public class AddItemFragment extends Fragment {
 
             double quantity = Double.parseDouble(quantityStr);
 
-            AppDatabase database = AppDatabase.getInstance(requireContext());
+            Context context = getContext();
+            if (context == null) return;
+            AppDatabase database = AppDatabase.getInstance(context);
             Executors.newSingleThreadExecutor().execute(() -> {
                 if (editingItem == null) {
                     // INSERT new item
@@ -130,12 +134,13 @@ public class AddItemFragment extends Fragment {
                     database.foodItemDao().update(editingItem);
                 }
 
-                requireActivity().runOnUiThread(() -> {
-                    Toast.makeText(requireContext(), editingItem == null ? "Item added" : "Item updated", Toast.LENGTH_SHORT).show();
-                    getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainerView2, new inventoryuFragment())
-                        .commit();
-                });
+                Activity activity = getActivity();
+                if (activity != null) {
+                    activity.runOnUiThread(() -> {
+                        Toast.makeText(context, editingItem == null ? "Item added" : "Item updated", Toast.LENGTH_SHORT).show();
+                        getParentFragmentManager().popBackStack();
+                    });
+                }
             });
         });
 

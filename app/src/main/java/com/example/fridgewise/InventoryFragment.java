@@ -1,5 +1,7 @@
 package com.example.fridgewise;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,12 +17,12 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-public class inventoryuFragment extends Fragment {
+public class InventoryFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private FoodAdapter adapter;
 
-    public inventoryuFragment() {
+    public InventoryFragment() {
         // Required empty public constructor
     }
 
@@ -55,11 +57,7 @@ public class inventoryuFragment extends Fragment {
 
             @Override
             public void onDeleteClick(FoodItem foodItem) {
-                AppDatabase db = AppDatabase.getInstance(requireContext());
-                Executors.newSingleThreadExecutor().execute(() -> {
-                    db.foodItemDao().delete(foodItem);
-                    loadItems();
-                });
+                deleteItem(foodItem);
             }
         });
         recyclerView.setAdapter(adapter);
@@ -77,15 +75,28 @@ public class inventoryuFragment extends Fragment {
     }
 
     private void loadItems() {
-        AppDatabase db = AppDatabase.getInstance(requireContext());
+        Context context = getContext();
+        if (context == null) return;
+        AppDatabase db = AppDatabase.getInstance(context);
         Executors.newSingleThreadExecutor().execute(() -> {
             List<FoodItem> items = db.foodItemDao().getAllItems();
             
-            if (getActivity() != null) {
-                requireActivity().runOnUiThread(() -> {
+            Activity activity = getActivity();
+            if (activity != null) {
+                activity.runOnUiThread(() -> {
                     adapter.setFoodList(items);
                 });
             }
+        });
+    }
+
+    private void deleteItem(FoodItem foodItem) {
+        Context context = getContext();
+        if (context == null) return;
+        AppDatabase db = AppDatabase.getInstance(context);
+        Executors.newSingleThreadExecutor().execute(() -> {
+            db.foodItemDao().delete(foodItem);
+            loadItems();
         });
     }
 }

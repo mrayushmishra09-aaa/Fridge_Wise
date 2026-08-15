@@ -1,5 +1,6 @@
 package com.example.fridgewise;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -8,8 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,6 +30,8 @@ public class Med_section extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private MedicineAdapter adaptor;
+    private List<MedicineEntity> medicineList = new ArrayList<>();
 
     public Med_section() {
         // Required empty public constructor
@@ -72,11 +78,44 @@ public class Med_section extends Fragment {
         MaterialButton btnAddMedicine = view.findViewById(R.id.btnAddMedicine);
         btnAddMedicine.setOnClickListener( v->{
             getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainerView2, new Medicen_addsection())
+                    .replace(R.id.fragmentContainerView2, new MedicineAddFragment())
                     .addToBackStack(null)
                     .commit();
         });
 
+        RecyclerView rvMedicine = view.findViewById(R.id.rvMedicine);
+        rvMedicine.setLayoutManager(new LinearLayoutManager(requireContext()));
+        adaptor = new MedicineAdapter(medicineList, (medicine, isChecked) -> {
+            medicine.setReminderOn(isChecked);
+            updateMedicine(medicine);
+        });
+        rvMedicine.setAdapter(adaptor);
+
+        loadMedicines();
+
         return view;
+    }
+
+    private void updateMedicine(MedicineEntity medicine) {
+        Context context = getContext();
+        if (context == null) return;
+        new Thread(() -> {
+            AppDatabase.getInstance(context).medicineDao().update(medicine);
+        }).start();
+    }
+
+    private void loadMedicines() {
+        Context context = getContext();
+        if (context == null) return;
+        new Thread(() -> {
+            List<MedicineEntity> list = AppDatabase.getInstance(context).medicineDao().getAllMedicines();
+            if (isAdded()) {
+                getActivity().runOnUiThread(() -> {
+                    medicineList.clear();
+                    medicineList.addAll(list);
+                    adaptor.notifyDataSetChanged();
+                });
+            }
+        }).start();
     }
 }

@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FridgeWise">
         <activity
-            android:name=".Inventoryactivity"
+            android:name=".InventoryActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity2"

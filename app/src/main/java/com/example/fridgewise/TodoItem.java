@@ -2,12 +2,13 @@ package com.example.fridgewise;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import java.io.Serializable;
 
 /**
  * Entity class representing a To-Do item in the Room database.
  */
 @Entity(tableName = "todo_items")
-public class TodoItem {
+public class TodoItem implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     private int id;

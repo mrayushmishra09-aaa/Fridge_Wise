@@ -1,10 +1,14 @@
 package com.example.fridgewise;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -32,6 +36,7 @@ public class TodoListFragment extends Fragment {
     private List<TodoItem> allTasks = new ArrayList<>();
     private String currentTab = "Today";
     private TextView tvToday, tvUpcoming, tvCompleted, tvProgressStatus, tvBannerTitle, tvBannerSubtitle;
+    private View tabIndicator;
     private LinearProgressIndicator progressIndicator;
 
     @Nullable
@@ -51,6 +56,7 @@ public class TodoListFragment extends Fragment {
         tvProgressStatus = view.findViewById(R.id.tvProgressStatus);
         tvBannerTitle = view.findViewById(R.id.tvBannerTitle);
         tvBannerSubtitle = view.findViewById(R.id.tvBannerSubtitle);
+        tabIndicator = view.findViewById(R.id.tabIndicator);
 
         setupTabs();
 
@@ -153,6 +159,9 @@ public class TodoListFragment extends Fragment {
     }
 
     private void setupTabs() {
+        // Initial indicator position
+        tvToday.post(() -> moveIndicator(tvToday));
+
         View.OnClickListener tabListener = v -> {
             tvToday.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_gray));
             tvUpcoming.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_gray));
@@ -165,6 +174,8 @@ public class TodoListFragment extends Fragment {
             selectedTab.setTextColor(ContextCompat.getColor(requireContext(), R.color.purple_primary));
             selectedTab.setTypeface(null, android.graphics.Typeface.BOLD);
             
+            moveIndicator(selectedTab);
+
             currentTab = selectedTab.getText().toString();
             filterAndDisplayTasks();
         };
@@ -172,6 +183,17 @@ public class TodoListFragment extends Fragment {
         tvToday.setOnClickListener(tabListener);
         tvUpcoming.setOnClickListener(tabListener);
         tvCompleted.setOnClickListener(tabListener);
+    }
+
+    private void moveIndicator(View targetView) {
+        if (tabIndicator == null) return;
+        
+        float targetX = targetView.getX() + (targetView.getWidth() - tabIndicator.getWidth()) / 2f;
+        tabIndicator.animate()
+                .x(targetX)
+                .setDuration(300)
+                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .start();
     }
 
     private void filterAndDisplayTasks() {
@@ -206,10 +228,13 @@ public class TodoListFragment extends Fragment {
     }
 
     private void loadTasks() {
+        Context context = getContext();
+        if (context == null) return;
         new Thread(() -> {
-            List<TodoItem> tasks = AppDatabase.getInstance(requireContext()).todoDao().getAllTodos();
-            if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
+            List<TodoItem> tasks = AppDatabase.getInstance(context).todoDao().getAllTodos();
+            Activity activity = getActivity();
+            if (activity != null) {
+                activity.runOnUiThread(() -> {
                     allTasks.clear();
                     allTasks.addAll(tasks);
                     filterAndDisplayTasks();
@@ -220,10 +245,13 @@ public class TodoListFragment extends Fragment {
     }
 
     private void deleteTask(TodoItem item) {
+        Context context = getContext();
+        if (context == null) return;
         new Thread(() -> {
-            AppDatabase.getInstance(requireContext()).todoDao().delete(item);
-            if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
+            AppDatabase.getInstance(context).todoDao().delete(item);
+            Activity activity = getActivity();
+            if (activity != null) {
+                activity.runOnUiThread(() -> {
                     allTasks.remove(item);
                     filterAndDisplayTasks();
                 });
@@ -232,8 +260,10 @@ public class TodoListFragment extends Fragment {
     }
 
     private void updateTaskStatus(TodoItem item) {
+        Context context = getContext();
+        if (context == null) return;
         new Thread(() -> {
-            AppDatabase.getInstance(requireContext()).todoDao().update(item);
+            AppDatabase.getInstance(context).todoDao().update(item);
         }).start();
     }
 }

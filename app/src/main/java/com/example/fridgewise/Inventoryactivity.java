@@ -17,7 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class Inventoryactivity extends AppCompatActivity {
+public class InventoryActivity extends AppCompatActivity {
 
     private boolean isExiting = false;
 

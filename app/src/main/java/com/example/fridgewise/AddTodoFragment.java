@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import android.widget.Toast;
@@ -18,8 +18,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
-
-import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.Calendar;
 import java.util.Objects;
@@ -49,7 +47,7 @@ public class AddTodoFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_add_todo, container, false);
 
         // Initialize UI components
-        ImageButton btnBack = view.findViewById(R.id.btnBack);
+        ImageView btnBack = view.findViewById(R.id.btnBack);
         Button btnSave = view.findViewById(R.id.btnSave);
         EditText etTitle = view.findViewById(R.id.etTaskTitle);
         TextView tvDate = view.findViewById(R.id.tvDate);
@@ -106,7 +104,7 @@ public class AddTodoFragment extends Fragment {
             }
 
             EditText etNote = view.findViewById(R.id.etNote);
-            SwitchMaterial switchReminder = view.findViewById(R.id.switchReminder);
+            SwitchCompat switchReminder = view.findViewById(R.id.switchReminder);
 
             String note = etNote != null ? etNote.getText().toString().trim() : "";
             boolean isReminderSet = switchReminder != null && switchReminder.isChecked();
