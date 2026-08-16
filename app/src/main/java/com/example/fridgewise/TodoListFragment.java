@@ -35,7 +35,7 @@ public class TodoListFragment extends Fragment {
     private TodoAdapter adapter;
     private List<TodoItem> allTasks = new ArrayList<>();
     private String currentTab = "Today";
-    private TextView tvToday, tvUpcoming, tvCompleted, tvProgressStatus, tvBannerTitle, tvBannerSubtitle;
+    private TextView tvToday, tvUpcoming, tvCompleted, tvProgressStatus, tvBannerTitle, tvBannerSubtitle, tvTaskShowingNum;
     private View tabIndicator;
     private LinearProgressIndicator progressIndicator;
 
@@ -56,6 +56,7 @@ public class TodoListFragment extends Fragment {
         tvProgressStatus = view.findViewById(R.id.tvProgressStatus);
         tvBannerTitle = view.findViewById(R.id.tvBannerTitle);
         tvBannerSubtitle = view.findViewById(R.id.tvBannerSubtitle);
+        tvTaskShowingNum = view.findViewById(R.id.taskshowing_num);
         tabIndicator = view.findViewById(R.id.tabIndicator);
 
         setupTabs();
@@ -65,8 +66,15 @@ public class TodoListFragment extends Fragment {
         adapter.setOnTodoItemClickListener(new TodoAdapter.OnTodoItemClickListener() {
             @Override
             public void onEditClick(TodoItem item) {
-                // For now, let's just log or show a toast. 
-                // In a real app, you'd navigate to EditFragment.
+                AddTodoFragment editFragment = new AddTodoFragment();
+                Bundle args = new Bundle();
+                args.putSerializable(AddTodoFragment.ARG_TODO_ITEM, item);
+                editFragment.setArguments(args);
+
+                getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView2, editFragment)
+                    .addToBackStack(null)
+                    .commit();
             }
 
             @Override
@@ -210,6 +218,12 @@ public class TodoListFragment extends Fragment {
             }
         }
         adapter.updateList(filteredList);
+
+        if (tvTaskShowingNum != null) {
+            int count = filteredList.size();
+            String text = count + (count == 1 ? " task" : " tasks");
+            tvTaskShowingNum.setText(text);
+        }
     }
 
     private String getFormattedTodayDate() {

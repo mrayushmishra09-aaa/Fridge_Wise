@@ -28,9 +28,12 @@ import java.util.Objects;
  */
 public class AddTodoFragment extends Fragment {
 
+    public static final String ARG_TODO_ITEM = "todo_item";
+
     private String selectedPriority = "Medium";
     private String selectedDate = "";
     private String selectedTime = "";
+    private TodoItem existingTask;
 
     /**
      * Called to have the fragment instantiate its user interface view.
@@ -46,54 +49,48 @@ public class AddTodoFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_add_todo, container, false);
 
+        if (getArguments() != null) {
+            existingTask = (TodoItem) getArguments().getSerializable(ARG_TODO_ITEM);
+        }
+
         // Initialize UI components
         ImageView btnBack = view.findViewById(R.id.btnBack);
         Button btnSave = view.findViewById(R.id.btnSave);
         EditText etTitle = view.findViewById(R.id.etTaskTitle);
         TextView tvDate = view.findViewById(R.id.tvDate);
+        TextView tvHeaderTitle = view.findViewById(R.id.tvHeaderTitle);
 
         TextView btnPriorityHigh = view.findViewById(R.id.btnPriorityHigh);
         TextView btnPriorityMedium = view.findViewById(R.id.btnPriorityMedium);
         TextView btnPriorityLow = view.findViewById(R.id.btnPriorityLow);
 
-        // Handle back button click
-        btnBack.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+        EditText etNote = view.findViewById(R.id.etNote);
+        SwitchCompat switchReminder = view.findViewById(R.id.switchReminder);
+        TextView tvTime = view.findViewById(R.id.tvTime);
 
-        // Handle Date Selection
-        tvDate.setOnClickListener(v -> {
-            final Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
+        // Pre-fill fields if editing
+        if (existingTask != null) {
+            tvHeaderTitle.setText("Edit To-Do");
+            btnSave.setText("Update To-Do");
+            etTitle.setText(existingTask.getTitle());
+            selectedDate = existingTask.getDate();
+            tvDate.setText(selectedDate);
+            tvDate.setTextColor(getResources().getColor(R.color.text_dark));
+            selectedTime = existingTask.getTime();
+            tvTime.setText(selectedTime);
+            tvTime.setTextColor(getResources().getColor(R.color.text_dark));
+            selectedPriority = existingTask.getPriority();
+            etNote.setText(existingTask.getNote());
+            switchReminder.setChecked(existingTask.isReminderSet());
 
-            DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
-                    (view1, year1, month1, dayOfMonth1) -> {
-                        selectedDate = dayOfMonth1 + "/" + (month1 + 1) + "/" + year1;
-                        tvDate.setText(selectedDate);
-                        tvDate.setTextColor(getResources().getColor(R.color.text_dark));
-                    }, year, month, day);
-            datePickerDialog.show();
-        });
-
-        // Handle Priority Selection
-        View.OnClickListener priorityClickListener = v -> {
-            btnPriorityHigh.setSelected(false);
-            btnPriorityMedium.setSelected(false);
-            btnPriorityLow.setSelected(false);
-
-            v.setSelected(true);
-
-            if (v.getId() == R.id.btnPriorityHigh) selectedPriority = "High";
-            else if (v.getId() == R.id.btnPriorityMedium) selectedPriority = "Medium";
-            else if (v.getId() == R.id.btnPriorityLow) selectedPriority = "Low";
-        };
-
-        btnPriorityHigh.setOnClickListener(priorityClickListener);
-        btnPriorityMedium.setOnClickListener(priorityClickListener);
-        btnPriorityLow.setOnClickListener(priorityClickListener);
-
-        // Set default priority selection
-        btnPriorityMedium.setSelected(true);
+            // Update priority selection UI
+            btnPriorityHigh.setSelected("High".equalsIgnoreCase(selectedPriority));
+            btnPriorityMedium.setSelected("Medium".equalsIgnoreCase(selectedPriority));
+            btnPriorityLow.setSelected("Low".equalsIgnoreCase(selectedPriority));
+        } else {
+            // Set default priority selection for new task
+            btnPriorityMedium.setSelected(true);
+        }
 
         // Handle Save button click
         btnSave.setOnClickListener(v -> {
@@ -103,26 +100,57 @@ public class AddTodoFragment extends Fragment {
                 return;
             }
 
-            EditText etNote = view.findViewById(R.id.etNote);
-            SwitchCompat switchReminder = view.findViewById(R.id.switchReminder);
-
             String note = etNote != null ? etNote.getText().toString().trim() : "";
             boolean isReminderSet = switchReminder != null && switchReminder.isChecked();
 
-            TodoItem newTask = new TodoItem(title, selectedDate, selectedTime, selectedPriority, note, isReminderSet, false);
+            if (existingTask != null) {
+                // Update existing task
+                existingTask.setTitle(title);
+                existingTask.setDate(selectedDate);
+                existingTask.setTime(selectedTime);
+                existingTask.setPriority(selectedPriority);
+                existingTask.setNote(note);
+                existingTask.setReminderSet(isReminderSet);
 
-            // Save to Database in background
-            new Thread(() -> {
-                AppDatabase.getInstance(requireContext()).todoDao().insert(newTask);
-                requireActivity().runOnUiThread(() -> {
-                    Toast.makeText(requireContext(), "Task added successfully!", Toast.LENGTH_SHORT).show();
-                    requireActivity().getSupportFragmentManager().popBackStack();
-                });
-            }).start();
+                new Thread(() -> {
+                    AppDatabase.getInstance(requireContext()).todoDao().update(existingTask);
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "Task updated successfully!", Toast.LENGTH_SHORT).show();
+                        requireActivity().getSupportFragmentManager().popBackStack();
+                    });
+                }).start();
+            } else {
+                // Save new task
+                TodoItem newTask = new TodoItem(title, selectedDate, selectedTime, selectedPriority, note, isReminderSet, false);
+                new Thread(() -> {
+                    AppDatabase.getInstance(requireContext()).todoDao().insert(newTask);
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "Task added successfully!", Toast.LENGTH_SHORT).show();
+                        requireActivity().getSupportFragmentManager().popBackStack();
+                    });
+                }).start();
+            }
+        });
+
+        // Handle Back Button
+        btnBack.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+
+        // Handle Date Selection
+        tvDate.setOnClickListener(v -> {
+            final Calendar c = Calendar.getInstance();
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), (view1, year1, monthOfYear, dayOfMonth) -> {
+                selectedDate = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1;
+                tvDate.setText(selectedDate);
+                tvDate.setTextColor(getResources().getColor(R.color.text_dark));
+            }, year, month, day);
+            datePickerDialog.show();
         });
 
         // Handle Time Selection
-        TextView tvTime = view.findViewById(R.id.tvTime);
         if (tvTime != null) {
             tvTime.setOnClickListener(v -> {
                 final Calendar c = Calendar.getInstance();
@@ -137,6 +165,29 @@ public class AddTodoFragment extends Fragment {
                 timePickerDialog.show();
             });
         }
+
+        // Handle Priority Selection
+        View.OnClickListener priorityListener = v -> {
+            // Deselect all
+            btnPriorityHigh.setSelected(false);
+            btnPriorityMedium.setSelected(false);
+            btnPriorityLow.setSelected(false);
+
+            // Select the clicked one
+            v.setSelected(true);
+
+            if (v.getId() == R.id.btnPriorityHigh) {
+                selectedPriority = "High";
+            } else if (v.getId() == R.id.btnPriorityMedium) {
+                selectedPriority = "Medium";
+            } else if (v.getId() == R.id.btnPriorityLow) {
+                selectedPriority = "Low";
+            }
+        };
+
+        btnPriorityHigh.setOnClickListener(priorityListener);
+        btnPriorityMedium.setOnClickListener(priorityListener);
+        btnPriorityLow.setOnClickListener(priorityListener);
 
         return view;
     }

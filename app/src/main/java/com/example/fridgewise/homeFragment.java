@@ -7,6 +7,8 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,6 +61,49 @@ public class homeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        setupDashboard(view);
+        setupNavigation(view);
+
+        return view;
+    }
+
+    private void setupDashboard(View view) {
+        TextView tvTotalItems = view.findViewById(R.id.total_items_numtext);
+        TextView tvExpiringSoon = view.findViewById(R.id.expiring_soon_numview);
+        TextView tvExpiredItems = view.findViewById(R.id.rotten_items_numview);
+
+        new Thread(() -> {
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            List<FoodItem> allItems = db.foodItemDao().getAllItems();
+
+            int total = allItems.size();
+
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    tvTotalItems.setText(String.valueOf(total));
+                    // Placeholders for now
+                    tvExpiringSoon.setText("0");
+                    tvExpiredItems.setText("0");
+                });
+            }
+        }).start();
+    }
+
+    private void setupNavigation(View view) {
+        view.findViewById(R.id.qa_ca01).setOnClickListener(v -> {
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView2, new AddItemFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+        view.findViewById(R.id.qa_cv04).setOnClickListener(v -> {
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView2, new alertsFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
     }
 }

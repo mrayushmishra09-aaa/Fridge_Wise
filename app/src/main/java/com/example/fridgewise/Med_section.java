@@ -3,17 +3,24 @@ package com.example.fridgewise;
 import android.content.Context;
 import android.os.Bundle;
 
+import android.widget.Toast;
+
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.button.MaterialButton;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,6 +39,8 @@ public class Med_section extends Fragment {
     private String mParam2;
     private MedicineAdapter adaptor;
     private List<MedicineEntity> medicineList = new ArrayList<>();
+    private TextView tvProgressDoses;
+    private LinearProgressIndicator progressDoses;
 
     public Med_section() {
         // Required empty public constructor
@@ -75,7 +84,7 @@ public class Med_section extends Fragment {
             getParentFragmentManager().popBackStack();
         });
 
-        MaterialButton btnAddMedicine = view.findViewById(R.id.btnAddMedicine);
+        View btnAddMedicine = view.findViewById(R.id.btnAddMedicine);
         btnAddMedicine.setOnClickListener( v->{
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainerView2, new MedicineAddFragment())
@@ -83,17 +92,81 @@ public class Med_section extends Fragment {
                     .commit();
         });
 
+        View btnInfo = view.findViewById(R.id.btnInfo_med);
+        btnInfo.setOnClickListener(v -> {
+            AboutMedicineBottomSheet bottomSheet = new AboutMedicineBottomSheet();
+            bottomSheet.show(getChildFragmentManager(), "AboutMedicineBottomSheet");
+        });
+
         RecyclerView rvMedicine = view.findViewById(R.id.rvMedicine);
         rvMedicine.setLayoutManager(new LinearLayoutManager(requireContext()));
-        adaptor = new MedicineAdapter(medicineList, (medicine, isChecked) -> {
-            medicine.setReminderOn(isChecked);
-            updateMedicine(medicine);
+        adaptor = new MedicineAdapter(medicineList, new MedicineAdapter.OnMedicineClickListener() {
+            @Override
+            public void onReminderToggle(MedicineEntity medicine, boolean isChecked) {
+                medicine.setReminderOn(isChecked);
+                updateMedicine(medicine);
+            }
+
+            @Override
+            public void onTakeDose(MedicineEntity medicine) {
+                logDose(medicine);
+            }
+
+            @Override
+            public void onEditClick(MedicineEntity medicine) {
+                MedicineAddFragment editFragment = new MedicineAddFragment();
+                Bundle args = new Bundle();
+                args.putSerializable(MedicineAddFragment.ARG_MEDICINE, medicine);
+                editFragment.setArguments(args);
+
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainerView2, editFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+
+            @Override
+            public void onDeleteClick(MedicineEntity medicine) {
+                deleteMedicine(medicine);
+            }
         });
         rvMedicine.setAdapter(adaptor);
+
+        tvProgressDoses = view.findViewById(R.id.tvProgressDoses);
+        progressDoses = view.findViewById(R.id.progressDoses);
 
         loadMedicines();
 
         return view;
+    }
+
+    private void logDose(MedicineEntity medicine) {
+        Context context = getContext();
+        if (context == null) return;
+
+        String today = new SimpleDateFormat("d/M/yyyy", Locale.getDefault()).format(new Date());
+        medicine.setLastTakenDate(today);
+
+        // Update inventory
+        try {
+            double currentQty = Double.parseDouble(medicine.getQuantity());
+            double dosage = Double.parseDouble(medicine.getDosage());
+            if (currentQty >= dosage) {
+                medicine.setQuantity(String.valueOf(currentQty - dosage));
+            }
+        } catch (Exception e) {
+            // If parsing fails, we just don't update quantity
+        }
+
+        new Thread(() -> {
+            AppDatabase.getInstance(context).medicineDao().update(medicine);
+            if (isAdded()) {
+                getActivity().runOnUiThread(() -> {
+                    Toast.makeText(context, "Dose logged for " + medicine.getMedicineName(), Toast.LENGTH_SHORT).show();
+                    loadMedicines(); // Refresh UI
+                });
+            }
+        }).start();
     }
 
     private void updateMedicine(MedicineEntity medicine) {
@@ -101,6 +174,20 @@ public class Med_section extends Fragment {
         if (context == null) return;
         new Thread(() -> {
             AppDatabase.getInstance(context).medicineDao().update(medicine);
+        }).start();
+    }
+
+    private void deleteMedicine(MedicineEntity medicine) {
+        Context context = getContext();
+        if (context == null) return;
+        new Thread(() -> {
+            AppDatabase.getInstance(context).medicineDao().delete(medicine);
+            if (isAdded()) {
+                getActivity().runOnUiThread(() -> {
+                    Toast.makeText(context, "Medicine deleted", Toast.LENGTH_SHORT).show();
+                    loadMedicines();
+                });
+            }
         }).start();
     }
 
@@ -114,8 +201,31 @@ public class Med_section extends Fragment {
                     medicineList.clear();
                     medicineList.addAll(list);
                     adaptor.notifyDataSetChanged();
+                    updateProgress();
                 });
             }
         }).start();
+    }
+
+    private void updateProgress() {
+        if (medicineList == null || tvProgressDoses == null || progressDoses == null) return;
+
+        int totalDoses = medicineList.size();
+        int takenDoses = 0;
+        String today = new SimpleDateFormat("d/M/yyyy", Locale.getDefault()).format(new Date());
+
+        for (MedicineEntity medicine : medicineList) {
+            if (today.equals(medicine.getLastTakenDate())) {
+                takenDoses++;
+            }
+        }
+
+        tvProgressDoses.setText(takenDoses + " of " + totalDoses + " doses taken");
+        if (totalDoses > 0) {
+            int progress = (int) ((takenDoses / (float) totalDoses) * 100);
+            progressDoses.setProgress(progress, true);
+        } else {
+            progressDoses.setProgress(0, true);
+        }
     }
 }

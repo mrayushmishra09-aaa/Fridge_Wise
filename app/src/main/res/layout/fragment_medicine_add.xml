@@ -28,6 +28,7 @@
                 android:src="@drawable/outline_arrow_back_24" />
 
             <TextView
+                android:id="@+id/tvHeaderTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
@@ -35,6 +36,15 @@
                 android:textColor="@color/text_dark"
                 android:textSize="20sp"
                 android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/btnInfo"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_info"
+                app:tint="@color/text_dark" />
         </RelativeLayout>
 
         <!-- Main Content Card -->

@@ -18,6 +18,7 @@ public class MedicineEntity implements Serializable {
     private String startTime;
     private boolean reminderOn;
     private int iconResId;
+    private String lastTakenDate;
 
     public MedicineEntity() {}
 
@@ -93,6 +94,14 @@ public class MedicineEntity implements Serializable {
     }
     public void setIconResId(int iconResId) {
         this.iconResId = iconResId;
+    }
+
+    public String getLastTakenDate() {
+        return lastTakenDate;
+    }
+
+    public void setLastTakenDate(String lastTakenDate) {
+        this.lastTakenDate = lastTakenDate;
     }
 
 }

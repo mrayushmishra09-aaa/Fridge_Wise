@@ -160,9 +160,10 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvMedicineCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="4 reminders"
+                            android:text="0 reminders"
                             android:textColor="@color/text_gray"
                             android:textSize="13sp" />
                     </LinearLayout>
@@ -220,9 +221,10 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvTodoCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="3 tasks"
+                            android:text="0 tasks"
                             android:textColor="@color/text_gray"
                             android:textSize="13sp" />
                     </LinearLayout>

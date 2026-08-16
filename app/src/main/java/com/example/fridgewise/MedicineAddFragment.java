@@ -27,6 +27,7 @@ import java.util.Calendar;
  */
 public class MedicineAddFragment extends Fragment {
 
+    public static final String ARG_MEDICINE = "medicine_item";
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
@@ -38,6 +39,7 @@ public class MedicineAddFragment extends Fragment {
     private TextView startDateText, timeText;
     private SwitchCompat reminderSwitch;
     private int selectedIconResId = R.drawable.medsec_image_09;
+    private MedicineEntity existingMedicine;
 
     public MedicineAddFragment() {
         // Required empty public constructor
@@ -75,9 +77,19 @@ public class MedicineAddFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_medicine_add, container, false);
 
+        if (getArguments() != null) {
+            existingMedicine = (MedicineEntity) getArguments().getSerializable(ARG_MEDICINE);
+        }
+
         ImageView backbtn = view.findViewById(R.id.backBtn);
         backbtn.setOnClickListener(v->{
             getParentFragmentManager().popBackStack();
+        });
+
+        ImageView btnInfo = view.findViewById(R.id.btnInfo);
+        btnInfo.setOnClickListener(v -> {
+            AboutAddMedicineBottomSheet bottomSheet = new AboutAddMedicineBottomSheet();
+            bottomSheet.show(getChildFragmentManager(), "AboutAddMedicineBottomSheet");
         });
 
         // 1. UI Components
@@ -90,6 +102,8 @@ public class MedicineAddFragment extends Fragment {
         startDateText = view.findViewById(R.id.startDateText);
         timeText = view.findViewById(R.id.timeText);
         reminderSwitch = view.findViewById(R.id.reminderSwitch);
+        TextView tvHeaderTitle = view.findViewById(R.id.tvHeaderTitle);
+        TextView saveBtn = view.findViewById(R.id.saveBtn);
 
         // 2. Medicine Type Dropdown
         String[] medicineTypes = {"Tablet", "Capsule", "Syrup", "Liquid", "Injection", "Ointment", "Drops", "Inhaler", "Other"};
@@ -154,6 +168,26 @@ public class MedicineAddFragment extends Fragment {
         ArrayAdapter<String> freqAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, frequencies);
         frequencySpinner.setAdapter(freqAdapter);
 
+        // Pre-fill if editing
+        if (existingMedicine != null) {
+            tvHeaderTitle.setText("Edit Medicine");
+            saveBtn.setText("Update Medicine");
+            medicineNameInput.setText(existingMedicine.getMedicineName());
+            typeSpinner.setText(existingMedicine.getMedicineType(), false);
+            quantityInput.setText(existingMedicine.getQuantity());
+            unitSpinner.setText(existingMedicine.getUnit(), false);
+            dosageSpinner.setText(existingMedicine.getDosage(), false);
+            frequencySpinner.setText(existingMedicine.getFrequency(), false);
+            startDateText.setText(existingMedicine.getStartDate());
+            timeText.setText(existingMedicine.getStartTime());
+            reminderSwitch.setChecked(existingMedicine.isReminderOn());
+            selectedIconResId = existingMedicine.getIconResId();
+            
+            ImageView medIcon = view.findViewById(R.id.medThumbnail);
+            medIcon.setImageResource(selectedIconResId);
+            medIcon.setImageTintList(null);
+        }
+
         // 5. Date and Time Pickers
         view.findViewById(R.id.startDateBtn).setOnClickListener(v -> showDatePicker(view));
         view.findViewById(R.id.timePickerBtn).setOnClickListener(v -> showTimePicker(view));
@@ -192,7 +226,7 @@ public class MedicineAddFragment extends Fragment {
             return;
         }
 
-        MedicineEntity med = new MedicineEntity();
+        MedicineEntity med = (existingMedicine != null) ? existingMedicine : new MedicineEntity();
         med.setMedicineName(name);
         med.setMedicineType(typeSpinner.getText().toString());
         med.setQuantity(quantityInput.getText().toString());
@@ -207,12 +241,17 @@ public class MedicineAddFragment extends Fragment {
         Context context = getContext();
         if (context == null) return;
         new Thread(() -> {
-            AppDatabase.getInstance(context).medicineDao().insert(med);
+            if (existingMedicine != null) {
+                AppDatabase.getInstance(context).medicineDao().update(med);
+            } else {
+                AppDatabase.getInstance(context).medicineDao().insert(med);
+            }
+            
             if (isAdded()) {
                 Activity activity = getActivity();
                 if (activity != null) {
                     activity.runOnUiThread(() -> {
-                        Toast.makeText(context, "Medicine Saved!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, existingMedicine != null ? "Medicine Updated!" : "Medicine Saved!", Toast.LENGTH_SHORT).show();
                         getParentFragmentManager().popBackStack();
                     });
                 }

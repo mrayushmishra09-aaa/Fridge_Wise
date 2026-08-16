@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.android.material.card.MaterialCardView;
 
@@ -84,6 +85,26 @@ public class Memory extends Fragment {
                     .commit();
         });
 
+        updateCounts(view);
+
         return view;
+    }
+
+    private void updateCounts(View view) {
+        TextView tvMedicineCount = view.findViewById(R.id.tvMedicineCount);
+        TextView tvTodoCount = view.findViewById(R.id.tvTodoCount);
+
+        new Thread(() -> {
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            int medCount = db.medicineDao().getAllMedicines().size();
+            int todoCount = db.todoDao().getAllTodos().size();
+
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    tvMedicineCount.setText(medCount + (medCount == 1 ? " reminder" : " reminders"));
+                    tvTodoCount.setText(todoCount + (todoCount == 1 ? " task" : " tasks"));
+                });
+            }
+        }).start();
     }
 }
