@@ -11,20 +11,19 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.textfield.TextInputEditText;
-
 import java.util.Calendar;
 import java.util.concurrent.Executors;
 
 public class AddItemFragment extends Fragment {
 
-    private ImageView img_01;
+    private ImageView img_01, add_item_photo, btnInfo;
     private FoodItem editingItem = null; // Track if we are editing
 
     public AddItemFragment() {
@@ -38,14 +37,17 @@ public class AddItemFragment extends Fragment {
 
         // --- View Initializations ---
         img_01 = view.findViewById(R.id.back_arrow);
-        TextInputEditText itemNameEditText = view.findViewById(R.id.itemNameEditText);
-        TextInputEditText quantityEditText = view.findViewById(R.id.quantityEditText);
+        add_item_photo = view.findViewById(R.id.add_item_photo);
+        btnInfo = view.findViewById(R.id.btnInfo);
+        EditText itemNameEditText = view.findViewById(R.id.itemNameEditText);
+        EditText quantityEditText = view.findViewById(R.id.quantityEditText);
+        EditText notesEditText = view.findViewById(R.id.notesEditText);
         AutoCompleteTextView categoryDropdown = view.findViewById(R.id.categoryDropdown);
         Spinner quantitySpinner = view.findViewById(R.id.spinner_units);
         TextView purchaseDateText = view.findViewById(R.id.purchaseDateText);
-        ImageView purchaseCalendarIcon = view.findViewById(R.id.purchaseCalendarIcon);
+        View purchaseCalendarBtn = view.findViewById(R.id.purchaseCalendarIcon);
         TextView expiry_DateText = view.findViewById(R.id.expiry_DateText);
-        ImageView expiry_DateIcon = view.findViewById(R.id.expiry_DateIcon);
+        View expiry_DateBtn = view.findViewById(R.id.expiry_DateIcon);
         Button saveButton = view.findViewById(R.id.save_button);
 
         // --- Check for Edit Mode ---
@@ -55,9 +57,10 @@ public class AddItemFragment extends Fragment {
                 // Populate fields with existing data
                 itemNameEditText.setText(editingItem.getName());
                 quantityEditText.setText(String.valueOf(editingItem.getQuantity()));
-                categoryDropdown.setText(editingItem.getCategory());
+                categoryDropdown.setText(editingItem.getCategory(), false);
                 purchaseDateText.setText(editingItem.getPurchaseDate());
                 expiry_DateText.setText(editingItem.getExpiryDate());
+                updateCategoryIcon(editingItem.getCategory());
                 saveButton.setText("Update Item");
             }
         }
@@ -73,11 +76,17 @@ public class AddItemFragment extends Fragment {
         String[] categories = getResources().getStringArray(R.array.category_array);
         categoryDropdown.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, categories));
         categoryDropdown.setOnClickListener(v -> categoryDropdown.showDropDown());
-
+        
         ArrayAdapter<CharSequence> unitAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.quantity_units, android.R.layout.simple_spinner_item);
         unitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         quantitySpinner.setAdapter(unitAdapter);
-        
+
+        categoryDropdown.setOnItemClickListener((parent, view1, position, id) -> {
+            String selectedCategory = categories[position];
+            updateCategoryIcon(selectedCategory);
+            autoSelectUnit(selectedCategory, quantitySpinner, unitAdapter);
+        });
+
         // Select correct unit if editing
         if (editingItem != null) {
             int spinnerPosition = unitAdapter.getPosition(editingItem.getUnit());
@@ -94,10 +103,14 @@ public class AddItemFragment extends Fragment {
                 else expiry_DateText.setText(date);
             }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
         };
-        purchaseCalendarIcon.setOnClickListener(datePickerListener);
-        expiry_DateIcon.setOnClickListener(datePickerListener);
+        purchaseCalendarBtn.setOnClickListener(datePickerListener);
+        expiry_DateBtn.setOnClickListener(datePickerListener);
 
         if (img_01 != null) img_01.setOnClickListener(v -> requireActivity().onBackPressed());
+        
+        if (btnInfo != null) {
+            btnInfo.setOnClickListener(v -> showAboutBottomSheet());
+        }
 
         // --- Save / Update Logic ---
         saveButton.setOnClickListener(v -> {
@@ -145,5 +158,82 @@ public class AddItemFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void updateCategoryIcon(String category) {
+        if (add_item_photo == null) return;
+        
+        int resId;
+        
+        switch (category.toLowerCase()) {
+            case "dairy":
+                resId = R.drawable.dairy_img01;
+                break;
+            case "vegetable":
+                resId = R.drawable.vegi_img01;
+                break;
+            case "fruits":
+                resId = R.drawable.fruits_img01;
+                break;
+            case "non-veg":
+                resId = R.drawable.non_veg_img01;
+                break;
+            case "drinks":
+                resId = R.drawable.drinks_img01;
+                break;
+            case "frozen-food":
+                resId = R.drawable.frozen_img01;
+                break;
+            case "snacks":
+                resId = R.drawable.snacks_img01;
+                break;
+            case "bakery":
+                resId = R.drawable.bakery_img01;
+                break;
+            case "others":
+                resId = R.drawable.grain_rain_flour_img01;
+                break;
+            default:
+                resId = R.drawable.round_camera_alt_24;
+                break;
+        }
+        
+        add_item_photo.setImageResource(resId);
+        add_item_photo.setPadding(0, 0, 0, 0);
+        add_item_photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
+    }
+
+    private void autoSelectUnit(String category, Spinner spinner, ArrayAdapter<CharSequence> adapter) {
+        String defaultUnit = "pcs";
+        switch (category.toLowerCase()) {
+            case "dairy":
+                defaultUnit = "L";
+                break;
+            case "vegetable":
+            case "fruits":
+            case "non-veg":
+                defaultUnit = "kg";
+                break;
+            case "drinks":
+                defaultUnit = "ml";
+                break;
+            case "frozen-food":
+            case "snacks":
+            case "bakery":
+                defaultUnit = "pkt";
+                break;
+            case "others":
+                defaultUnit = "kg";
+                break;
+        }
+        int position = adapter.getPosition(defaultUnit);
+        if (position >= 0) {
+            spinner.setSelection(position);
+        }
+    }
+
+    private void showAboutBottomSheet() {
+        AboutAddItemBottomSheet bottomSheet = new AboutAddItemBottomSheet();
+        bottomSheet.show(getChildFragmentManager(), "AboutAddItemBottomSheet");
     }
 }

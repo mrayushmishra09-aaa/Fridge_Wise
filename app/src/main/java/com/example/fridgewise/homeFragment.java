@@ -8,7 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -17,44 +23,19 @@ import java.util.List;
  */
 public class homeFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
 
     public homeFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment homeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static homeFragment newInstance(String param1, String param2) {
-        homeFragment fragment = new homeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public static homeFragment newInstance() {
+        return new homeFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -69,26 +50,109 @@ public class homeFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getView() != null) {
+            setupDashboard(getView());
+        }
+    }
+
     private void setupDashboard(View view) {
         TextView tvTotalItems = view.findViewById(R.id.total_items_numtext);
         TextView tvExpiringSoon = view.findViewById(R.id.expiring_soon_numview);
         TextView tvExpiredItems = view.findViewById(R.id.rotten_items_numview);
+        
+        TextView tvFoodInsight = view.findViewById(R.id.tv_food_insight);
+        TextView tvMedInsight = view.findViewById(R.id.tv_medicine_insight);
+        TextView tvTodoInsight = view.findViewById(R.id.tv_todo_insight);
 
         new Thread(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
-            List<FoodItem> allItems = db.foodItemDao().getAllItems();
+            
+            // Food Stats & Insight
+            List<FoodItem> foodItems = db.foodItemDao().getAllItems();
+            int total = foodItems.size();
+            int expiringSoonCount = 0;
+            int expiredCount = 0;
+            String foodInsightMessage = "Your fridge looks good! No items expiring soon.";
+            
+            Calendar cal = Calendar.getInstance();
+            Date today = resetTime(cal.getTime());
+            cal.add(Calendar.DAY_OF_YEAR, 3);
+            Date threeDaysFromNow = resetTime(cal.getTime());
 
-            int total = allItems.size();
+            for (FoodItem item : foodItems) {
+                try {
+                    Date expiry = dateFormat.parse(item.getExpiryDate());
+                    if (expiry != null) {
+                        expiry = resetTime(expiry);
+                        if (expiry.before(today)) {
+                            expiredCount++;
+                            foodInsightMessage = "Alert: " + item.getName() + " has expired! Clean it out.";
+                        } else if (expiry.equals(today) || (expiry.after(today) && expiry.before(threeDaysFromNow))) {
+                            expiringSoonCount++;
+                            if (expiry.equals(today)) {
+                                foodInsightMessage = "Today's Insight: " + item.getName() + " expires today. Use it!";
+                            } else if (foodInsightMessage.startsWith("Your fridge")) {
+                                foodInsightMessage = "Insight: " + item.getName() + " will expire soon.";
+                            }
+                        }
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Medicine Insight
+            List<MedicineEntity> medicines = db.medicineDao().getAllMedicines();
+            String medInsightMessage = "No medicines scheduled for today.";
+            if (!medicines.isEmpty()) {
+                int reminderCount = 0;
+                for (MedicineEntity med : medicines) {
+                    if (med.isReminderOn()) reminderCount++;
+                }
+                if (reminderCount > 0) {
+                    medInsightMessage = "Reminder: You have " + reminderCount + " active medicine schedules.";
+                }
+            }
+
+            // To-Do Insight
+            List<TodoItem> pendingTodos = db.todoDao().getPendingTodos();
+            String todoInsightMessage = "No pending tasks for today.";
+            if (!pendingTodos.isEmpty()) {
+                todoInsightMessage = "Task: You have " + pendingTodos.size() + " items on your to-do list.";
+            }
+
+            final int fTotal = total;
+            final int fSoon = expiringSoonCount;
+            final int fExpired = expiredCount;
+            final String fFoodMsg = foodInsightMessage;
+            final String fMedMsg = medInsightMessage;
+            final String fTodoMsg = todoInsightMessage;
 
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
-                    tvTotalItems.setText(String.valueOf(total));
-                    // Placeholders for now
-                    tvExpiringSoon.setText("0");
-                    tvExpiredItems.setText("0");
+                    if (tvTotalItems != null) tvTotalItems.setText(String.valueOf(fTotal));
+                    if (tvExpiringSoon != null) tvExpiringSoon.setText(String.valueOf(fSoon));
+                    if (tvExpiredItems != null) tvExpiredItems.setText(String.valueOf(fExpired));
+                    
+                    if (tvFoodInsight != null) tvFoodInsight.setText(fFoodMsg);
+                    if (tvMedInsight != null) tvMedInsight.setText(fMedMsg);
+                    if (tvTodoInsight != null) tvTodoInsight.setText(fTodoMsg);
                 });
             }
         }).start();
+    }
+
+    private Date resetTime(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
     }
 
     private void setupNavigation(View view) {
@@ -97,6 +161,16 @@ public class homeFragment extends Fragment {
                     .replace(R.id.fragmentContainerView2, new AddItemFragment())
                     .addToBackStack(null)
                     .commit();
+        });
+
+        // Search Bar Logic (placeholder)
+        view.findViewById(R.id.search_bar).setOnClickListener(v -> {
+            // Future search implementation
+        });
+
+        // Shopping List (placeholder - for now let's just go to Inventory or alerts)
+        view.findViewById(R.id.qa_cv02).setOnClickListener(v -> {
+             // Scan items
         });
 
         view.findViewById(R.id.qa_cv04).setOnClickListener(v -> {

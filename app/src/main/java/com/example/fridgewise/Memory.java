@@ -85,6 +85,24 @@ public class Memory extends Fragment {
                     .commit();
         });
 
+        // 3. Shopping List section click listener
+        CardView cardShopping = view.findViewById(R.id.cardShopping);
+        cardShopping.setOnClickListener(v -> {
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView2, new ShoppingListFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+        // 4. Documents section click listener
+        CardView cardDocs = view.findViewById(R.id.cardDocs);
+        cardDocs.setOnClickListener(v -> {
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView2, new DocumentListFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
         updateCounts(view);
 
         return view;
@@ -93,16 +111,21 @@ public class Memory extends Fragment {
     private void updateCounts(View view) {
         TextView tvMedicineCount = view.findViewById(R.id.tvMedicineCount);
         TextView tvTodoCount = view.findViewById(R.id.tvTodoCount);
+        TextView tvShoppingCount = view.findViewById(R.id.tvShoppingCount);
 
         new Thread(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
             int medCount = db.medicineDao().getAllMedicines().size();
             int todoCount = db.todoDao().getAllTodos().size();
+            int shoppingCount = db.shoppingDao().getAllItems().size();
 
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
                     tvMedicineCount.setText(medCount + (medCount == 1 ? " reminder" : " reminders"));
                     tvTodoCount.setText(todoCount + (todoCount == 1 ? " task" : " tasks"));
+                    if (tvShoppingCount != null) {
+                        tvShoppingCount.setText(shoppingCount + (shoppingCount == 1 ? " item" : " items"));
+                    }
                 });
             }
         }).start();

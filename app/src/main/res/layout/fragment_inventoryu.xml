@@ -75,6 +75,7 @@
                     android:layout_height="match_parent">
 
                     <SearchView
+                        android:id="@+id/inventory_search_view"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:queryHint="Search items.."
@@ -83,17 +84,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageView
-                        android:id="@+id/imageView4"
-                        android:layout_width="37dp"
-                        android:layout_height="23dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.956"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.513"
-                        app:srcCompat="@drawable/filter_icon" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 
@@ -101,62 +91,95 @@
                 android:id="@+id/catagory_chip"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingBottom="10dp">
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:scrollbars="none">
 
-                    <LinearLayout
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/category_chip_group"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:orientation="horizontal">
+                        android:paddingHorizontal="10dp"
+                        app:selectionRequired="true"
+                        app:singleLine="true"
+                        app:singleSelection="true">
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/all_chip"
+                            style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_margin="5dp"
-                            android:layout_weight="1"
-                            android:text="All"
-                            app:chipCornerRadius="15dp" />
+                            android:checked="true"
+                            android:text="All" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/dairy_chip"
+                            style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_margin="5dp"
-                            android:layout_weight="1"
-                            android:text="Dairy"
-                            app:chipCornerRadius="15dp" />
+                            android:text="Dairy" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/veg_chip"
+                            style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_margin="5dp"
-                            android:layout_weight="1"
-                            android:text="Veggies"
-                            app:chipCornerRadius="15dp" />
+                            android:text="Vegetable" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/fruit_chip"
+                            style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_margin="5dp"
-                            android:layout_weight="1"
-                            android:text="Fruits"
-                            app:chipCornerRadius="15dp" />
+                            android:text="Fruits" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/nonveg_chip"
+                            style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_margin="5dp"
-                            android:layout_weight="1"
-                            android:text="Non-veg"
-                            app:chipCornerRadius="15dp" />
-                    </LinearLayout>
+                            android:text="Non-veg" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/drinks_chip"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Drinks" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/frozen_chip"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Frozen-Food" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/snacks_chip"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Snacks" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/bakery_chip"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Bakery" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/others_chip"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Others" />
+
+                    </com.google.android.material.chip.ChipGroup>
                 </HorizontalScrollView>
             </LinearLayout>
 

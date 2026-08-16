@@ -37,17 +37,37 @@
     <string name="delete">Delete</string>
     <string name="add_medicine">Add Medicine</string>
 
+    <!-- Profile Strings -->
+    <string name="edit_profile">Edit Profile</string>
+    <string name="notifications">Notifications</string>
+    <string name="help_support">Help &amp; Support</string>
+    <string name="about_app">About FridgeWise</string>
+    <string name="logout">Log out</string>
+
+    <!-- Dashboard Strings -->
+    <string name="total_items">Total Items</string>
+    <string name="expiring_soon">Expiring</string>
+    <string name="expired_items">Expired</string>
+    <string name="in_inventory">Inventory</string>
+    <string name="next_3_days">Next 3 days</string>
+    <string name="wasted">Wasted</string>
+    <string name="scan_items">Scan Items</string>
+    <string name="shopping_list">Shopping List</string>
+    <string name="todays_insights">Today\'s Insights</string>
+    <string name="checking_fridge">Checking your fridge&#8230;</string>
+    <string name="reviewing_meds">Reviewing your medications&#8230;</string>
+    <string name="looking_tasks">Looking at your tasks&#8230;</string>
+
     <!-- category section -->
     <string-array name="category_array">
         <item>Dairy</item>
         <item>Vegetable</item>
         <item>Fruits</item>
-        <item>Meat</item>
+        <item>Non-veg</item>
         <item>Drinks</item>
-        <item>Frozen Food</item>
+        <item>Frozen-Food</item>
         <item>Snacks</item>
         <item>Bakery</item>
-        <item>Medicine</item>
         <item>others</item>
     </string-array>
 
@@ -59,5 +79,12 @@
         <item>ml</item>
         <item>L</item>
         <item>pkt</item>
+        <item>Dozen</item>
+        <item>Bunch</item>
+        <item>Tray</item>
+        <item>Box</item>
+        <item>Can</item>
+        <item>Loaf</item>
+        <item>Bottle</item>
     </string-array>
 </resources>

@@ -11,9 +11,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -21,6 +24,9 @@ public class InventoryFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private FoodAdapter adapter;
+    private List<FoodItem> allFoodItems = new ArrayList<>();
+    private String currentCategory = "All";
+    private String currentSearchQuery = "";
 
     public InventoryFragment() {
         // Required empty public constructor
@@ -43,7 +49,6 @@ public class InventoryFragment extends Fragment {
         adapter = new FoodAdapter(new FoodAdapter.onItemClickListener() {
             @Override
             public void onEditClick(FoodItem foodItem) {
-                // Example: Navigate to AddItemFragment and pass the item to edit
                 AddItemFragment fragment = new AddItemFragment();
                 Bundle args = new Bundle();
                 args.putSerializable("foodItem", (Serializable) foodItem);
@@ -61,6 +66,44 @@ public class InventoryFragment extends Fragment {
             }
         });
         recyclerView.setAdapter(adapter);
+
+        // Setup Category Chips
+        ChipGroup chipGroup = view.findViewById(R.id.category_chip_group);
+        chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) return;
+            
+            int checkedId = checkedIds.get(0);
+            if (checkedId == R.id.all_chip) currentCategory = "All";
+            else if (checkedId == R.id.dairy_chip) currentCategory = "Dairy";
+            else if (checkedId == R.id.veg_chip) currentCategory = "Vegetable";
+            else if (checkedId == R.id.fruit_chip) currentCategory = "Fruits";
+            else if (checkedId == R.id.nonveg_chip) currentCategory = "Non-veg";
+            else if (checkedId == R.id.drinks_chip) currentCategory = "Drinks";
+            else if (checkedId == R.id.frozen_chip) currentCategory = "Frozen-Food";
+            else if (checkedId == R.id.snacks_chip) currentCategory = "Snacks";
+            else if (checkedId == R.id.bakery_chip) currentCategory = "Bakery";
+            else if (checkedId == R.id.others_chip) currentCategory = "others";
+            
+            filterItems();
+        });
+
+        // Setup Search
+        SearchView searchView = view.findViewById(R.id.inventory_search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                currentSearchQuery = query;
+                filterItems();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                currentSearchQuery = newText;
+                filterItems();
+                return true;
+            }
+        });
 
         // Fetch items from Database
         loadItems();
@@ -80,14 +123,31 @@ public class InventoryFragment extends Fragment {
         AppDatabase db = AppDatabase.getInstance(context);
         Executors.newSingleThreadExecutor().execute(() -> {
             List<FoodItem> items = db.foodItemDao().getAllItems();
+            allFoodItems = items;
             
             Activity activity = getActivity();
             if (activity != null) {
-                activity.runOnUiThread(() -> {
-                    adapter.setFoodList(items);
-                });
+                activity.runOnUiThread(this::filterItems);
             }
         });
+    }
+
+    private void filterItems() {
+        List<FoodItem> filteredList = new ArrayList<>();
+        
+        for (FoodItem item : allFoodItems) {
+            boolean matchesCategory = currentCategory.equals("All") || 
+                                     item.getCategory().equalsIgnoreCase(currentCategory);
+            
+            boolean matchesSearch = currentSearchQuery.isEmpty() || 
+                                   item.getName().toLowerCase().contains(currentSearchQuery.toLowerCase());
+            
+            if (matchesCategory && matchesSearch) {
+                filteredList.add(item);
+            }
+        }
+        
+        adapter.setFoodList(filteredList);
     }
 
     private void deleteItem(FoodItem foodItem) {
