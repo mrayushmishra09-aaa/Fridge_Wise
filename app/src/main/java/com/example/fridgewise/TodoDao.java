@@ -12,7 +12,7 @@ import java.util.List;
 public interface TodoDao {
 
     @Insert
-    void insert(TodoItem todoItem);
+    long insert(TodoItem todoItem);
 
     @Update
     void update(TodoItem todoItem);

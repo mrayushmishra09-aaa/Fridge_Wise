@@ -36,6 +36,8 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="add_medicine">Add Medicine</string>
+    <string name="documents_saved_count">%1$d Documents saved</string>
+    <string name="no_items_found">No items found</string>
 
     <!-- Profile Strings -->
     <string name="edit_profile">Edit Profile</string>

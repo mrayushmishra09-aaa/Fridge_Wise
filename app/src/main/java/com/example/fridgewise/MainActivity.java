@@ -24,15 +24,15 @@ public class MainActivity extends AppCompatActivity {
             int itemId = menuItem.getItemId();
 
             if (itemId == R.id.nav_home) {
-                selectedFragment = new homeFragment();
+                selectedFragment = new HomeFragment();
             } else if (itemId == R.id.nav_inventory) {
                 selectedFragment = new InventoryFragment();
             } else if (itemId == R.id.nav_memory) {
                 selectedFragment = new Memory();
             } else if (itemId == R.id.nav_alerts) {
-                selectedFragment = new alertsFragment();
+                selectedFragment = new AlertsFragment();
             } else if (itemId == R.id.nav_pfp) {
-                selectedFragment = new profileFragment();
+                selectedFragment = new ProfileFragment();
             }
 
             if (selectedFragment != null) {
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragmentContainerView2, new homeFragment())
+                    .replace(R.id.fragmentContainerView2, new HomeFragment())
                     .commit();
         }
 

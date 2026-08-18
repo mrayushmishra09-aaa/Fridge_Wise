@@ -18,19 +18,19 @@ import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link homeFragment#newInstance} factory method to
+ * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class homeFragment extends Fragment {
+public class HomeFragment extends Fragment {
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
 
-    public homeFragment() {
+    public HomeFragment() {
         // Required empty public constructor
     }
 
-    public static homeFragment newInstance() {
-        return new homeFragment();
+    public static HomeFragment newInstance() {
+        return new HomeFragment();
     }
 
     @Override
@@ -175,7 +175,7 @@ public class homeFragment extends Fragment {
 
         view.findViewById(R.id.qa_cv04).setOnClickListener(v -> {
             getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainerView2, new alertsFragment())
+                    .replace(R.id.fragmentContainerView2, new AlertsFragment())
                     .addToBackStack(null)
                     .commit();
         });

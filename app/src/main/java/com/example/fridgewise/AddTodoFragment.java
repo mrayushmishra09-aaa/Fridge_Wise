@@ -11,16 +11,19 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import android.widget.Toast;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
-
-import java.util.Calendar;
-import java.util.Objects;
 
 /**
  * A fragment that allows users to add a new To-Do item.
@@ -114,6 +117,13 @@ public class AddTodoFragment extends Fragment {
 
                 new Thread(() -> {
                     AppDatabase.getInstance(requireContext()).todoDao().update(existingTask);
+                    
+                    if (existingTask.isReminderSet()) {
+                        scheduleTodoNotification(existingTask);
+                    } else {
+                        NotificationHelper.cancelNotification(requireContext(), existingTask.getId() + 10000); // Unique offset for todos
+                    }
+
                     requireActivity().runOnUiThread(() -> {
                         Toast.makeText(requireContext(), "Task updated successfully!", Toast.LENGTH_SHORT).show();
                         requireActivity().getSupportFragmentManager().popBackStack();
@@ -123,7 +133,13 @@ public class AddTodoFragment extends Fragment {
                 // Save new task
                 TodoItem newTask = new TodoItem(title, selectedDate, selectedTime, selectedPriority, note, isReminderSet, false);
                 new Thread(() -> {
-                    AppDatabase.getInstance(requireContext()).todoDao().insert(newTask);
+                    long id = AppDatabase.getInstance(requireContext()).todoDao().insert(newTask);
+                    newTask.setId((int) id);
+
+                    if (newTask.isReminderSet()) {
+                        scheduleTodoNotification(newTask);
+                    }
+
                     requireActivity().runOnUiThread(() -> {
                         Toast.makeText(requireContext(), "Task added successfully!", Toast.LENGTH_SHORT).show();
                         requireActivity().getSupportFragmentManager().popBackStack();
@@ -190,5 +206,22 @@ public class AddTodoFragment extends Fragment {
         btnPriorityLow.setOnClickListener(priorityListener);
 
         return view;
+    }
+
+    private void scheduleTodoNotification(TodoItem task) {
+        if (task.getDate().isEmpty() || task.getTime().isEmpty()) return;
+        try {
+            String dateTimeStr = task.getDate() + " " + task.getTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy HH:mm", Locale.getDefault());
+            Date date = sdf.parse(dateTimeStr);
+            if (date != null) {
+                NotificationHelper.scheduleNotification(requireContext(), date.getTime(),
+                        "Task Reminder: " + task.getTitle(),
+                        "Priority: " + task.getPriority() + (task.getNote().isEmpty() ? "" : " - " + task.getNote()),
+                        task.getId() + 10000);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 }

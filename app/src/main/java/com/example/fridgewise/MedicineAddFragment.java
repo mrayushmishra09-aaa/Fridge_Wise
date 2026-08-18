@@ -18,7 +18,12 @@ import android.app.TimePickerDialog;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.widget.SwitchCompat;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -244,7 +249,15 @@ public class MedicineAddFragment extends Fragment {
             if (existingMedicine != null) {
                 AppDatabase.getInstance(context).medicineDao().update(med);
             } else {
-                AppDatabase.getInstance(context).medicineDao().insert(med);
+                long id = AppDatabase.getInstance(context).medicineDao().insert(med);
+                med.setId((int) id);
+            }
+
+            // Schedule notification if reminder is on
+            if (med.isReminderOn()) {
+                scheduleMedicineNotification(context, med);
+            } else {
+                NotificationHelper.cancelNotification(context, med.getId());
             }
             
             if (isAdded()) {
@@ -257,5 +270,24 @@ public class MedicineAddFragment extends Fragment {
                 }
             }
         }).start();
+    }
+
+    private void scheduleMedicineNotification(Context context, MedicineEntity med) {
+        try {
+            String dateTimeStr = med.getStartDate() + " " + med.getStartTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy hh:mm a", Locale.getDefault());
+            Date date = sdf.parse(dateTimeStr);
+            if (date != null) {
+                long timeInMillis = date.getTime();
+                // If the time has already passed today, we don't schedule or we could schedule for tomorrow
+                // For simplicity, we just schedule for the given time.
+                NotificationHelper.scheduleNotification(context, timeInMillis, 
+                        "Medicine Reminder: " + med.getMedicineName(),
+                        "Time to take your " + med.getDosage() + " " + med.getUnit(),
+                        med.getId());
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 }

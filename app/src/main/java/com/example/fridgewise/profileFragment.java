@@ -14,14 +14,14 @@ import androidx.fragment.app.Fragment;
 /**
  * A fragment that displays the user's profile and settings.
  */
-public class profileFragment extends Fragment {
+public class ProfileFragment extends Fragment {
 
-    public profileFragment() {
+    public ProfileFragment() {
         // Required empty public constructor
     }
 
-    public static profileFragment newInstance() {
-        return new profileFragment();
+    public static ProfileFragment newInstance() {
+        return new ProfileFragment();
     }
 
     @Override

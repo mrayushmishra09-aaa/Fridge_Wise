@@ -10,7 +10,7 @@ import java.util.List;
 @Dao
 public interface MedicineDao {
     @Insert
-    void insert (MedicineEntity medicine);
+    long insert (MedicineEntity medicine);
     @Delete
     void delete (MedicineEntity medicine);
     @Update

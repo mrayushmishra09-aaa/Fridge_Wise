@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
+import android.widget.TextView;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -24,6 +25,7 @@ public class InventoryFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private FoodAdapter adapter;
+    private TextView tvNoResults;
     private List<FoodItem> allFoodItems = new ArrayList<>();
     private String currentCategory = "All";
     private String currentSearchQuery = "";
@@ -44,6 +46,7 @@ public class InventoryFragment extends Fragment {
         
         // Initialize RecyclerView
         recyclerView = view.findViewById(R.id.recycler_inventory);
+        tvNoResults = view.findViewById(R.id.tv_no_results);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         adapter = new FoodAdapter(new FoodAdapter.onItemClickListener() {
@@ -140,7 +143,7 @@ public class InventoryFragment extends Fragment {
                                      item.getCategory().equalsIgnoreCase(currentCategory);
             
             boolean matchesSearch = currentSearchQuery.isEmpty() || 
-                                   item.getName().toLowerCase().contains(currentSearchQuery.toLowerCase());
+                                   item.getName().toLowerCase().contains(currentSearchQuery.trim().toLowerCase());
             
             if (matchesCategory && matchesSearch) {
                 filteredList.add(item);
@@ -148,6 +151,15 @@ public class InventoryFragment extends Fragment {
         }
         
         adapter.setFoodList(filteredList);
+
+        // Toggle empty state visibility
+        if (tvNoResults != null) {
+            if (filteredList.isEmpty()) {
+                tvNoResults.setVisibility(View.VISIBLE);
+            } else {
+                tvNoResults.setVisibility(View.GONE);
+            }
+        }
     }
 
     private void deleteItem(FoodItem foodItem) {

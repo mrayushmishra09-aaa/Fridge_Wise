@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import android.widget.PopupMenu;
 import java.util.ArrayList;
@@ -25,9 +26,11 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
         this.listener = listener;
     }
 
-    public void setFoodList(List<FoodItem> foodList) {
-        this.foodList = foodList;
-        notifyDataSetChanged();
+    public void setFoodList(List<FoodItem> newList) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new FoodDiffCallback(this.foodList, newList));
+        this.foodList.clear();
+        this.foodList.addAll(newList);
+        diffResult.dispatchUpdatesTo(this);
     }
 
     @NonNull
@@ -122,6 +125,42 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
             tvQuantity = itemView.findViewById(R.id.itemQuantity);
             imgItem = itemView.findViewById(R.id.itemImage);
             btnMore = itemView.findViewById(R.id.btnMore);
+        }
+    }
+
+    private static class FoodDiffCallback extends DiffUtil.Callback {
+        private final List<FoodItem> oldList;
+        private final List<FoodItem> newList;
+
+        public FoodDiffCallback(List<FoodItem> oldList, List<FoodItem> newList) {
+            this.oldList = oldList;
+            this.newList = newList;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldList.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newList.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            return oldList.get(oldItemPosition).getId() == newList.get(newItemPosition).getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            FoodItem oldItem = oldList.get(oldItemPosition);
+            FoodItem newItem = newList.get(newItemPosition);
+            return oldItem.getName().equals(newItem.getName()) &&
+                   oldItem.getCategory().equals(newItem.getCategory()) &&
+                   oldItem.getQuantity() == newItem.getQuantity() &&
+                   oldItem.getUnit().equals(newItem.getUnit()) &&
+                   oldItem.getExpiryDate().equals(newItem.getExpiryDate());
         }
     }
 }
