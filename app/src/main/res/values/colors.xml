@@ -26,6 +26,14 @@
     <color name="card_red">#FFEBEE</color>
     <color name="card_purple">#F3E5F5</color>
 
+    <!-- Badge Backgrounds -->
+    <color name="badge_red_bg">#FFF0F0</color>
+    <color name="badge_orange_bg">#FFF8ED</color>
+    <color name="badge_purple_bg">#F5F0FF</color>
+    <color name="badge_red_text">#D32F2F</color>
+    <color name="badge_orange_text">#E65100</color>
+    <color name="badge_purple_text">#6200EA</color>
+
     <!-- Dark Mode -->
     <color name="dark_background">#121212</color>
     <color name="dark_surface">#1E1E1E</color>
