@@ -90,30 +90,41 @@
     <!-- Empty State -->
     <LinearLayout
         android:id="@+id/emptyStateLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
+        android:padding="32dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/filterScrollView">
+        app:layout_constraintTop_toBottomOf="@id/filterScrollView"
+        tools:visibility="visible">
 
         <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:alpha="0.5"
-            android:src="@drawable/logo_img" />
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:src="@drawable/alert_empty_state_img"
+            android:scaleType="fitCenter" />
 
         <TextView
-            android:id="@+id/tvNoAlerts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="No alerts found"
-            android:textColor="#ADB5BD"
-            android:textSize="16sp" />
+            android:layout_marginTop="24dp"
+            android:text="No Alerts Right Now"
+            android:textColor="#212529"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="Great job! There are no items expiring soon or urgent reminders for this filter."
+            android:textColor="#6C757D"
+            android:textSize="14sp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

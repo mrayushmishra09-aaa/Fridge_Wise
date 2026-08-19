@@ -213,8 +213,20 @@ public class HomeFragment extends Fragment {
             if (activity != null && isAdded()) {
                 activity.runOnUiThread(() -> {
                     if (!isAdded()) return;
+
+                    ImageView ivAttentionIcon = view.findViewById(R.id.iv_attention_icon);
+                    TextView tvAttentionTitle = view.findViewById(R.id.tv_attention_title);
+                    View cvAttentionEmpty = view.findViewById(R.id.cv_attention_empty);
+
                     if (attentionSize > 0) {
                         if (llAttentionSection != null) llAttentionSection.setVisibility(View.VISIBLE);
+                        if (cvAttentionEmpty != null) cvAttentionEmpty.setVisibility(View.GONE);
+                        if (rvAttention != null) rvAttention.setVisibility(View.VISIBLE);
+                        if (ivAttentionIcon != null) {
+                            ivAttentionIcon.setImageResource(R.drawable.ic_attention_red);
+                            ivAttentionIcon.clearColorFilter();
+                        }
+                        if (tvAttentionTitle != null) tvAttentionTitle.setText("Needs your attention");
                         if (tvAttentionCount != null) {
                             tvAttentionCount.setText(attentionSize + " things need your attention today");
                         }
@@ -240,7 +252,17 @@ public class HomeFragment extends Fragment {
                             rvAttention.setAdapter(adapter);
                         }
                     } else {
-                        if (llAttentionSection != null) llAttentionSection.setVisibility(View.GONE);
+                        if (llAttentionSection != null) llAttentionSection.setVisibility(View.VISIBLE);
+                        if (cvAttentionEmpty != null) cvAttentionEmpty.setVisibility(View.VISIBLE);
+                        if (rvAttention != null) rvAttention.setVisibility(View.GONE);
+                        if (ivAttentionIcon != null) {
+                            ivAttentionIcon.setImageResource(R.drawable.ic_check_tick);
+                            ivAttentionIcon.setColorFilter(context.getColor(R.color.green_primary));
+                        }
+                        if (tvAttentionTitle != null) tvAttentionTitle.setText("Everything is in order");
+                        if (tvAttentionCount != null) {
+                            tvAttentionCount.setText("You're all caught up for now!");
+                        }
                     }
                     
                     if (tvFoodInsight != null) tvFoodInsight.setText(fFoodMsg);

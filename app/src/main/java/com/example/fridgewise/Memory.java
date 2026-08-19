@@ -10,7 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.card.MaterialCardView;
+
+import java.util.List;
+import java.util.concurrent.Executors;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -20,6 +26,8 @@ import com.google.android.material.card.MaterialCardView;
 public class Memory extends Fragment {
 
     MaterialCardView cardTodo;
+    private RecyclerView rvCustomSpaces;
+    private CustomSpaceAdapter customSpaceAdapter;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -103,9 +111,44 @@ public class Memory extends Fragment {
                     .commit();
         });
 
+        // Custom Spaces Setup
+        rvCustomSpaces = view.findViewById(R.id.rvCustomSpaces);
+        rvCustomSpaces.setLayoutManager(new LinearLayoutManager(getContext()));
+        customSpaceAdapter = new CustomSpaceAdapter(space -> {
+            // Open Custom Space Inventory
+            CustomSpaceInventoryFragment fragment = CustomSpaceInventoryFragment.newInstance(space);
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView2, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+        rvCustomSpaces.setAdapter(customSpaceAdapter);
+
+        // Add Collection Button click listener
+        View addCollectionBtn = view.findViewById(R.id.addCollectionBtn);
+        addCollectionBtn.setOnClickListener(v -> {
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView2, new CreateSpaceFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
         updateCounts(view);
+        loadCustomSpaces();
 
         return view;
+    }
+
+    private void loadCustomSpaces() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            List<CustomSpace> spaces = db.customSpaceDao().getAllSpaces();
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    customSpaceAdapter.setSpaces(spaces);
+                });
+            }
+        });
     }
 
     private void updateCounts(View view) {

@@ -141,7 +141,13 @@ public class AlertsFragment extends Fragment {
         }
 
         adapter.setAlerts(filteredList);
-        emptyState.setVisibility(filteredList.isEmpty() ? View.VISIBLE : View.GONE);
+        if (filteredList.isEmpty()) {
+            emptyState.setVisibility(View.VISIBLE);
+            rvAlerts.setVisibility(View.GONE);
+        } else {
+            emptyState.setVisibility(View.GONE);
+            rvAlerts.setVisibility(View.VISIBLE);
+        }
     }
 
     private Date resetTime(Date date) {

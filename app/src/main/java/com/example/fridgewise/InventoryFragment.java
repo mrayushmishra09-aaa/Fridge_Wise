@@ -25,7 +25,7 @@ public class InventoryFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private FoodAdapter adapter;
-    private TextView tvNoResults;
+    private View llEmptyState;
     private List<FoodItem> allFoodItems = new ArrayList<>();
     private String currentCategory = "All";
     private String currentSearchQuery = "";
@@ -46,7 +46,7 @@ public class InventoryFragment extends Fragment {
         
         // Initialize RecyclerView
         recyclerView = view.findViewById(R.id.recycler_inventory);
-        tvNoResults = view.findViewById(R.id.tv_no_results);
+        llEmptyState = view.findViewById(R.id.ll_inventory_empty_state);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         adapter = new FoodAdapter(new FoodAdapter.onItemClickListener() {
@@ -153,11 +153,13 @@ public class InventoryFragment extends Fragment {
         adapter.setFoodList(filteredList);
 
         // Toggle empty state visibility
-        if (tvNoResults != null) {
+        if (llEmptyState != null) {
             if (filteredList.isEmpty()) {
-                tvNoResults.setVisibility(View.VISIBLE);
+                llEmptyState.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
             } else {
-                tvNoResults.setVisibility(View.GONE);
+                llEmptyState.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
             }
         }
     }

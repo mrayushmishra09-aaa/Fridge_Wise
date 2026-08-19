@@ -118,8 +118,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="visible">
+                android:visibility="visible">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -141,6 +140,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tv_attention_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Needs your attention"
@@ -175,8 +175,27 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:orientation="horizontal"
+                    android:visibility="gone"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/item_attention" />
+                    tools:listitem="@layout/item_attention"
+                    tools:visibility="visible" />
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_attention_empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:visibility="visible"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@android:color/transparent">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/attention_alert_img" />
+                </androidx.cardview.widget.CardView>
             </LinearLayout>
 
 
