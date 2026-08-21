@@ -163,40 +163,7 @@ public class AddItemFragment extends Fragment {
     private void updateCategoryIcon(String category) {
         if (add_item_photo == null) return;
         
-        int resId;
-        
-        switch (category.toLowerCase()) {
-            case "dairy":
-                resId = R.drawable.dairy_img01;
-                break;
-            case "vegetable":
-                resId = R.drawable.vegi_img01;
-                break;
-            case "fruits":
-                resId = R.drawable.fruits_img01;
-                break;
-            case "non-veg":
-                resId = R.drawable.non_veg_img01;
-                break;
-            case "drinks":
-                resId = R.drawable.drinks_img01;
-                break;
-            case "frozen-food":
-                resId = R.drawable.frozen_img01;
-                break;
-            case "snacks":
-                resId = R.drawable.snacks_img01;
-                break;
-            case "bakery":
-                resId = R.drawable.bakery_img01;
-                break;
-            case "others":
-                resId = R.drawable.grain_rain_flour_img01;
-                break;
-            default:
-                resId = R.drawable.round_camera_alt_24;
-                break;
-        }
+        int resId = CategoryUtils.getAddItemPlaceholderIcon(category);
         
         add_item_photo.setImageResource(resId);
         add_item_photo.setPadding(0, 0, 0, 0);

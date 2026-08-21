@@ -17,6 +17,7 @@ public class CustomSpaceAdapter extends RecyclerView.Adapter<CustomSpaceAdapter.
 
     public interface OnSpaceClickListener {
         void onSpaceClick(CustomSpace space);
+        void onSpaceLongClick(CustomSpace space, View view);
     }
 
     public CustomSpaceAdapter(OnSpaceClickListener listener) {
@@ -48,6 +49,10 @@ public class CustomSpaceAdapter extends RecyclerView.Adapter<CustomSpaceAdapter.
         }
 
         holder.itemView.setOnClickListener(v -> listener.onSpaceClick(space));
+        holder.itemView.setOnLongClickListener(v -> {
+            listener.onSpaceLongClick(space, v);
+            return true;
+        });
     }
 
     @Override

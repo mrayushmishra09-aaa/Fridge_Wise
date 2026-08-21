@@ -110,7 +110,7 @@ public class HomeFragment extends Fragment {
                             ai.setBadgeBgColor(context.getColor(R.color.badge_red_bg));
                             ai.setBadgeTextColor(context.getColor(R.color.badge_red_text));
                             ai.setStatusColor(context.getColor(R.color.red_expired));
-                            ai.setImageResId(R.drawable.vegi_img01);
+                            ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
                             ai.setPriorityScore(10);
                             attentionItems.add(ai);
                         } else if (expiry.equals(today)) {
@@ -119,7 +119,7 @@ public class HomeFragment extends Fragment {
                             ai.setBadgeBgColor(context.getColor(R.color.badge_red_bg));
                             ai.setBadgeTextColor(context.getColor(R.color.badge_red_text));
                             ai.setStatusColor(context.getColor(R.color.red_expired));
-                            ai.setImageResId(R.drawable.vegi_img01);
+                            ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
                             ai.setPriorityScore(50);
                             attentionItems.add(ai);
                         } else if (expiry.equals(tomorrow)) {
@@ -128,7 +128,7 @@ public class HomeFragment extends Fragment {
                             ai.setBadgeBgColor(context.getColor(R.color.badge_orange_bg));
                             ai.setBadgeTextColor(context.getColor(R.color.badge_orange_text));
                             ai.setStatusColor(context.getColor(R.color.orange_warning));
-                            ai.setImageResId(R.drawable.vegi_img01);
+                            ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
                             ai.setPriorityScore(90);
                             attentionItems.add(ai);
                         }

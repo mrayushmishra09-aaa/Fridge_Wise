@@ -36,7 +36,7 @@ public class TodoListFragment extends Fragment {
     private List<TodoItem> allTasks = new ArrayList<>();
     private String currentTab = "Today";
     private TextView tvToday, tvUpcoming, tvCompleted, tvProgressStatus, tvBannerTitle, tvBannerSubtitle, tvTaskShowingNum;
-    private View tabIndicator;
+    private View tabIndicator, llEmptyState;
     private LinearProgressIndicator progressIndicator;
 
     @Nullable
@@ -58,6 +58,7 @@ public class TodoListFragment extends Fragment {
         tvBannerSubtitle = view.findViewById(R.id.tvBannerSubtitle);
         tvTaskShowingNum = view.findViewById(R.id.taskshowing_num);
         tabIndicator = view.findViewById(R.id.tabIndicator);
+        llEmptyState = view.findViewById(R.id.ll_todo_empty_state);
 
         setupTabs();
 
@@ -218,6 +219,16 @@ public class TodoListFragment extends Fragment {
             }
         }
         adapter.updateList(filteredList);
+
+        if (llEmptyState != null) {
+            if (filteredList.isEmpty()) {
+                llEmptyState.setVisibility(View.VISIBLE);
+                rvTasks.setVisibility(View.GONE);
+            } else {
+                llEmptyState.setVisibility(View.GONE);
+                rvTasks.setVisibility(View.VISIBLE);
+            }
+        }
 
         if (tvTaskShowingNum != null) {
             int count = filteredList.size();

@@ -4,8 +4,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -70,6 +72,8 @@ public class CustomSpaceInventoryFragment extends Fragment {
 
         view.findViewById(R.id.btnBack).setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
+        view.findViewById(R.id.btnMoreOptions).setOnClickListener(this::showMoreOptions);
+
         view.findViewById(R.id.fabAddItem).setOnClickListener(v -> {
             AddSpaceItemFragment fragment = AddSpaceItemFragment.newInstance(currentSpace.getId(), null);
             getParentFragmentManager().beginTransaction()
@@ -104,6 +108,47 @@ public class CustomSpaceInventoryFragment extends Fragment {
             allItems = db.customSpaceDao().getItemsForSpace(currentSpace.getId());
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> adapter.setItems(allItems));
+            }
+        });
+    }
+
+    private void showMoreOptions(View v) {
+        PopupMenu popup = new PopupMenu(getContext(), v);
+        popup.getMenu().add("Edit Space");
+        popup.getMenu().add("Delete Space");
+
+        popup.setOnMenuItemClickListener(item -> {
+            String title = item.getTitle() != null ? item.getTitle().toString() : "";
+            if ("Edit Space".equals(title)) {
+                CreateSpaceFragment fragment = CreateSpaceFragment.newInstance(currentSpace);
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainerView2, fragment)
+                        .addToBackStack(null)
+                        .commit();
+            } else if ("Delete Space".equals(title)) {
+                deleteSpace();
+            }
+            return true;
+        });
+        popup.show();
+    }
+
+    private void deleteSpace() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            // Delete all items first
+            List<CustomSpaceItem> items = db.customSpaceDao().getItemsForSpace(currentSpace.getId());
+            for (CustomSpaceItem item : items) {
+                db.customSpaceDao().deleteItem(item);
+            }
+            // Delete space
+            db.customSpaceDao().deleteSpace(currentSpace);
+            
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(getContext(), "Space deleted", Toast.LENGTH_SHORT).show();
+                    getParentFragmentManager().popBackStack();
+                });
             }
         });
     }

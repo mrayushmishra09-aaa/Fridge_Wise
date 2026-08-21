@@ -31,6 +31,7 @@ public class ShoppingListFragment extends Fragment {
     private ImageButton btnQuickAdd, btnBack;
     private FloatingActionButton fabAdd;
     private AppDatabase db;
+    private View llEmptyState;
 
     @Nullable
     @Override
@@ -45,6 +46,7 @@ public class ShoppingListFragment extends Fragment {
         btnQuickAdd = view.findViewById(R.id.btnQuickAdd);
         btnBack = view.findViewById(R.id.btnBack);
         fabAdd = view.findViewById(R.id.fabAddShopping);
+        llEmptyState = view.findViewById(R.id.ll_shopping_empty_state);
 
         setupRecyclerView();
         loadItems();
@@ -97,6 +99,16 @@ public class ShoppingListFragment extends Fragment {
                     shoppingItems.addAll(items);
                     adapter.setItems(shoppingItems);
                     updateHeader();
+                    
+                    if (llEmptyState != null) {
+                        if (shoppingItems.isEmpty()) {
+                            llEmptyState.setVisibility(View.VISIBLE);
+                            rvShoppingList.setVisibility(View.GONE);
+                        } else {
+                            llEmptyState.setVisibility(View.GONE);
+                            rvShoppingList.setVisibility(View.VISIBLE);
+                        }
+                    }
                 });
             }
         }).start();

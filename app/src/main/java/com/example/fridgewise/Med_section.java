@@ -41,6 +41,8 @@ public class Med_section extends Fragment {
     private List<MedicineEntity> medicineList = new ArrayList<>();
     private TextView tvProgressDoses;
     private LinearProgressIndicator progressDoses;
+    private View llEmptyState;
+    private RecyclerView rvMedicine;
 
     public Med_section() {
         // Required empty public constructor
@@ -98,7 +100,8 @@ public class Med_section extends Fragment {
             bottomSheet.show(getChildFragmentManager(), "AboutMedicineBottomSheet");
         });
 
-        RecyclerView rvMedicine = view.findViewById(R.id.rvMedicine);
+        rvMedicine = view.findViewById(R.id.rvMedicine);
+        llEmptyState = view.findViewById(R.id.ll_med_empty_state);
         rvMedicine.setLayoutManager(new LinearLayoutManager(requireContext()));
         adaptor = new MedicineAdapter(medicineList, new MedicineAdapter.OnMedicineClickListener() {
             @Override
@@ -202,6 +205,16 @@ public class Med_section extends Fragment {
                     medicineList.addAll(list);
                     adaptor.notifyDataSetChanged();
                     updateProgress();
+                    
+                    if (llEmptyState != null && rvMedicine != null) {
+                        if (medicineList.isEmpty()) {
+                            llEmptyState.setVisibility(View.VISIBLE);
+                            rvMedicine.setVisibility(View.GONE);
+                        } else {
+                            llEmptyState.setVisibility(View.GONE);
+                            rvMedicine.setVisibility(View.VISIBLE);
+                        }
+                    }
                 });
             }
         }).start();

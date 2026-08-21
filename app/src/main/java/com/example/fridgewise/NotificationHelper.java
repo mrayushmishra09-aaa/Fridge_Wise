@@ -53,18 +53,19 @@ public class NotificationHelper {
         intent.putExtra("message", message);
         intent.putExtra("id", id);
 
-        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            flags |= PendingIntent.FLAG_IMMUTABLE;
-        }
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, id, intent, flags);
 
         if (alarmManager != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+                // Fallback to non-exact alarm if permission not granted on API 31+
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+                Log.d("NotificationHelper", "Permission not granted for exact alarms, using setAndAllowWhileIdle instead.");
             } else {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+                // For API < 31 or if permission is granted on API 31+
+                // minSdk is 24 (Nougat), so setExactAndAllowWhileIdle (API 23+) is always available
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
             }
             Log.d("NotificationHelper", "Scheduled notification for: " + timeInMillis);
         }
@@ -73,10 +74,7 @@ public class NotificationHelper {
     public static void cancelNotification(Context context, int id) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, NotificationReceiver.class);
-        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            flags |= PendingIntent.FLAG_IMMUTABLE;
-        }
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, id, intent, flags);
         if (alarmManager != null) {
             alarmManager.cancel(pendingIntent);

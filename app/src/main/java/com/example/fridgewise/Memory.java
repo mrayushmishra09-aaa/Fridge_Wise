@@ -8,7 +8,9 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -114,13 +116,21 @@ public class Memory extends Fragment {
         // Custom Spaces Setup
         rvCustomSpaces = view.findViewById(R.id.rvCustomSpaces);
         rvCustomSpaces.setLayoutManager(new LinearLayoutManager(getContext()));
-        customSpaceAdapter = new CustomSpaceAdapter(space -> {
-            // Open Custom Space Inventory
-            CustomSpaceInventoryFragment fragment = CustomSpaceInventoryFragment.newInstance(space);
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainerView2, fragment)
-                    .addToBackStack(null)
-                    .commit();
+        customSpaceAdapter = new CustomSpaceAdapter(new CustomSpaceAdapter.OnSpaceClickListener() {
+            @Override
+            public void onSpaceClick(CustomSpace space) {
+                // Open Custom Space Inventory
+                CustomSpaceInventoryFragment fragment = CustomSpaceInventoryFragment.newInstance(space);
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainerView2, fragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+
+            @Override
+            public void onSpaceLongClick(CustomSpace space, View view) {
+                showSpaceOptions(space, view);
+            }
         });
         rvCustomSpaces.setAdapter(customSpaceAdapter);
 
@@ -128,7 +138,7 @@ public class Memory extends Fragment {
         View addCollectionBtn = view.findViewById(R.id.addCollectionBtn);
         addCollectionBtn.setOnClickListener(v -> {
             getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainerView2, new CreateSpaceFragment())
+                    .replace(R.id.fragmentContainerView2, CreateSpaceFragment.newInstance(null))
                     .addToBackStack(null)
                     .commit();
         });
@@ -146,6 +156,46 @@ public class Memory extends Fragment {
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
                     customSpaceAdapter.setSpaces(spaces);
+                });
+            }
+        });
+    }
+
+    private void showSpaceOptions(CustomSpace space, View v) {
+        PopupMenu popup = new PopupMenu(getContext(), v);
+        popup.getMenu().add("Edit");
+        popup.getMenu().add("Delete");
+
+        popup.setOnMenuItemClickListener(item -> {
+            String title = item.getTitle() != null ? item.getTitle().toString() : "";
+            if ("Edit".equals(title)) {
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainerView2, CreateSpaceFragment.newInstance(space))
+                        .addToBackStack(null)
+                        .commit();
+            } else if ("Delete".equals(title)) {
+                deleteSpace(space);
+            }
+            return true;
+        });
+        popup.show();
+    }
+
+    private void deleteSpace(CustomSpace space) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            // Delete all items in the space first
+            List<CustomSpaceItem> items = db.customSpaceDao().getItemsForSpace(space.getId());
+            for (CustomSpaceItem item : items) {
+                db.customSpaceDao().deleteItem(item);
+            }
+            // Delete the space itself
+            db.customSpaceDao().deleteSpace(space);
+            
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(getContext(), "Space deleted", Toast.LENGTH_SHORT).show();
+                    loadCustomSpaces();
                 });
             }
         });

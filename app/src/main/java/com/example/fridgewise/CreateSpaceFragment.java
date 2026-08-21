@@ -4,9 +4,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +21,7 @@ public class CreateSpaceFragment extends Fragment {
     private ImageView ivSelectedIcon;
     private int selectedIconRes = R.drawable.v02_img_icons_household;
     private String customImageUri = null;
+    private CustomSpace editingSpace = null;
 
     private final int[] availableIcons = {
         R.drawable.v02_img_icons_household,
@@ -29,14 +32,39 @@ public class CreateSpaceFragment extends Fragment {
         R.drawable.v02_img_icons_medicne
     };
 
+    public static CreateSpaceFragment newInstance(CustomSpace space) {
+        CreateSpaceFragment fragment = new CreateSpaceFragment();
+        if (space != null) {
+            Bundle args = new Bundle();
+            args.putSerializable("custom_space", space);
+            fragment.setArguments(args);
+        }
+        return fragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_create_space, container, false);
 
+        if (getArguments() != null && getArguments().containsKey("custom_space")) {
+            editingSpace = (CustomSpace) getArguments().getSerializable("custom_space");
+        }
+
         etName = view.findViewById(R.id.etSpaceName);
         ivSelectedIcon = view.findViewById(R.id.ivSpaceIcon);
         LinearLayout iconPicker = view.findViewById(R.id.iconPickerLayout);
+        TextView tvTitle = view.findViewById(R.id.tvTitle);
+        Button btnCreate = view.findViewById(R.id.btnCreateSpace);
+
+        if (editingSpace != null) {
+            etName.setText(editingSpace.getName());
+            selectedIconRes = editingSpace.getIconResId();
+            ivSelectedIcon.setImageResource(selectedIconRes);
+            customImageUri = editingSpace.getImageUri();
+            if (tvTitle != null) tvTitle.setText("Update Space");
+            if (btnCreate != null) btnCreate.setText("Update Space");
+        }
 
         // Populate Icon Picker
         for (int iconRes : availableIcons) {
@@ -75,9 +103,20 @@ public class CreateSpaceFragment extends Fragment {
     }
 
     private void saveSpace(String name) {
-        CustomSpace space = new CustomSpace(name, selectedIconRes, customImageUri);
         Executors.newSingleThreadExecutor().execute(() -> {
-            AppDatabase.getInstance(requireContext()).customSpaceDao().insertSpace(space);
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            if (editingSpace == null) {
+                // Create new
+                CustomSpace space = new CustomSpace(name, selectedIconRes, customImageUri);
+                db.customSpaceDao().insertSpace(space);
+            } else {
+                // Update existing
+                editingSpace.setName(name);
+                editingSpace.setIconResId(selectedIconRes);
+                editingSpace.setImageUri(customImageUri);
+                db.customSpaceDao().updateSpace(editingSpace);
+            }
+
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
                     getParentFragmentManager().popBackStack();

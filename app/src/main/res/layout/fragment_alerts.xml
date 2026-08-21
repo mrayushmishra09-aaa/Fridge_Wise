@@ -106,7 +106,8 @@
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:src="@drawable/alert_empty_state_img"
-            android:scaleType="fitCenter" />
+            android:scaleType="fitCenter"
+            android:alpha="0.7"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -115,7 +116,8 @@
             android:text="No Alerts Right Now"
             android:textColor="#212529"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:alpha="0.7"/>
 
         <TextView
             android:layout_width="wrap_content"
