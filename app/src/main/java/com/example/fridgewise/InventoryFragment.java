@@ -44,6 +44,10 @@ public class InventoryFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
         
+        if (getArguments() != null) {
+            currentSearchQuery = getArguments().getString("search_query", "");
+        }
+
         // Initialize RecyclerView
         recyclerView = view.findViewById(R.id.recycler_inventory);
         llEmptyState = view.findViewById(R.id.ll_inventory_empty_state);
@@ -92,6 +96,10 @@ public class InventoryFragment extends Fragment {
 
         // Setup Search
         SearchView searchView = view.findViewById(R.id.inventory_search_view);
+        if (!currentSearchQuery.isEmpty()) {
+            searchView.setQuery(currentSearchQuery, false);
+            searchView.setIconified(false);
+        }
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {

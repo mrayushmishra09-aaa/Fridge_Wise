@@ -57,12 +57,22 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
             holder.btnTakeDose.setEnabled(false);
             holder.btnTakeDose.setText("Taken");
             holder.tvStatusChip.setText("Completed");
-            holder.tvStatusChip.setBackgroundResource(R.drawable.bg_chip_green);
+            holder.tvStatusChip.setBackgroundResource(R.drawable.bg_badge_purple); // Use a light purple/gray badge
+            holder.tvStatusChip.setTextColor(holder.itemView.getContext().getColor(R.color.text_gray));
+            
+            // Faded/Grayed out effect
+            holder.itemView.setAlpha(0.6f);
+            holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
             holder.btnTakeDose.setEnabled(true);
             holder.btnTakeDose.setText("Take Dose");
             holder.tvStatusChip.setText("Next dose");
             holder.tvStatusChip.setBackgroundResource(R.drawable.bg_chip_light_purple);
+            holder.tvStatusChip.setTextColor(holder.itemView.getContext().getColor(R.color.purple_primary));
+            
+            // Normal state
+            holder.itemView.setAlpha(1.0f);
+            holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() & (~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG));
         }
 
         // Low stock warning

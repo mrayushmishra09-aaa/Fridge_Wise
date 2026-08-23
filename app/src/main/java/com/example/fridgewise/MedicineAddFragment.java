@@ -246,11 +246,14 @@ public class MedicineAddFragment extends Fragment {
         Context context = getContext();
         if (context == null) return;
         new Thread(() -> {
+            AppDatabase db = AppDatabase.getInstance(context);
             if (existingMedicine != null) {
-                AppDatabase.getInstance(context).medicineDao().update(med);
+                db.medicineDao().update(med);
+                db.activityDao().insert(new ActivityRecord("Medicine", "Updated", name, System.currentTimeMillis(), selectedIconResId));
             } else {
-                long id = AppDatabase.getInstance(context).medicineDao().insert(med);
+                long id = db.medicineDao().insert(med);
                 med.setId((int) id);
+                db.activityDao().insert(new ActivityRecord("Medicine", "Added", name, System.currentTimeMillis(), selectedIconResId));
             }
 
             // Schedule notification if reminder is on

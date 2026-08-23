@@ -26,13 +26,16 @@
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="24dp"
             android:background="@android:color/transparent"
             app:tabBackground="@drawable/dot_selector"
             app:tabGravity="center"
             app:tabIndicatorHeight="0dp"
-            app:tabMaxWidth="12dp"
-            app:tabRippleColor="@null" />
+            app:tabRippleColor="@null"
+            app:tabMaxWidth="24dp"
+            app:tabMinWidth="24dp"
+            app:tabPaddingStart="0dp"
+            app:tabPaddingEnd="0dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNext"
@@ -51,7 +54,8 @@
             app:iconGravity="end"
             app:iconPadding="12dp"
             app:iconSize="20dp"
-            app:iconTint="@color/white" />
+            app:iconTint="@color/white"
+            />
 
     </LinearLayout>
 

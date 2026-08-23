@@ -140,6 +140,8 @@ public class AddItemFragment extends Fragment {
                     long id = database.foodItemDao().insert(newItem);
                     newItem.setId((int) id);
                     itemToSchedule = newItem;
+                    // LOG ACTIVITY
+                    database.activityDao().insert(new ActivityRecord("Food Inventory", "Added", itemName, System.currentTimeMillis(), CategoryUtils.getCategoryIcon(category)));
                 } else {
                     // UPDATE existing item
                     editingItem.setName(itemName);
@@ -150,6 +152,8 @@ public class AddItemFragment extends Fragment {
                     editingItem.setExpiryDate(expiryDate);
                     database.foodItemDao().update(editingItem);
                     itemToSchedule = editingItem;
+                    // LOG ACTIVITY
+                    database.activityDao().insert(new ActivityRecord("Food Inventory", "Updated", itemName, System.currentTimeMillis(), CategoryUtils.getCategoryIcon(category)));
                 }
 
                 // Schedule notification for expiry

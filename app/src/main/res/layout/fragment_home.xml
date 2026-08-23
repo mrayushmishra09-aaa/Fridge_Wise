@@ -29,22 +29,24 @@
             android:paddingEnd="10dp"
             android:paddingBottom="90dp">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:orientation="horizontal">
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@+id/ll_logo_container"
                     android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tv_user_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingTop="10dp"
                         android:text="@string/hello_ayush"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -54,43 +56,43 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="What are we cooking today?"
-                        android:textSize="10sp" />
+                        android:textSize="10sp"
+                        android:ellipsize="end"
+                        android:maxLines="2"/>
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="164dp"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
+                    android:id="@+id/ll_logo_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
                     android:orientation="vertical">
 
                     <ImageView
                         android:id="@+id/imageView3"
                         android:layout_width="97dp"
                         android:layout_height="28dp"
-                        android:layout_marginTop="1dp"
-                        android:layout_gravity="center_horizontal"
                         android:scaleType="fitCenter"
                         app:srcCompat="@drawable/shadow" />
 
                     <TextView
                         android:id="@+id/textView"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:paddingRight="7dp"
                         android:text="Smart Food Manager"
                         android:textSize="10sp" />
-
                 </LinearLayout>
 
                 <ImageView
                     android:id="@+id/pfp01"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_gravity="right"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
                     tools:srcCompat="@mipmap/ic_launcher" />
 
-            </LinearLayout>
+            </RelativeLayout>
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
@@ -359,7 +361,7 @@
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:padding="8dp"
-                                android:src="@drawable/recipe_img"
+                                android:src="@drawable/v02_img_icons_shopping"
                                 app:tint="@color/green_primary" />
 
                             <TextView
@@ -555,18 +557,22 @@
                 android:id="@+id/textView8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginTop="24dp"
+                android:layout_marginHorizontal="4dp"
                 android:text="Recent Activity"
-                android:textSize="16sp"
+                android:textColor="@color/text_dark"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:layout_marginTop="5dp"/>
+                android:visibility="gone"
+                tools:visibility="visible" />
 
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_recent_activity"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_recent_activity" />
 
         </LinearLayout>
     </ScrollView>

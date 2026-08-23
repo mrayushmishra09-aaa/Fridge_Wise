@@ -110,8 +110,10 @@ public class AddSpaceItemFragment extends Fragment {
             AppDatabase db = AppDatabase.getInstance(requireContext());
             if (existingItem != null) {
                 db.customSpaceDao().updateItem(item);
+                db.activityDao().insert(new ActivityRecord("Custom Space", "Updated", name, System.currentTimeMillis(), R.drawable.ic_sparkle));
             } else {
                 db.customSpaceDao().insertItem(item);
+                db.activityDao().insert(new ActivityRecord("Custom Space", "Added", name, System.currentTimeMillis(), R.drawable.ic_sparkle));
             }
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> getParentFragmentManager().popBackStack());

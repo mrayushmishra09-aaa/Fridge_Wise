@@ -36,21 +36,25 @@
     <!-- Main Illustration -->
     <ImageView
         android:id="@+id/ivIntroImage"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="40dp"
         android:scaleType="fitCenter"
-        app:layout_constraintDimensionRatio="4:3"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ll_logo_header"
+        app:layout_constraintBottom_toTopOf="@+id/contentScrollView"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:src="@drawable/start_img01_zoom" />
 
     <!-- Text Content -->
     <ScrollView
+        android:id="@+id/contentScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ivIntroImage">
 
@@ -60,7 +64,7 @@
             android:gravity="center"
             android:orientation="vertical"
             android:paddingHorizontal="40dp"
-            android:paddingBottom="100dp">
+            android:paddingBottom="40dp">
 
             <TextView
                 android:id="@+id/tvIntroTitle"
@@ -69,19 +73,20 @@
                 android:text="Welcome to FridgeWise"
                 android:textAlignment="center"
                 android:textColor="@color/onboarding_text_header"
-                android:textSize="28sp"
-                android:textStyle="bold" />
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:lineHeight="32sp" />
 
             <TextView
                 android:id="@+id/tvIntroDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:lineSpacingExtra="4dp"
+                android:lineSpacingExtra="6dp"
                 android:text="Your smart space to remember and manage the things that matter every day."
                 android:textAlignment="center"
                 android:textColor="@color/text_gray"
-                android:textSize="15sp" />
+                android:textSize="16sp" />
 
             <!-- Detailed Section (Visible only on Screen 2) -->
             <LinearLayout

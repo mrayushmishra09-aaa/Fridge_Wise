@@ -16,8 +16,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -76,6 +81,20 @@ public class MainActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.POST_NOTIFICATIONS}, PERMISSION_REQUEST_CODE);
             }
         }
+
+        scheduleSmartCleanup();
+    }
+
+    private void scheduleSmartCleanup() {
+        PeriodicWorkRequest cleanupRequest = new PeriodicWorkRequest.Builder(
+                CleanupWorker.class, 6, TimeUnit.HOURS)
+                .build();
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "SmartCleanupWork",
+                ExistingPeriodicWorkPolicy.KEEP,
+                cleanupRequest
+        );
     }
 
     @Override

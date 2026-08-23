@@ -68,6 +68,12 @@ dependencies {
     // Google AI (Gemini)
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
 
+    // WorkManager
+    implementation(libs.work.runtime)
+
+    // Security
+    implementation(libs.security.crypto)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

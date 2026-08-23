@@ -21,6 +21,7 @@ public class TodoItem implements Serializable {
     private String note;
     private boolean isReminderSet;
     private boolean isCompleted;
+    private long statusChangeTime; // Timestamp of when the status was changed
 
     /**
      * Default constructor required by Room.
@@ -39,6 +40,7 @@ public class TodoItem implements Serializable {
         this.note = note;
         this.isReminderSet = isReminderSet;
         this.isCompleted = isCompleted;
+        this.statusChangeTime = System.currentTimeMillis();
     }
 
     // Getters and Setters
@@ -64,5 +66,11 @@ public class TodoItem implements Serializable {
     public void setReminderSet(boolean reminderSet) { isReminderSet = reminderSet; }
 
     public boolean isCompleted() { return isCompleted; }
-    public void setCompleted(boolean completed) { isCompleted = completed; }
+    public void setCompleted(boolean completed) { 
+        isCompleted = completed; 
+        statusChangeTime = System.currentTimeMillis();
+    }
+
+    public long getStatusChangeTime() { return statusChangeTime; }
+    public void setStatusChangeTime(long statusChangeTime) { this.statusChangeTime = statusChangeTime; }
 }

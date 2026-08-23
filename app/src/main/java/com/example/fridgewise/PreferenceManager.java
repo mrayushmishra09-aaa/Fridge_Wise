@@ -2,19 +2,40 @@ package com.example.fridgewise;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
+import android.util.Log;
 
 public class PreferenceManager {
-    private static final String PREF_NAME = "FridgeWisePrefs";
+    private static final String TAG = "PreferenceManager";
+    private static final String PREF_NAME = "FridgeWisePrefs_Secure";
     private static final String KEY_IS_FIRST_TIME = "isFirstTimeLaunch";
     private static final String KEY_USER_NAME = "userName";
     private static final String KEY_USER_AGE = "userAge";
 
-    private final SharedPreferences pref;
-    private final SharedPreferences.Editor editor;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 
     public PreferenceManager(Context context) {
-        pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        editor = pref.edit();
+        try {
+            MasterKey masterKey = new MasterKey.Builder(context)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build();
+
+            pref = EncryptedSharedPreferences.create(
+                    context,
+                    PREF_NAME,
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+            editor = pref.edit();
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing EncryptedSharedPreferences", e);
+            // Fallback to standard prefs if encryption fails
+            pref = context.getSharedPreferences("FridgeWisePrefs_Fallback", Context.MODE_PRIVATE);
+            editor = pref.edit();
+        }
     }
 
     public void setFirstTimeLaunch(boolean isFirstTime) {
@@ -42,5 +63,10 @@ public class PreferenceManager {
 
     public int getUserAge() {
         return pref.getInt(KEY_USER_AGE, 0);
+    }
+
+    public void clearAll() {
+        editor.clear();
+        editor.apply();
     }
 }

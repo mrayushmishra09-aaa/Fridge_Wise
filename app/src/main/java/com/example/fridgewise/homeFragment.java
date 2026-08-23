@@ -1,15 +1,16 @@
 package com.example.fridgewise;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.transition.TransitionManager;
@@ -17,18 +18,9 @@ import android.transition.TransitionManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 public class HomeFragment extends Fragment {
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
+    private HomeViewModel viewModel;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -36,6 +28,12 @@ public class HomeFragment extends Fragment {
 
     public static HomeFragment newInstance() {
         return new HomeFragment();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
     }
 
     @Override
@@ -50,8 +48,8 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (getView() != null) {
-            setupDashboard(getView());
+        if (viewModel != null) {
+            viewModel.refreshDashboard();
         }
     }
 
@@ -59,189 +57,85 @@ public class HomeFragment extends Fragment {
         LinearLayout llAttentionSection = view.findViewById(R.id.ll_attention_section);
         RecyclerView rvAttention = view.findViewById(R.id.rv_attention);
         TextView tvAttentionCount = view.findViewById(R.id.tv_attention_count);
+        TextView tvUserMessage = view.findViewById(R.id.tv_user_message);
         
+        RecyclerView rvRecent = view.findViewById(R.id.rv_recent_activity);
+        RecentActivityAdapter recentAdapter = new RecentActivityAdapter(getContext());
+        if (rvRecent != null) {
+            rvRecent.setLayoutManager(new LinearLayoutManager(getContext()));
+            rvRecent.setAdapter(recentAdapter);
+        }
+
         View cvTodayInsight = view.findViewById(R.id.cv_today_insight);
         TextView tvInsightTitle = view.findViewById(R.id.tv_insight_title);
         TextView tvInsightDesc = view.findViewById(R.id.tv_insight_description);
         View btnInsightAction = view.findViewById(R.id.btn_insight_action);
+        View btnViewAllAttention = view.findViewById(R.id.tv_view_all_attention);
 
-        new Thread(() -> {
-            Context context = getContext();
-            if (context == null) return;
+        if (btnViewAllAttention != null) {
+            btnViewAllAttention.setOnClickListener(v -> replaceFragment(new AlertsFragment()));
+        }
+
+        Context context = getContext();
+        if (context == null) return;
+
+        viewModel.getUiState().observe(getViewLifecycleOwner(), state -> {
+            if (state == null) return;
+
+            // Update Greeting & Name
+            if (tvUserMessage != null) tvUserMessage.setText(state.greeting);
             
-            AppDatabase db = AppDatabase.getInstance(context);
-            ArrayList<AttentionItem> attentionItems = new ArrayList<>();
-            
-            String insightTitle = null;
-            String insightDesc = null;
-            Fragment insightTargetFragment = null;
-
-            Calendar calNow = Calendar.getInstance();
-            int currentTotalMinutes = calNow.get(Calendar.HOUR_OF_DAY) * 60 + calNow.get(Calendar.MINUTE);
-
-            // 1. Food Data
-            List<FoodItem> foodItems = db.foodItemDao().getAllItems();
-            Date today = resetTime(calNow.getTime());
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DAY_OF_YEAR, 1);
-            Date tomorrow = resetTime(cal.getTime());
-
-            for (FoodItem item : foodItems) {
-                if (insightTitle == null && item.getQuantity() <= 1) {
-                    insightTitle = item.getName() + " is running low";
-                    insightDesc = "You have very little " + item.getName() + " left. Add to shopping list?";
-                    insightTargetFragment = new ShoppingListFragment();
-                }
-
-                try {
-                    Date expiry = dateFormat.parse(item.getExpiryDate());
-                    if (expiry != null) {
-                        expiry = resetTime(expiry);
-                        if (expiry.before(today)) {
-                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expired", "In Fridge", "Has expired! Clean it out.", "View item", AttentionItem.Type.FOOD);
-                            ai.setPriorityScore(10);
-                            ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
-                            attentionItems.add(ai);
-                        } else if (expiry.equals(today)) {
-                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expires today", "In Fridge", "Use today for best freshness.", "View item", AttentionItem.Type.FOOD);
-                            ai.setPriorityScore(50);
-                            ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
-                            attentionItems.add(ai);
-                        }
-                    }
-                } catch (ParseException e) { }
+            TextView tvUserName = view.findViewById(R.id.tv_user_name);
+            if (tvUserName != null && state.userName != null) {
+                tvUserName.setText("Hello, " + state.userName);
             }
 
-            // 2. Meds
-            List<MedicineEntity> medicines = db.medicineDao().getAllMedicines();
-            int activeMedCount = 0;
-            for (MedicineEntity med : medicines) {
-                if (med.isReminderOn()) {
-                    activeMedCount++;
-                    AttentionItem ai = new AttentionItem(String.valueOf(med.getId()), med.getMedicineName(), med.getStartTime(), "Medicine", "Time to take your meds.", "View", AttentionItem.Type.MEDICINE);
-                    ai.setPriorityScore(100);
-                    ai.setImageResId(med.getIconResId());
-                    attentionItems.add(ai);
+            // Update Recent Activities
+            if (state.recentActivities != null) {
+                recentAdapter.setActivities(state.recentActivities);
+                if (view.findViewById(R.id.textView8) != null) {
+                    view.findViewById(R.id.textView8).setVisibility(state.recentActivities.isEmpty() ? View.GONE : View.VISIBLE);
                 }
             }
 
-            // 3. Tasks
-            List<TodoItem> pendingTodos = db.todoDao().getPendingTodos();
-            for (TodoItem todo : pendingTodos) {
-                if ("High".equalsIgnoreCase(todo.getPriority())) {
-                    AttentionItem ai = new AttentionItem(String.valueOf(todo.getId()), todo.getTitle(), "High Priority", "Tasks", "Pending task needs completion.", "View", AttentionItem.Type.TODO);
-                    ai.setPriorityScore(70);
-                    ai.setImageResId(R.drawable.ic_todo_item);
-                    attentionItems.add(ai);
-                }
+            // Update Attention Section
+            if (state.attentionItems != null && !state.attentionItems.isEmpty()) {
+                llAttentionSection.setVisibility(View.VISIBLE);
+                rvAttention.setVisibility(View.VISIBLE);
+                View emptyView = view.findViewById(R.id.cv_attention_empty);
+                if (emptyView != null) emptyView.setVisibility(View.GONE);
+                
+                tvAttentionCount.setText(state.attentionItems.size() + " things need attention");
+                rvAttention.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+                rvAttention.setAdapter(new AttentionAdapter(context, state.attentionItems, item -> {
+                     // TODO: Add Navigation logic here based on item.getType()
+                }));
+            } else {
+                View emptyView = view.findViewById(R.id.cv_attention_empty);
+                if (emptyView != null) emptyView.setVisibility(View.VISIBLE);
+                rvAttention.setVisibility(View.GONE);
+                tvAttentionCount.setText("Everything is in order");
             }
 
-            attentionItems.sort((a, b) -> Long.compare(b.getPriorityScore(), a.getPriorityScore()));
-
-            // Time for Greeting
-            final String currentTime;
-            int hour = calNow.get(Calendar.HOUR_OF_DAY);
-            if (hour >= 5 && hour < 12) currentTime = "Morning";
-            else if (hour >= 12 && hour < 17) currentTime = "Afternoon";
-            else if (hour >= 17 && hour < 21) currentTime = "Evening";
-            else currentTime = "Night";
-
-            final String fInsightTitle = insightTitle;
-            final String fInsightDesc = insightDesc;
-            final Fragment fTargetFragment = insightTargetFragment;
-            final int fMedCount = activeMedCount;
-            final int fTodoCount = pendingTodos.size();
-            final int attentionSize = attentionItems.size();
-
-            Activity activity = getActivity();
-            if (activity != null && isAdded()) {
-                activity.runOnUiThread(() -> {
-                    if (!isAdded()) return;
-
-                    // Set Greeting
-                    TextView tvUserMessage = view.findViewById(R.id.tv_user_message);
-                    if (tvUserMessage != null) tvUserMessage.setText("Good " + currentTime + "! Ready for a healthy meal?");
-
-                    // Attention Section
-                    if (attentionSize > 0) {
-                        llAttentionSection.setVisibility(View.VISIBLE);
-                        rvAttention.setVisibility(View.VISIBLE);
-                        view.findViewById(R.id.cv_attention_empty).setVisibility(View.GONE);
-                        tvAttentionCount.setText(attentionSize + " things need attention");
-                        rvAttention.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
-                        rvAttention.setAdapter(new AttentionAdapter(context, attentionItems, item -> {
-                             // Navigation logic...
-                        }));
-                    } else {
-                        view.findViewById(R.id.cv_attention_empty).setVisibility(View.VISIBLE);
-                        rvAttention.setVisibility(View.GONE);
-                        tvAttentionCount.setText("Everything is in order");
-                    }
-
-                    // Smart AI Insight
-                    if (cvTodayInsight != null) {
-                        cvTodayInsight.setVisibility(View.VISIBLE);
-                        tvInsightTitle.setText("Thinking...");
-                        
-                        StringBuilder data = new StringBuilder("Time: " + currentTime + ". ");
-                        data.append("Food count: ").append(foodItems.size()).append(". ");
-                        data.append("Meds: ").append(fMedCount).append(". ");
-                        data.append("Tasks: ").append(fTodoCount).append(".");
-
-                        // Use API key from BuildConfig
-                        String apiKey = BuildConfig.GEMINI_API_KEY;
-                        new GeminiManager(apiKey).getSmartInsight(data.toString(), new GeminiManager.InsightCallback() {
-                            @Override
-                            public void onInsightGenerated(String greeting, String title, String description) {
-                                activity.runOnUiThread(() -> {
-                                    // 1. Update Top Greeting
-                                    if (tvUserMessage != null) tvUserMessage.setText(greeting);
-                                    
-                                    // 2. Update Insight Card
-                                    tvInsightTitle.setText(title);
-                                    tvInsightDesc.setText(description);
-                                    
-                                    if (btnInsightAction != null && fTargetFragment != null) {
-                                        btnInsightAction.setOnClickListener(v -> replaceFragment(fTargetFragment));
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onError(Throwable t) {
-                                activity.runOnUiThread(() -> {
-                                    // Fallback to manual insight or a welcome message
-                                    if (fInsightTitle != null) {
-                                        tvInsightTitle.setText(fInsightTitle);
-                                        tvInsightDesc.setText(fInsightDesc);
-                                    } else {
-                                        tvInsightTitle.setText("Welcome to FridgeWise!");
-                                        tvInsightDesc.setText("Add your first item to start getting smart insights.");
-                                    }
-                                });
-                            }
+            // Update Insight Card
+            if (cvTodayInsight != null) {
+                cvTodayInsight.setVisibility(View.VISIBLE);
+                if (state.isLoading) {
+                    tvInsightTitle.setText("Thinking...");
+                    tvInsightDesc.setText("Analyzing your fridge data...");
+                } else {
+                    tvInsightTitle.setText(state.insightTitle);
+                    tvInsightDesc.setText(state.insightDescription);
+                    
+                    if (btnInsightAction != null) {
+                        btnInsightAction.setOnClickListener(v -> {
+                             // Navigate to Shopping list as a default helpful action
+                             replaceFragment(new ShoppingListFragment());
                         });
                     }
-                });
+                }
             }
-        }).start();
-    }
-
-    private int parseMinutes(String time) {
-        try {
-            String[] parts = time.split(":");
-            return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1].split(" ")[0]);
-        } catch (Exception e) { return 0; }
-    }
-
-    private Date resetTime(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        return cal.getTime();
+        });
     }
 
     private void setupNavigation(View view) {
@@ -261,6 +155,28 @@ public class HomeFragment extends Fragment {
                 int vis = llOptions.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE;
                 TransitionManager.beginDelayedTransition((ViewGroup) view);
                 llOptions.setVisibility(vis);
+            });
+        }
+
+        android.widget.SearchView searchBar = view.findViewById(R.id.home_searchbar);
+        if (searchBar != null) {
+            searchBar.setOnQueryTextListener(new android.widget.SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    if (query != null && !query.isEmpty()) {
+                        InventoryFragment fragment = new InventoryFragment();
+                        Bundle args = new Bundle();
+                        args.putString("search_query", query);
+                        fragment.setArguments(args);
+                        replaceFragment(fragment);
+                    }
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    return false;
+                }
             });
         }
     }

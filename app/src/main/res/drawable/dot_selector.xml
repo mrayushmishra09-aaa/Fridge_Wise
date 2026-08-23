@@ -1,15 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Active dot: bigger, colored -->
     <item android:state_selected="true">
-        <shape android:shape="oval">
-            <solid android:color="@color/onboarding_primary" />
-            <size android:width="10dp" android:height="10dp" />
-        </shape>
+        <inset
+            android:insetLeft="8dp"
+            android:insetTop="8dp"
+            android:insetRight="8dp"
+            android:insetBottom="8dp">
+            <shape android:shape="oval">
+                <solid android:color="@color/onboarding_primary" />
+            </shape>
+        </inset>
     </item>
+
+    <!-- Inactive dot: smaller, gray -->
     <item>
-        <shape android:shape="oval">
-            <solid android:color="@color/onboarding_dot_inactive" />
-            <size android:width="8dp" android:height="8dp" />
-        </shape>
+        <inset
+            android:insetLeft="9dp"
+            android:insetTop="9dp"
+            android:insetRight="9dp"
+            android:insetBottom="9dp">
+            <shape android:shape="oval">
+                <solid android:color="@color/onboarding_dot_inactive" />
+            </shape>
+        </inset>
     </item>
+
 </selector>

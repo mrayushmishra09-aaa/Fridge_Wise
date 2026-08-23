@@ -17,6 +17,7 @@ public class OnboardingActivity extends AppCompatActivity {
 
     private ViewPager2 viewPager;
     private Button btnNext;
+    private OnboardingAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +28,7 @@ public class OnboardingActivity extends AppCompatActivity {
         btnNext = findViewById(R.id.btnNext);
         TabLayout tabLayout = findViewById(R.id.tabLayout);
 
-        OnboardingAdapter adapter = new OnboardingAdapter(this);
+        adapter = new OnboardingAdapter(this);
         viewPager.setAdapter(adapter);
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {}).attach();
@@ -47,7 +48,12 @@ public class OnboardingActivity extends AppCompatActivity {
             if (viewPager.getCurrentItem() < 2) {
                 viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
             } else {
-                // Handled by RegistrationFragment
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+                if (fragment instanceof RegistrationFragment) {
+                    if (((RegistrationFragment) fragment).validateAndSave()) {
+                        finishOnboarding();
+                    }
+                }
             }
         });
     }

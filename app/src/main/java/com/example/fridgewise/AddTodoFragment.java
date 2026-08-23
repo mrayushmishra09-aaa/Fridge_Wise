@@ -116,7 +116,9 @@ public class AddTodoFragment extends Fragment {
                 existingTask.setReminderSet(isReminderSet);
 
                 new Thread(() -> {
-                    AppDatabase.getInstance(requireContext()).todoDao().update(existingTask);
+                    AppDatabase db = AppDatabase.getInstance(requireContext());
+                    db.todoDao().update(existingTask);
+                    db.activityDao().insert(new ActivityRecord("Tasks", "Updated", title, System.currentTimeMillis(), R.drawable.ic_todo_item));
                     
                     if (existingTask.isReminderSet()) {
                         scheduleTodoNotification(existingTask);
@@ -133,8 +135,10 @@ public class AddTodoFragment extends Fragment {
                 // Save new task
                 TodoItem newTask = new TodoItem(title, selectedDate, selectedTime, selectedPriority, note, isReminderSet, false);
                 new Thread(() -> {
-                    long id = AppDatabase.getInstance(requireContext()).todoDao().insert(newTask);
+                    AppDatabase db = AppDatabase.getInstance(requireContext());
+                    long id = db.todoDao().insert(newTask);
                     newTask.setId((int) id);
+                    db.activityDao().insert(new ActivityRecord("Tasks", "Added", title, System.currentTimeMillis(), R.drawable.ic_todo_item));
 
                     if (newTask.isReminderSet()) {
                         scheduleTodoNotification(newTask);

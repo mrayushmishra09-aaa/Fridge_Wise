@@ -17,7 +17,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
+import android.content.ContentValues;
+import android.provider.MediaStore;
+import android.os.Build;
+import android.os.Environment;
 
 public class DocumentListFragment extends Fragment {
 
@@ -69,6 +77,11 @@ public class DocumentListFragment extends Fragment {
             public void onDeleteClick(DocumentItem document) {
                 deleteDocument(document);
             }
+
+            @Override
+            public void onDownloadClick(DocumentItem document) {
+                downloadDocument(document);
+            }
         });
 
         if (rvDocuments != null) {
@@ -92,6 +105,63 @@ public class DocumentListFragment extends Fragment {
                     }
                     if (tvDocCount != null) {
                         tvDocCount.setText(getString(R.string.documents_saved_count, documents.size()));
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void downloadDocument(DocumentItem document) {
+        String imagePath = document.getImagePath();
+        if (imagePath == null || imagePath.isEmpty()) {
+            Toast.makeText(getContext(), "No image to download", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new Thread(() -> {
+            boolean success = false;
+            try {
+                Uri sourceUri = Uri.parse(imagePath);
+                String fileName = "FridgeWise_" + document.getName().replace(" ", "_") + ".jpg";
+
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+                values.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+                
+                Uri externalUri;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+                    externalUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+                } else {
+                    // Fallback for older versions
+                    externalUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                }
+
+                Uri destinationUri = requireContext().getContentResolver().insert(externalUri, values);
+
+                if (destinationUri != null) {
+                    try (InputStream is = requireContext().getContentResolver().openInputStream(sourceUri);
+                         OutputStream os = requireContext().getContentResolver().openOutputStream(destinationUri)) {
+                        
+                        byte[] buffer = new byte[8192];
+                        int length;
+                        while ((length = is.read(buffer)) > 0) {
+                            os.write(buffer, 0, length);
+                        }
+                        success = true;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            final boolean finalSuccess = success;
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (finalSuccess) {
+                        Toast.makeText(getContext(), "Document saved to Downloads", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getContext(), "Failed to save document", Toast.LENGTH_SHORT).show();
                     }
                 });
             }

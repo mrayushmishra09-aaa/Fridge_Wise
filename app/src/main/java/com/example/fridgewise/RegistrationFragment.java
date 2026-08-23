@@ -6,13 +6,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 public class RegistrationFragment extends Fragment {
+
+    private EditText etName, etAge;
 
     public RegistrationFragment() {
     }
@@ -22,39 +23,42 @@ public class RegistrationFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_registration, container, false);
 
-        EditText etName = view.findViewById(R.id.etName);
-        EditText etAge = view.findViewById(R.id.etAge);
-        View btnSubmit = view.findViewById(R.id.btnSubmit);
-
-        btnSubmit.setOnClickListener(v -> {
-            String name = etName.getText().toString().trim();
-            String ageStr = etAge.getText().toString().trim();
-
-            if (TextUtils.isEmpty(name)) {
-                etName.setError("Name is required");
-                return;
-            }
-
-            if (TextUtils.isEmpty(ageStr)) {
-                etAge.setError("Age is required");
-                return;
-            }
-
-            int age = Integer.parseInt(ageStr);
-            if (age <= 0 || age > 120) {
-                etAge.setError("Please enter a valid age");
-                return;
-            }
-
-            PreferenceManager prefManager = new PreferenceManager(requireContext());
-            prefManager.setUserName(name);
-            prefManager.setUserAge(age);
-
-            if (getActivity() instanceof OnboardingActivity) {
-                ((OnboardingActivity) getActivity()).finishOnboarding();
-            }
-        });
+        etName = view.findViewById(R.id.etName);
+        etAge = view.findViewById(R.id.etAge);
 
         return view;
+    }
+
+    public boolean validateAndSave() {
+        String name = etName.getText().toString().trim();
+        String ageStr = etAge.getText().toString().trim();
+
+        if (TextUtils.isEmpty(name)) {
+            etName.setError("Name is required");
+            etName.requestFocus();
+            return false;
+        }
+
+        int age = 0;
+        if (!TextUtils.isEmpty(ageStr)) {
+            try {
+                age = Integer.parseInt(ageStr);
+                if (age <= 0 || age > 120) {
+                    etAge.setError("Please enter a valid age");
+                    etAge.requestFocus();
+                    return false;
+                }
+            } catch (NumberFormatException e) {
+                etAge.setError("Invalid number");
+                etAge.requestFocus();
+                return false;
+            }
+        }
+
+        PreferenceManager prefManager = new PreferenceManager(requireContext());
+        prefManager.setUserName(name);
+        prefManager.setUserAge(age);
+        
+        return true;
     }
 }

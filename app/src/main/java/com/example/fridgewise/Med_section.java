@@ -199,6 +199,21 @@ public class Med_section extends Fragment {
         if (context == null) return;
         new Thread(() -> {
             List<MedicineEntity> list = AppDatabase.getInstance(context).medicineDao().getAllMedicines();
+            
+            // Smart Sorting: Not taken first, then taken
+            String today = new SimpleDateFormat("d/M/yyyy", Locale.getDefault()).format(new Date());
+            list.sort((m1, m2) -> {
+                boolean t1 = today.equals(m1.getLastTakenDate());
+                boolean t2 = today.equals(m2.getLastTakenDate());
+                
+                if (t1 != t2) {
+                    return t1 ? 1 : -1; // Not taken (false) comes before taken (true)
+                }
+                
+                // Secondary sort: By Time
+                return m1.getStartTime().compareToIgnoreCase(m2.getStartTime());
+            });
+
             if (isAdded()) {
                 getActivity().runOnUiThread(() -> {
                     medicineList.clear();

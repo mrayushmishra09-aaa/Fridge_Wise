@@ -19,6 +19,7 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
     public interface OnDocumentClickListener {
         void onEditClick(DocumentItem document);
         void onDeleteClick(DocumentItem document);
+        void onDownloadClick(DocumentItem document);
     }
 
     private List<DocumentItem> documentItemList = new ArrayList<>();
@@ -77,6 +78,12 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
             });
             popup.show();
         });
+
+        holder.btnDownload.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onDownloadClick(currentDoc);
+            }
+        });
     }
 
     @Override
@@ -86,7 +93,7 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
 
     static class DocViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvCategory;
-        ImageView ivThumbnail, btnMore;
+        ImageView ivThumbnail, btnMore, btnDownload;
 
         public DocViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -94,6 +101,7 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
             tvCategory = itemView.findViewById(R.id.tvDocCategory);
             ivThumbnail = itemView.findViewById(R.id.ivDocThumbnail);
             btnMore = itemView.findViewById(R.id.btnMore);
+            btnDownload = itemView.findViewById(R.id.btnDownload);
         }
     }
 }

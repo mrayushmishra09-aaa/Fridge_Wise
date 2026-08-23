@@ -19,6 +19,7 @@ public class MedicineEntity implements Serializable {
     private boolean reminderOn;
     private int iconResId;
     private String lastTakenDate;
+    private long statusChangeTime;
 
     public MedicineEntity() {}
 
@@ -102,6 +103,14 @@ public class MedicineEntity implements Serializable {
 
     public void setLastTakenDate(String lastTakenDate) {
         this.lastTakenDate = lastTakenDate;
+        this.statusChangeTime = System.currentTimeMillis();
     }
 
+    public long getStatusChangeTime() {
+        return statusChangeTime;
+    }
+
+    public void setStatusChangeTime(long statusChangeTime) {
+        this.statusChangeTime = statusChangeTime;
+    }
 }
