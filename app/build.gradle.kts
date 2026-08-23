@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
 }
@@ -18,6 +20,15 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            val properties = Properties()
+            val propertiesFile = project.rootProject.file("local.properties")
+            if (propertiesFile.exists()) {
+                properties.load(propertiesFile.inputStream())
+            }
+            val apiKey = properties.getProperty("GEMINI_API_KEY") ?: ""
+            buildConfigField("String", "GEMINI_API_KEY", "\"$apiKey\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -25,6 +36,9 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+    buildFeatures {
+        buildConfig = true
     }
     compileOptions {
         // Java 17 is required for recent Android Gradle Plugin versions
@@ -47,6 +61,12 @@ dependencies {
     implementation(libs.roomruntime)
     annotationProcessor(libs.roomcompiler)
     implementation(libs.roomcommon)
+
+    // Guava (Required for Gemini Java SDK)
+    implementation(libs.guava)
+
+    // Google AI (Gemini)
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

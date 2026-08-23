@@ -2,6 +2,7 @@ package com.example.fridgewise;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -175,13 +176,13 @@ public class TodoListFragment extends Fragment {
             tvToday.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_gray));
             tvUpcoming.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_gray));
             tvCompleted.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_gray));
-            tvToday.setTypeface(null, android.graphics.Typeface.NORMAL);
-            tvUpcoming.setTypeface(null, android.graphics.Typeface.NORMAL);
-            tvCompleted.setTypeface(null, android.graphics.Typeface.NORMAL);
+            tvToday.setTypeface(null, Typeface.NORMAL);
+            tvUpcoming.setTypeface(null, Typeface.NORMAL);
+            tvCompleted.setTypeface(null, Typeface.NORMAL);
 
             TextView selectedTab = (TextView) v;
             selectedTab.setTextColor(ContextCompat.getColor(requireContext(), R.color.purple_primary));
-            selectedTab.setTypeface(null, android.graphics.Typeface.BOLD);
+            selectedTab.setTypeface(null, Typeface.BOLD);
             
             moveIndicator(selectedTab);
 
@@ -213,7 +214,13 @@ public class TodoListFragment extends Fragment {
             if ("Completed".equalsIgnoreCase(currentTab)) {
                 if (item.isCompleted()) filteredList.add(item);
             } else if ("Today".equalsIgnoreCase(currentTab)) {
-                if (!item.isCompleted() && todayDate.equals(item.getDate())) filteredList.add(item);
+                boolean isToday = todayDate.equals(item.getDate());
+                boolean isOverdue = !isToday && isPastDate(item.getDate());
+                boolean noDate = item.getDate() == null || item.getDate().isEmpty();
+                
+                if (!item.isCompleted() && (isToday || noDate || isOverdue)) {
+                    filteredList.add(item);
+                }
             } else if ("Upcoming".equalsIgnoreCase(currentTab)) {
                 if (!item.isCompleted() && isFutureDate(item.getDate())) filteredList.add(item);
             }
@@ -234,6 +241,20 @@ public class TodoListFragment extends Fragment {
             int count = filteredList.size();
             String text = count + (count == 1 ? " task" : " tasks");
             tvTaskShowingNum.setText(text);
+        }
+    }
+
+    private boolean isPastDate(String dateStr) {
+        String dataStr = getFormattedTodayDate();
+        if (dateStr == null || dataStr.isEmpty())
+            return false;
+        try{
+            SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyy",Locale.getDefault());
+            Date taskDate = sdf.parse(dateStr);
+            Date today = sdf.parse(getFormattedTodayDate());
+            return taskDate != null && taskDate.before(today);
+        } catch (Exception e) {
+            return false;
         }
     }
 

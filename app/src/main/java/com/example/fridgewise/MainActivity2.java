@@ -22,7 +22,13 @@ public class MainActivity2 extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(MainActivity2.this, MainActivity.class);
+                PreferenceManager prefManager = new PreferenceManager(MainActivity2.this);
+                Intent intent;
+                if (prefManager.isFirstTimeLaunch()) {
+                    intent = new Intent(MainActivity2.this, OnboardingActivity.class);
+                } else {
+                    intent = new Intent(MainActivity2.this, MainActivity.class);
+                }
                 startActivity(intent);
                 finish();
             }

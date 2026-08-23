@@ -218,7 +218,11 @@ public class AddTodoFragment extends Fragment {
                 NotificationHelper.scheduleNotification(requireContext(), date.getTime(),
                         "Task Reminder: " + task.getTitle(),
                         "Priority: " + task.getPriority() + (task.getNote().isEmpty() ? "" : " - " + task.getNote()),
-                        task.getId() + 10000);
+                        task.getId() + 10000,
+                        R.drawable.ic_todo_item,
+                        "TODO",
+                        null,
+                        "group_todo");
             }
         } catch (ParseException e) {
             e.printStackTrace();

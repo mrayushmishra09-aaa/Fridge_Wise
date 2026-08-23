@@ -330,6 +330,7 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/tvDocsCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Documents"
@@ -387,6 +388,7 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/tvPetCareCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Pet Care"
@@ -444,6 +446,7 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/tvHouseholdCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Household"

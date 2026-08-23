@@ -48,4 +48,13 @@
     <color name="chip_green_bg">#E8F8EF</color>
     <color name="chip_green_text">#27AE60</color>
     <color name="card_bg">#FFFFFF</color>
+    <!-- Onboarding Specific -->
+    <color name="onboarding_primary">#2D6A4F</color>
+    <color name="onboarding_bg_soft">#F7FBF9</color>
+    <color name="onboarding_input_bg">#F8FAF9</color>
+    <color name="onboarding_input_stroke">#E8EBE9</color>
+    <color name="onboarding_text_header">#1B4332</color>
+    <color name="onboarding_tip_bg">#EDF5F1</color>
+    <color name="onboarding_tip_text">#2D6A4F</color>
+    <color name="onboarding_dot_inactive">#D1D9D5</color>
 </resources>

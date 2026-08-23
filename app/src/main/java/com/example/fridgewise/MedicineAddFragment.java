@@ -284,7 +284,11 @@ public class MedicineAddFragment extends Fragment {
                 NotificationHelper.scheduleNotification(context, timeInMillis, 
                         "Medicine Reminder: " + med.getMedicineName(),
                         "Time to take your " + med.getDosage() + " " + med.getUnit(),
-                        med.getId());
+                        med.getId(),
+                        med.getIconResId(),
+                        "MEDICINE",
+                        null,
+                        "group_meds");
             }
         } catch (ParseException e) {
             e.printStackTrace();

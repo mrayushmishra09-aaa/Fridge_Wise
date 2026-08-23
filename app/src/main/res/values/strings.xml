@@ -59,6 +59,7 @@
     <string name="checking_fridge">Checking your fridge&#8230;</string>
     <string name="reviewing_meds">Reviewing your medications&#8230;</string>
     <string name="looking_tasks">Looking at your tasks&#8230;</string>
+    <string name="take_action">Take Action</string>
 
     <!-- category section -->
     <string-array name="category_array">

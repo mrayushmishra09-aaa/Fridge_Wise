@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.transition.TransitionManager;
 
@@ -22,17 +21,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class HomeFragment extends Fragment {
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
@@ -46,19 +39,11 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-
         setupDashboard(view);
         setupNavigation(view);
-
         return view;
     }
 
@@ -75,9 +60,10 @@ public class HomeFragment extends Fragment {
         RecyclerView rvAttention = view.findViewById(R.id.rv_attention);
         TextView tvAttentionCount = view.findViewById(R.id.tv_attention_count);
         
-        TextView tvFoodInsight = view.findViewById(R.id.tv_food_insight);
-        TextView tvMedInsight = view.findViewById(R.id.tv_medicine_insight);
-        TextView tvTodoInsight = view.findViewById(R.id.tv_todo_insight);
+        View cvTodayInsight = view.findViewById(R.id.cv_today_insight);
+        TextView tvInsightTitle = view.findViewById(R.id.tv_insight_title);
+        TextView tvInsightDesc = view.findViewById(R.id.tv_insight_description);
+        View btnInsightAction = view.findViewById(R.id.btn_insight_action);
 
         new Thread(() -> {
             Context context = getContext();
@@ -86,127 +72,85 @@ public class HomeFragment extends Fragment {
             AppDatabase db = AppDatabase.getInstance(context);
             ArrayList<AttentionItem> attentionItems = new ArrayList<>();
             
-            Calendar calNow = Calendar.getInstance();
-            int currentHour = calNow.get(Calendar.HOUR_OF_DAY);
-            int currentMinute = calNow.get(Calendar.MINUTE);
-            int currentTotalMinutes = currentHour * 60 + currentMinute;
+            String insightTitle = null;
+            String insightDesc = null;
+            Fragment insightTargetFragment = null;
 
-            // 1. Food Scanning
+            Calendar calNow = Calendar.getInstance();
+            int currentTotalMinutes = calNow.get(Calendar.HOUR_OF_DAY) * 60 + calNow.get(Calendar.MINUTE);
+
+            // 1. Food Data
             List<FoodItem> foodItems = db.foodItemDao().getAllItems();
-            String foodInsightMessage = "Your fridge looks good! No items expiring soon.";
+            Date today = resetTime(calNow.getTime());
             Calendar cal = Calendar.getInstance();
-            Date today = resetTime(cal.getTime());
             cal.add(Calendar.DAY_OF_YEAR, 1);
             Date tomorrow = resetTime(cal.getTime());
 
             for (FoodItem item : foodItems) {
+                if (insightTitle == null && item.getQuantity() <= 1) {
+                    insightTitle = item.getName() + " is running low";
+                    insightDesc = "You have very little " + item.getName() + " left. Add to shopping list?";
+                    insightTargetFragment = new ShoppingListFragment();
+                }
+
                 try {
                     Date expiry = dateFormat.parse(item.getExpiryDate());
                     if (expiry != null) {
                         expiry = resetTime(expiry);
                         if (expiry.before(today)) {
-                            foodInsightMessage = "Alert: " + item.getName() + " has expired! Clean it out.";
                             AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expired", "In Fridge", "Has expired! Clean it out.", "View item", AttentionItem.Type.FOOD);
-                            ai.setBadgeBgColor(context.getColor(R.color.badge_red_bg));
-                            ai.setBadgeTextColor(context.getColor(R.color.badge_red_text));
-                            ai.setStatusColor(context.getColor(R.color.red_expired));
-                            ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
                             ai.setPriorityScore(10);
+                            ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
                             attentionItems.add(ai);
                         } else if (expiry.equals(today)) {
-                            foodInsightMessage = "Today's Insight: " + item.getName() + " expires today. Use it!";
                             AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expires today", "In Fridge", "Use today for best freshness.", "View item", AttentionItem.Type.FOOD);
-                            ai.setBadgeBgColor(context.getColor(R.color.badge_red_bg));
-                            ai.setBadgeTextColor(context.getColor(R.color.badge_red_text));
-                            ai.setStatusColor(context.getColor(R.color.red_expired));
-                            ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
                             ai.setPriorityScore(50);
-                            attentionItems.add(ai);
-                        } else if (expiry.equals(tomorrow)) {
-                            if (foodInsightMessage.startsWith("Your fridge")) foodInsightMessage = "Insight: " + item.getName() + " will expire tomorrow.";
-                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expires tomorrow", "In Fridge", "Expires tomorrow. Plan ahead.", "View item", AttentionItem.Type.FOOD);
-                            ai.setBadgeBgColor(context.getColor(R.color.badge_orange_bg));
-                            ai.setBadgeTextColor(context.getColor(R.color.badge_orange_text));
-                            ai.setStatusColor(context.getColor(R.color.orange_warning));
                             ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
-                            ai.setPriorityScore(90);
                             attentionItems.add(ai);
                         }
                     }
-                } catch (ParseException e) { /* Ignore invalid dates */ }
+                } catch (ParseException e) { }
             }
 
-            // 2. Medicine Scanning
+            // 2. Meds
             List<MedicineEntity> medicines = db.medicineDao().getAllMedicines();
-            String medInsightMessage = "No medicines scheduled for today.";
-            int medCount = 0;
+            int activeMedCount = 0;
             for (MedicineEntity med : medicines) {
                 if (med.isReminderOn()) {
-                    medCount++;
-                    String time = med.getStartTime(); // Assuming "HH:mm"
-                    int medMinutes = parseMinutes(time);
-                    long score = 120; // Default
-                    String hint = "Scheduled for today.";
-                    
-                    if (medMinutes >= currentTotalMinutes) {
-                        int diff = medMinutes - currentTotalMinutes;
-                        if (diff <= 120) { // Due within 2 hours
-                            score = 30 + diff;
-                            hint = "Take in " + (diff / 60 > 0 ? (diff / 60) + "h " : "") + (diff % 60) + "m.";
-                        } else {
-                            score = 120 + diff;
-                        }
-                    } else {
-                        // Past due for today but reminder still on? 
-                        score = 200; 
-                        hint = "Missed or past scheduled time.";
-                    }
-
-                    AttentionItem ai = new AttentionItem(String.valueOf(med.getId()), med.getMedicineName(), time, "Medicine reminder", hint, "View reminder", AttentionItem.Type.MEDICINE);
-                    ai.setBadgeBgColor(context.getColor(R.color.badge_purple_bg));
-                    ai.setBadgeTextColor(context.getColor(R.color.badge_purple_text));
-                    ai.setStatusColor(context.getColor(R.color.purple_primary));
-                    ai.setImageResId(R.drawable.med_image_07);
-                    ai.setPriorityScore(score);
+                    activeMedCount++;
+                    AttentionItem ai = new AttentionItem(String.valueOf(med.getId()), med.getMedicineName(), med.getStartTime(), "Medicine", "Time to take your meds.", "View", AttentionItem.Type.MEDICINE);
+                    ai.setPriorityScore(100);
+                    ai.setImageResId(med.getIconResId());
                     attentionItems.add(ai);
                 }
             }
-            if (medCount > 0) medInsightMessage = "Reminder: You have " + medCount + " active medicine schedules.";
 
-            // 3. To-Do Scanning
+            // 3. Tasks
             List<TodoItem> pendingTodos = db.todoDao().getPendingTodos();
-            String todoInsightMessage = "No pending tasks for today.";
             for (TodoItem todo : pendingTodos) {
-                String priority = todo.getPriority() != null ? todo.getPriority().toLowerCase() : "medium";
-                long score = 150;
-                int dotColor = R.color.green_primary;
-                int bgColor = R.color.badge_purple_bg; // Reusing purple for tasks or use another
-                int txtColor = R.color.badge_purple_text;
-
-                if (priority.contains("high")) {
-                    score = 70;
-                    dotColor = R.color.red_expired;
-                } else if (priority.contains("medium")) {
-                    score = 150;
-                    dotColor = R.color.orange_warning;
+                if ("High".equalsIgnoreCase(todo.getPriority())) {
+                    AttentionItem ai = new AttentionItem(String.valueOf(todo.getId()), todo.getTitle(), "High Priority", "Tasks", "Pending task needs completion.", "View", AttentionItem.Type.TODO);
+                    ai.setPriorityScore(70);
+                    ai.setImageResId(R.drawable.ic_todo_item);
+                    attentionItems.add(ai);
                 }
-
-                AttentionItem ai = new AttentionItem(String.valueOf(todo.getId()), todo.getTitle(), todo.getPriority(), "To-Do List", "High priority task pending.", "View task", AttentionItem.Type.TODO);
-                ai.setBadgeBgColor(context.getColor(bgColor));
-                ai.setBadgeTextColor(context.getColor(txtColor));
-                ai.setStatusColor(context.getColor(dotColor));
-                ai.setImageResId(R.drawable.ic_todo_item);
-                ai.setPriorityScore(score);
-                if (priority.contains("high")) attentionItems.add(ai); // Only show high priority in attention
             }
-            if (!pendingTodos.isEmpty()) todoInsightMessage = "Task: You have " + pendingTodos.size() + " items on your to-do list.";
 
-            // 4. Sorting & Finalizing
-            attentionItems.sort(Comparator.comparingLong(AttentionItem::getPriorityScore));
+            attentionItems.sort((a, b) -> Long.compare(b.getPriorityScore(), a.getPriorityScore()));
 
-            final String fFoodMsg = foodInsightMessage;
-            final String fMedMsg = medInsightMessage;
-            final String fTodoMsg = todoInsightMessage;
+            // Time for Greeting
+            final String currentTime;
+            int hour = calNow.get(Calendar.HOUR_OF_DAY);
+            if (hour >= 5 && hour < 12) currentTime = "Morning";
+            else if (hour >= 12 && hour < 17) currentTime = "Afternoon";
+            else if (hour >= 17 && hour < 21) currentTime = "Evening";
+            else currentTime = "Night";
+
+            final String fInsightTitle = insightTitle;
+            final String fInsightDesc = insightDesc;
+            final Fragment fTargetFragment = insightTargetFragment;
+            final int fMedCount = activeMedCount;
+            final int fTodoCount = pendingTodos.size();
             final int attentionSize = attentionItems.size();
 
             Activity activity = getActivity();
@@ -214,74 +158,79 @@ public class HomeFragment extends Fragment {
                 activity.runOnUiThread(() -> {
                     if (!isAdded()) return;
 
-                    ImageView ivAttentionIcon = view.findViewById(R.id.iv_attention_icon);
-                    TextView tvAttentionTitle = view.findViewById(R.id.tv_attention_title);
-                    View cvAttentionEmpty = view.findViewById(R.id.cv_attention_empty);
+                    // Set Greeting
+                    TextView tvUserMessage = view.findViewById(R.id.tv_user_message);
+                    if (tvUserMessage != null) tvUserMessage.setText("Good " + currentTime + "! Ready for a healthy meal?");
 
+                    // Attention Section
                     if (attentionSize > 0) {
-                        if (llAttentionSection != null) llAttentionSection.setVisibility(View.VISIBLE);
-                        if (cvAttentionEmpty != null) cvAttentionEmpty.setVisibility(View.GONE);
-                        if (rvAttention != null) rvAttention.setVisibility(View.VISIBLE);
-                        if (ivAttentionIcon != null) {
-                            ivAttentionIcon.setImageResource(R.drawable.ic_attention_red);
-                            ivAttentionIcon.clearColorFilter();
-                        }
-                        if (tvAttentionTitle != null) tvAttentionTitle.setText("Needs your attention");
-                        if (tvAttentionCount != null) {
-                            tvAttentionCount.setText(attentionSize + " things need your attention today");
-                        }
-                        if (rvAttention != null) {
-                            AttentionAdapter adapter = new AttentionAdapter(context, attentionItems, item -> {
-                                Fragment targetFragment = null;
-                                if (item.getType() == AttentionItem.Type.FOOD) {
-                                    targetFragment = new InventoryFragment();
-                                } else if (item.getType() == AttentionItem.Type.MEDICINE) {
-                                    targetFragment = new Med_section();
-                                } else if (item.getType() == AttentionItem.Type.TODO) {
-                                    targetFragment = new TodoListFragment();
-                                }
-
-                                if (targetFragment != null) {
-                                    getParentFragmentManager().beginTransaction()
-                                            .replace(R.id.fragmentContainerView2, targetFragment)
-                                            .addToBackStack(null)
-                                            .commit();
-                                }
-                            });
-                            rvAttention.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
-                            rvAttention.setAdapter(adapter);
-                        }
+                        llAttentionSection.setVisibility(View.VISIBLE);
+                        rvAttention.setVisibility(View.VISIBLE);
+                        view.findViewById(R.id.cv_attention_empty).setVisibility(View.GONE);
+                        tvAttentionCount.setText(attentionSize + " things need attention");
+                        rvAttention.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+                        rvAttention.setAdapter(new AttentionAdapter(context, attentionItems, item -> {
+                             // Navigation logic...
+                        }));
                     } else {
-                        if (llAttentionSection != null) llAttentionSection.setVisibility(View.VISIBLE);
-                        if (cvAttentionEmpty != null) cvAttentionEmpty.setVisibility(View.VISIBLE);
-                        if (rvAttention != null) rvAttention.setVisibility(View.GONE);
-                        if (ivAttentionIcon != null) {
-                            ivAttentionIcon.setImageResource(R.drawable.ic_check_tick);
-                            ivAttentionIcon.setColorFilter(context.getColor(R.color.green_primary));
-                        }
-                        if (tvAttentionTitle != null) tvAttentionTitle.setText("Everything is in order");
-                        if (tvAttentionCount != null) {
-                            tvAttentionCount.setText("You're all caught up for now!");
-                        }
+                        view.findViewById(R.id.cv_attention_empty).setVisibility(View.VISIBLE);
+                        rvAttention.setVisibility(View.GONE);
+                        tvAttentionCount.setText("Everything is in order");
                     }
-                    
-                    if (tvFoodInsight != null) tvFoodInsight.setText(fFoodMsg);
-                    if (tvMedInsight != null) tvMedInsight.setText(fMedMsg);
-                    if (tvTodoInsight != null) tvTodoInsight.setText(fTodoMsg);
+
+                    // Smart AI Insight
+                    if (cvTodayInsight != null) {
+                        cvTodayInsight.setVisibility(View.VISIBLE);
+                        tvInsightTitle.setText("Thinking...");
+                        
+                        StringBuilder data = new StringBuilder("Time: " + currentTime + ". ");
+                        data.append("Food count: ").append(foodItems.size()).append(". ");
+                        data.append("Meds: ").append(fMedCount).append(". ");
+                        data.append("Tasks: ").append(fTodoCount).append(".");
+
+                        // Use API key from BuildConfig
+                        String apiKey = BuildConfig.GEMINI_API_KEY;
+                        new GeminiManager(apiKey).getSmartInsight(data.toString(), new GeminiManager.InsightCallback() {
+                            @Override
+                            public void onInsightGenerated(String greeting, String title, String description) {
+                                activity.runOnUiThread(() -> {
+                                    // 1. Update Top Greeting
+                                    if (tvUserMessage != null) tvUserMessage.setText(greeting);
+                                    
+                                    // 2. Update Insight Card
+                                    tvInsightTitle.setText(title);
+                                    tvInsightDesc.setText(description);
+                                    
+                                    if (btnInsightAction != null && fTargetFragment != null) {
+                                        btnInsightAction.setOnClickListener(v -> replaceFragment(fTargetFragment));
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(Throwable t) {
+                                activity.runOnUiThread(() -> {
+                                    // Fallback to manual insight or a welcome message
+                                    if (fInsightTitle != null) {
+                                        tvInsightTitle.setText(fInsightTitle);
+                                        tvInsightDesc.setText(fInsightDesc);
+                                    } else {
+                                        tvInsightTitle.setText("Welcome to FridgeWise!");
+                                        tvInsightDesc.setText("Add your first item to start getting smart insights.");
+                                    }
+                                });
+                            }
+                        });
+                    }
                 });
             }
         }).start();
     }
 
     private int parseMinutes(String time) {
-        if (time == null || !time.contains(":")) return 0;
         try {
             String[] parts = time.split(":");
-            int h = Integer.parseInt(parts[0].trim());
-            int m = Integer.parseInt(parts[1].trim().split(" ")[0]); // Handle AM/PM if present
-            if (time.toLowerCase().contains("pm") && h < 12) h += 12;
-            if (time.toLowerCase().contains("am") && h == 12) h = 0;
-            return h * 60 + m;
+            return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1].split(" ")[0]);
         } catch (Exception e) { return 0; }
     }
 
@@ -296,55 +245,22 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupNavigation(View view) {
-        // Quick Add Section Toggle
-        LinearLayout llQuickAddHeader = view.findViewById(R.id.ll_quick_add_header);
-        LinearLayout llQuickAddOptions = view.findViewById(R.id.ll_quick_add_options);
-        ImageView ivExpandArrow = view.findViewById(R.id.iv_expand_arrow);
-
-        if (llQuickAddHeader != null && llQuickAddOptions != null) {
-            llQuickAddHeader.setOnClickListener(v -> {
-                boolean isVisible = llQuickAddOptions.getVisibility() == View.VISIBLE;
-                TransitionManager.beginDelayedTransition((ViewGroup) view.findViewById(R.id.cv_quick_add));
-                llQuickAddOptions.setVisibility(isVisible ? View.GONE : View.VISIBLE);
-                if (ivExpandArrow != null) {
-                    ivExpandArrow.animate().rotation(isVisible ? 0 : 90).start();
-                }
-            });
-        }
-
-        // Quick Add Buttons
         View btnAddFood = view.findViewById(R.id.btn_add_food);
-        if (btnAddFood != null) {
-            btnAddFood.setOnClickListener(v -> replaceFragment(new AddItemFragment()));
-        }
-
-        View btnAddMedicine = view.findViewById(R.id.btn_add_medicine);
-        if (btnAddMedicine != null) {
-            btnAddMedicine.setOnClickListener(v -> replaceFragment(new MedicineAddFragment()));
-        }
-
+        if (btnAddFood != null) btnAddFood.setOnClickListener(v -> replaceFragment(new AddItemFragment()));
+        
+        View btnAddMed = view.findViewById(R.id.btn_add_medicine);
+        if (btnAddMed != null) btnAddMed.setOnClickListener(v -> replaceFragment(new MedicineAddFragment()));
+        
         View btnAddTodo = view.findViewById(R.id.btn_add_todo);
-        if (btnAddTodo != null) {
-            btnAddTodo.setOnClickListener(v -> replaceFragment(new AddTodoFragment()));
-        }
-
-        View btnAddShopping = view.findViewById(R.id.btn_add_shopping);
-        if (btnAddShopping != null) {
-            btnAddShopping.setOnClickListener(v -> replaceFragment(new ShoppingListFragment()));
-        }
-
-        // Search Bar Logic (placeholder)
-        View searchBar = view.findViewById(R.id.search_bar);
-        if (searchBar != null) {
-            searchBar.setOnClickListener(v -> {
-                // Future search implementation
-            });
-        }
-
-        // Attention Section Logic
-        if (view.findViewById(R.id.tv_view_all_attention) != null) {
-            view.findViewById(R.id.tv_view_all_attention).setOnClickListener(v -> {
-                replaceFragment(new AlertsFragment());
+        if (btnAddTodo != null) btnAddTodo.setOnClickListener(v -> replaceFragment(new AddTodoFragment()));
+        
+        LinearLayout llHeader = view.findViewById(R.id.ll_quick_add_header);
+        LinearLayout llOptions = view.findViewById(R.id.ll_quick_add_options);
+        if (llHeader != null && llOptions != null) {
+            llHeader.setOnClickListener(v -> {
+                int vis = llOptions.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE;
+                TransitionManager.beginDelayedTransition((ViewGroup) view);
+                llOptions.setVisibility(vis);
             });
         }
     }

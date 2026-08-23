@@ -10,7 +10,7 @@ import java.util.List;
 @Dao
 public interface FoodItemDao {
     @Insert
-    void insert(FoodItem item);
+    long insert(FoodItem item);
 
     @Update
     void update(FoodItem item);

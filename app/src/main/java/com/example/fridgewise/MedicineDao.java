@@ -18,4 +18,7 @@ public interface MedicineDao {
     @Query("SELECT * FROM medicine_table")
     List<MedicineEntity> getAllMedicines();
 
+    @Query("SELECT * FROM medicine_table WHERE id = :id")
+    MedicineEntity getMedicineById(int id);
+
 }

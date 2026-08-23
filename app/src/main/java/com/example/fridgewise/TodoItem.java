@@ -10,6 +10,7 @@ import java.io.Serializable;
 @Entity(tableName = "todo_items")
 public class TodoItem implements Serializable {
 
+
     @PrimaryKey(autoGenerate = true)
     private int id;
 

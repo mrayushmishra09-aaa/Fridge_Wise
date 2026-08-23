@@ -44,14 +44,19 @@ public class ProfileFragment extends Fragment {
         View btnHelp = view.findViewById(R.id.btnHelp);
         View btnAbout = view.findViewById(R.id.btnAbout);
 
-        // Set dummy data (Replace with real user data later)
-        tvUsername.setText("Ayush");
-        tvEmail.setText("ayush@fridgewise.com");
+        // Fetch real user data
+        PreferenceManager prefManager = new PreferenceManager(requireContext());
+        String name = prefManager.getUserName();
+        int age = prefManager.getUserAge();
+        
+        tvUsername.setText(name);
+        tvEmail.setText(age > 0 ? age + " years old" : "FridgeWise User");
 
         // Handle clicks
         btnLogout.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
-            // Implement actual logout logic here
+            // For testing: Reset onboarding
+            prefManager.setFirstTimeLaunch(true);
+            Toast.makeText(getContext(), "App Reset! Restart to see onboarding.", Toast.LENGTH_LONG).show();
         });
 
         btnEditProfile.setOnClickListener(v -> 
