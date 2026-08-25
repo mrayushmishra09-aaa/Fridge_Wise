@@ -15,10 +15,41 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <LinearLayout
+        <CheckBox
+            android:id="@+id/itemCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:visibility="gone"
+            android:buttonTint="@color/onboarding_primary"/>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/itemImageCard"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/itemCheckBox"
+            android:layout_marginStart="8dp"
+            android:visibility="gone"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp">
+            <ImageView
+                android:id="@+id/ivItemImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/round_camera_alt_24" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/itemImageCard"
+            android:layout_toStartOf="@id/btnDelete"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
             android:orientation="vertical">
 
             <TextView
@@ -37,6 +68,16 @@
                 android:text="1 Unit • 2026-08-20"
                 android:textColor="@color/text_gray"
                 android:textSize="13sp" />
+
+            <ProgressBar
+                android:id="@+id/itemProgressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:progress="50"
+                android:visibility="gone"
+                android:progressTint="@color/onboarding_primary" />
         </LinearLayout>
 
         <ImageView

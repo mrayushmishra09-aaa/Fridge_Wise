@@ -6,10 +6,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class NotificationReceiver extends BroadcastReceiver {
     @Override
@@ -33,6 +38,12 @@ public class NotificationReceiver extends BroadcastReceiver {
         int iconResId = intent.getIntExtra("iconResId", 0);
         String actionType = intent.getStringExtra("actionType");
         String groupKey = intent.getStringExtra("groupKey");
+
+        // Schedule Smart Follow-up if enabled
+        PreferenceManager pref = new PreferenceManager(context);
+        if (pref.isSmartFollowUpEnabled() && ("MEDICINE".equals(actionType) || "TODO".equals(actionType))) {
+            scheduleSmartFollowUp(context, id, actionType, title, iconResId);
+        }
 
         Intent customActionIntent = null;
         String actionText = null;
@@ -139,5 +150,22 @@ public class NotificationReceiver extends BroadcastReceiver {
                 });
             }
         }).start();
+    }
+
+    private void scheduleSmartFollowUp(Context context, int id, String type, String name, int iconRes) {
+        Data inputData = new Data.Builder()
+                .putInt("id", id)
+                .putString("type", type)
+                .putString("name", name)
+                .putInt("iconRes", iconRes)
+                .build();
+
+        OneTimeWorkRequest followUpRequest = new OneTimeWorkRequest.Builder(NotificationFollowUpWorker.class)
+                .setInitialDelay(1, TimeUnit.HOURS)
+                .setInputData(inputData)
+                .addTag("followup_" + id)
+                .build();
+
+        WorkManager.getInstance(context).enqueue(followUpRequest);
     }
 }

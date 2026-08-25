@@ -67,6 +67,14 @@ public class CustomSpaceInventoryFragment extends Fragment {
             public void onDeleteClick(CustomSpaceItem item) {
                 deleteItem(item);
             }
+
+            @Override
+            public void onCheckChanged(CustomSpaceItem item, boolean isChecked) {
+                item.setChecked(isChecked);
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    AppDatabase.getInstance(requireContext()).customSpaceDao().updateItem(item);
+                });
+            }
         });
         recyclerView.setAdapter(adapter);
 
@@ -107,7 +115,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
             AppDatabase db = AppDatabase.getInstance(requireContext());
             allItems = db.customSpaceDao().getItemsForSpace(currentSpace.getId());
             if (isAdded()) {
-                requireActivity().runOnUiThread(() -> adapter.setItems(allItems));
+                requireActivity().runOnUiThread(() -> adapter.setItems(allItems, currentSpace));
             }
         });
     }
@@ -134,23 +142,29 @@ public class CustomSpaceInventoryFragment extends Fragment {
     }
 
     private void deleteSpace() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            AppDatabase db = AppDatabase.getInstance(requireContext());
-            // Delete all items first
-            List<CustomSpaceItem> items = db.customSpaceDao().getItemsForSpace(currentSpace.getId());
-            for (CustomSpaceItem item : items) {
-                db.customSpaceDao().deleteItem(item);
-            }
-            // Delete space
-            db.customSpaceDao().deleteSpace(currentSpace);
-            
-            if (isAdded()) {
-                requireActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), "Space deleted", Toast.LENGTH_SHORT).show();
-                    getParentFragmentManager().popBackStack();
-                });
-            }
-        });
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Delete Space")
+                .setMessage("Are you sure you want to delete this entire space? All items inside will be lost.")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        AppDatabase db = AppDatabase.getInstance(requireContext());
+                        // Delete space (CASCADE will handle items if DB configured, but we do it manually to be safe)
+                        List<CustomSpaceItem> items = db.customSpaceDao().getItemsForSpace(currentSpace.getId());
+                        for (CustomSpaceItem item : items) {
+                            db.customSpaceDao().deleteItem(item);
+                        }
+                        db.customSpaceDao().deleteSpace(currentSpace);
+
+                        if (isAdded()) {
+                            requireActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), "Space deleted", Toast.LENGTH_SHORT).show();
+                                getParentFragmentManager().popBackStack();
+                            });
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void filterItems(String query) {
@@ -160,13 +174,20 @@ public class CustomSpaceInventoryFragment extends Fragment {
                 filtered.add(item);
             }
         }
-        adapter.setItems(filtered);
+        adapter.setItems(filtered, currentSpace);
     }
 
     private void deleteItem(CustomSpaceItem item) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            AppDatabase.getInstance(requireContext()).customSpaceDao().deleteItem(item);
-            loadItems();
-        });
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Delete Item")
+                .setMessage("Are you sure you want to delete this item?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        AppDatabase.getInstance(requireContext()).customSpaceDao().deleteItem(item);
+                        loadItems();
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }

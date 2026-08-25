@@ -12,6 +12,9 @@ public class PreferenceManager {
     private static final String KEY_IS_FIRST_TIME = "isFirstTimeLaunch";
     private static final String KEY_USER_NAME = "userName";
     private static final String KEY_USER_AGE = "userAge";
+    private static final String KEY_PROFILE_IMAGE_URI = "profileImageUri";
+    private static final String KEY_SMART_FOLLOWUP = "smartFollowUp";
+    private static final String KEY_ADVANCE_EXPIRY = "advanceExpiry";
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -63,6 +66,33 @@ public class PreferenceManager {
 
     public int getUserAge() {
         return pref.getInt(KEY_USER_AGE, 0);
+    }
+
+    public void setProfileImageUri(String uri) {
+        editor.putString(KEY_PROFILE_IMAGE_URI, uri);
+        editor.apply();
+    }
+
+    public String getProfileImageUri() {
+        return pref.getString(KEY_PROFILE_IMAGE_URI, null);
+    }
+
+    public void setSmartFollowUpEnabled(boolean enabled) {
+        editor.putBoolean(KEY_SMART_FOLLOWUP, enabled);
+        editor.apply();
+    }
+
+    public boolean isSmartFollowUpEnabled() {
+        return pref.getBoolean(KEY_SMART_FOLLOWUP, true);
+    }
+
+    public void setAdvanceExpiryEnabled(boolean enabled) {
+        editor.putBoolean(KEY_ADVANCE_EXPIRY, enabled);
+        editor.apply();
+    }
+
+    public boolean isAdvanceExpiryEnabled() {
+        return pref.getBoolean(KEY_ADVANCE_EXPIRY, true);
     }
 
     public void clearAll() {

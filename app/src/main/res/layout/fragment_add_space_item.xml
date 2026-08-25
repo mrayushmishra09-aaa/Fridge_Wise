@@ -67,87 +67,146 @@
                 android:textSize="14sp"
                 android:inputType="textCapWords" />
 
-            <!-- Quantity & Unit -->
+            <!-- Photo Section -->
             <LinearLayout
+                android:id="@+id/layoutItemPhoto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="0dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="QUANTITY"
-                        android:textColor="@color/text_gray"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-
-                    <EditText
-                        android:id="@+id/etQuantity"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="4dp"
-                        android:background="@drawable/bg_edittext"
-                        android:hint="1"
-                        android:inputType="numberDecimal"
-                        android:paddingHorizontal="12dp"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="UNIT"
-                        android:textColor="@color/text_gray"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-
-                    <EditText
-                        android:id="@+id/etUnit"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="4dp"
-                        android:background="@drawable/bg_edittext"
-                        android:hint="pcs"
-                        android:paddingHorizontal="12dp"
-                        android:textSize="14sp" />
-                </LinearLayout>
+                    android:text="PHOTO"
+                    android:textColor="@color/text_gray"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+                <ImageView
+                    android:id="@+id/ivItemPhoto"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="8dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/round_camera_alt_24"
+                    android:background="@drawable/bg_input_field"
+                    android:padding="20dp"
+                    app:tint="@color/onboarding_primary" />
             </LinearLayout>
 
-            <!-- Date -->
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- Quantity & Unit -->
+            <LinearLayout
+                android:id="@+id/layoutTracking"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="QUANTITY"
+                            android:textColor="@color/text_gray"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                        <EditText
+                            android:id="@+id/etQuantity"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/bg_edittext"
+                            android:hint="1"
+                            android:inputType="numberDecimal"
+                            android:paddingHorizontal="12dp"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="UNIT"
+                            android:textColor="@color/text_gray"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                        <EditText
+                            android:id="@+id/etUnit"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/bg_edittext"
+                            android:hint="pcs"
+                            android:paddingHorizontal="12dp"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Date -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="DATE"
+                    android:textColor="@color/text_gray"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+                <EditText
+                    android:id="@+id/etDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_edittext"
+                    android:hint="2026-08-20"
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:paddingHorizontal="12dp"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Progress Tracking -->
+            <LinearLayout
+                android:id="@+id/layoutProgress"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="DATE"
-                android:textColor="@color/text_gray"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/etDate"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/bg_edittext"
-                android:hint="2026-08-20"
-                android:clickable="true"
-                android:focusable="false"
-                android:paddingHorizontal="12dp"
-                android:textSize="14sp" />
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PROGRESS (%)"
+                    android:textColor="@color/text_gray"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+                <SeekBar
+                    android:id="@+id/sbProgress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:max="100"
+                    android:progressTint="@color/onboarding_primary"
+                    android:thumbTint="@color/onboarding_primary" />
+                <TextView
+                    android:id="@+id/tvProgressValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:text="0%"
+                    android:textColor="@color/text_dark"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
             <!-- Reminder -->
             <TextView

@@ -206,9 +206,6 @@ public class Memory extends Fragment {
         TextView tvTodoCount = view.findViewById(R.id.tvTodoCount);
         TextView tvShoppingCount = view.findViewById(R.id.tvShoppingCount);
         TextView tvDocsCount = view.findViewById(R.id.tvDocsCount);
-        TextView tvPetCareCount = view.findViewById(R.id.tvPetCareCount);
-        TextView tvHouseholdCount = view.findViewById(R.id.tvHouseholdCount);
-
 
         new Thread(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
@@ -216,7 +213,6 @@ public class Memory extends Fragment {
             int todoCount = db.todoDao().getAllTodos().size();
             int shoppingCount = db.shoppingDao().getAllItems().size();
             int docsCount = db.documentDao().getAllDocuments().size();
-
 
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
@@ -227,12 +223,6 @@ public class Memory extends Fragment {
                     }
                     if (tvDocsCount != null) {
                         tvDocsCount.setText(docsCount + (docsCount == 1 ? " document" : " documents"));
-                    }
-                    if (tvPetCareCount != null) {
-                        tvPetCareCount.setText("0 reminders");
-                    }
-                    if (tvHouseholdCount != null) {
-                        tvHouseholdCount.setText("0 items");
                     }
                 });
             }

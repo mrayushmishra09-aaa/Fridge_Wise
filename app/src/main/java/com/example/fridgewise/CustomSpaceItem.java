@@ -26,6 +26,9 @@ public class CustomSpaceItem implements Serializable {
     private String date;
     private String reminderTime;
     private String notes;
+    private boolean isChecked; // For Checklist Mode
+    private int progressValue; // For Progress Tracking
+    private String itemImageUri; // For Document/Gallery
 
     public CustomSpaceItem(int spaceId, String name, double quantity, String unit, String date, String reminderTime, String notes) {
         this.spaceId = spaceId;
@@ -35,6 +38,8 @@ public class CustomSpaceItem implements Serializable {
         this.date = date;
         this.reminderTime = reminderTime;
         this.notes = notes;
+        this.isChecked = false;
+        this.progressValue = 0;
     }
 
     public int getId() { return id; }
@@ -60,4 +65,13 @@ public class CustomSpaceItem implements Serializable {
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+
+    public boolean isChecked() { return isChecked; }
+    public void setChecked(boolean checked) { isChecked = checked; }
+
+    public int getProgressValue() { return progressValue; }
+    public void setProgressValue(int progressValue) { this.progressValue = progressValue; }
+
+    public String getItemImageUri() { return itemImageUri; }
+    public void setItemImageUri(String itemImageUri) { this.itemImageUri = itemImageUri; }
 }

@@ -38,6 +38,28 @@
     <string name="add_medicine">Add Medicine</string>
     <string name="documents_saved_count">%1$d Documents saved</string>
     <string name="no_items_found">No items found</string>
+    <string name="custom_spaces_info">Want to track something else? Create a Custom Space for Pets, Household items, or even your Toolbox!</string>
+    <string name="space_name">Space Name</string>
+    <string name="description_optional">Description (Optional)</string>
+    <string name="make_it_recognizable">Make it recognizable</string>
+    <string name="choose_icon">Choose Icon</string>
+    <string name="choose_color">Choose Color</string>
+    <string name="privacy">Privacy</string>
+    <string name="private_title">Private</string>
+    <string name="private_desc">Only you can see this space</string>
+    <string name="advanced_options">Advanced Options</string>
+    <string name="create_space">Create Space</string>
+    <string name="update_space">Update Space</string>
+    <string name="char_count_30">%1$d/30</string>
+    <string name="char_count_80">%1$d/80</string>
+    <string name="view_all_link">View All</string>
+    <string name="more_options_soon">Choose the structure of your space:</string>
+    <string name="option_progress_bar">Progress Tracking (Bar)</string>
+    <string name="option_todo_list">Checklist Mode (Todo)</string>
+    <string name="option_document">Document/Photo Gallery</string>
+    <string name="option_tracking">Advanced Inventory Tracking (Date/Unit)</string>
+    <string name="hint_space_name">e.g. My Tools</string>
+    <string name="hint_space_desc">What\'s this space for?</string>
 
     <!-- Profile Strings -->
     <string name="edit_profile">Edit Profile</string>

@@ -5,7 +5,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {FoodItem.class, TodoItem.class, MedicineEntity.class, ShoppingItem.class, DocumentItem.class, CustomSpace.class, CustomSpaceItem.class, ActivityRecord.class}, version = 9, exportSchema = false)
+@Database(entities = {FoodItem.class, TodoItem.class, MedicineEntity.class, ShoppingItem.class, DocumentItem.class, CustomSpace.class, CustomSpaceItem.class, ActivityRecord.class}, version = 11, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract FoodItemDao foodItemDao();

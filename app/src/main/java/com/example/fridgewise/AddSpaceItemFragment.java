@@ -20,8 +20,14 @@ public class AddSpaceItemFragment extends Fragment {
     private static final String ARG_ITEM = "arg_item";
 
     private int spaceId;
+    private CustomSpace parentSpace;
     private CustomSpaceItem existingItem;
     private EditText etName, etQuantity, etUnit, etDate, etReminder, etNotes;
+    private android.widget.SeekBar sbProgress;
+    private android.widget.TextView tvProgressValue;
+    private android.widget.ImageView ivItemPhoto;
+    private View layoutPhoto, layoutTracking, layoutProgress;
+    private String itemImageUri = null;
 
     public static AddSpaceItemFragment newInstance(int spaceId, @Nullable CustomSpaceItem item) {
         AddSpaceItemFragment fragment = new AddSpaceItemFragment();
@@ -54,7 +60,15 @@ public class AddSpaceItemFragment extends Fragment {
         etDate = view.findViewById(R.id.etDate);
         etReminder = view.findViewById(R.id.etReminder);
         etNotes = view.findViewById(R.id.etNotes);
+        sbProgress = view.findViewById(R.id.sbProgress);
+        tvProgressValue = view.findViewById(R.id.tvProgressValue);
+        ivItemPhoto = view.findViewById(R.id.ivItemPhoto);
+        layoutPhoto = view.findViewById(R.id.layoutItemPhoto);
+        layoutTracking = view.findViewById(R.id.layoutTracking);
+        layoutProgress = view.findViewById(R.id.layoutProgress);
         TextView tvTitle = view.findViewById(R.id.tvHeaderTitle);
+
+        loadSpaceSettings();
 
         if (existingItem != null) {
             tvTitle.setText("Edit Space Item");
@@ -64,15 +78,41 @@ public class AddSpaceItemFragment extends Fragment {
             etDate.setText(existingItem.getDate());
             etReminder.setText(existingItem.getReminderTime());
             etNotes.setText(existingItem.getNotes());
+            sbProgress.setProgress(existingItem.getProgressValue());
+            tvProgressValue.setText(existingItem.getProgressValue() + "%");
+            itemImageUri = existingItem.getItemImageUri();
+            // TODO: Load image if itemImageUri is not null
         }
 
+        sbProgress.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(android.widget.SeekBar seekBar, int progress, boolean fromUser) {
+                tvProgressValue.setText(progress + "%");
+            }
+            @Override public void onStartTrackingTouch(android.widget.SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(android.widget.SeekBar seekBar) {}
+        });
+
+        ivItemPhoto.setOnClickListener(v -> Toast.makeText(getContext(), "Photo selection coming soon", Toast.LENGTH_SHORT).show());
         etDate.setOnClickListener(v -> showDatePicker());
-
         view.findViewById(R.id.btnBack).setOnClickListener(v -> getParentFragmentManager().popBackStack());
-
         view.findViewById(R.id.btnSave).setOnClickListener(v -> saveItem());
 
         return view;
+    }
+
+    private void loadSpaceSettings() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            parentSpace = db.customSpaceDao().getSpaceById(spaceId);
+            if (isAdded() && parentSpace != null) {
+                requireActivity().runOnUiThread(() -> {
+                    layoutPhoto.setVisibility(parentSpace.isHasDocuments() ? View.VISIBLE : View.GONE);
+                    layoutTracking.setVisibility(parentSpace.isHasTracking() ? View.VISIBLE : View.GONE);
+                    layoutProgress.setVisibility(parentSpace.isHasProgressBar() ? View.VISIBLE : View.GONE);
+                });
+            }
+        });
     }
 
     private void showDatePicker() {
@@ -100,10 +140,14 @@ public class AddSpaceItemFragment extends Fragment {
         String date = etDate.getText().toString().trim();
         String reminder = etReminder.getText().toString().trim();
         String notes = etNotes.getText().toString().trim();
+        int progress = sbProgress.getProgress();
 
         CustomSpaceItem item = new CustomSpaceItem(spaceId, name, quantity, unit, date, reminder, notes);
+        item.setProgressValue(progress);
+        item.setItemImageUri(itemImageUri);
         if (existingItem != null) {
             item.setId(existingItem.getId());
+            item.setChecked(existingItem.isChecked());
         }
 
         Executors.newSingleThreadExecutor().execute(() -> {

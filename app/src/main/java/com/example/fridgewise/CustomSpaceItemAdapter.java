@@ -13,18 +13,21 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<CustomSpaceItem
 
     private List<CustomSpaceItem> items = new ArrayList<>();
     private final OnItemClickListener listener;
+    private CustomSpace parentSpace;
 
     public interface OnItemClickListener {
         void onItemClick(CustomSpaceItem item);
         void onDeleteClick(CustomSpaceItem item);
+        void onCheckChanged(CustomSpaceItem item, boolean isChecked);
     }
 
     public CustomSpaceItemAdapter(OnItemClickListener listener) {
         this.listener = listener;
     }
 
-    public void setItems(List<CustomSpaceItem> items) {
+    public void setItems(List<CustomSpaceItem> items, CustomSpace parentSpace) {
         this.items = items;
+        this.parentSpace = parentSpace;
         notifyDataSetChanged();
     }
 
@@ -39,10 +42,44 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<CustomSpaceItem
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         CustomSpaceItem item = items.get(position);
         holder.tvName.setText(item.getName());
-        holder.tvDetails.setText(item.getQuantity() + " " + item.getUnit() + " • " + item.getDate());
+        
+        if (parentSpace != null && parentSpace.isHasTracking()) {
+            holder.tvDetails.setVisibility(View.VISIBLE);
+            holder.tvDetails.setText(item.getQuantity() + " " + item.getUnit() + " • " + item.getDate());
+        } else {
+            holder.tvDetails.setVisibility(View.GONE);
+        }
+
+        if (parentSpace != null && parentSpace.isHasTodoList()) {
+            holder.checkBox.setVisibility(View.VISIBLE);
+            holder.checkBox.setOnCheckedChangeListener(null);
+            holder.checkBox.setChecked(item.isChecked());
+            holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                listener.onCheckChanged(item, isChecked);
+            });
+        } else {
+            holder.checkBox.setVisibility(View.GONE);
+        }
+
+        if (parentSpace != null && parentSpace.isHasProgressBar()) {
+            holder.progressBar.setVisibility(View.VISIBLE);
+            holder.progressBar.setProgress(item.getProgressValue());
+        } else {
+            holder.progressBar.setVisibility(View.GONE);
+        }
+
+        if (parentSpace != null && parentSpace.isHasDocuments()) {
+            holder.cardImage.setVisibility(View.VISIBLE);
+            if (item.getItemImageUri() != null) {
+                // TODO: Load actual image using Glide/Picasso if needed
+                // holder.ivImage.setImageURI(Uri.parse(item.getItemImageUri()));
+            }
+        } else {
+            holder.cardImage.setVisibility(View.GONE);
+        }
 
         holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
-        holder.itemView.findViewById(R.id.btnDelete).setOnClickListener(v -> listener.onDeleteClick(item));
+        holder.btnDelete.setOnClickListener(v -> listener.onDeleteClick(item));
     }
 
     @Override
@@ -52,11 +89,20 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<CustomSpaceItem
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvDetails;
+        android.widget.CheckBox checkBox;
+        android.widget.ProgressBar progressBar;
+        View cardImage;
+        android.widget.ImageView ivImage, btnDelete;
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvItemName);
             tvDetails = itemView.findViewById(R.id.tvItemDetails);
+            checkBox = itemView.findViewById(R.id.itemCheckBox);
+            progressBar = itemView.findViewById(R.id.itemProgressBar);
+            cardImage = itemView.findViewById(R.id.itemImageCard);
+            ivImage = itemView.findViewById(R.id.ivItemImage);
+            btnDelete = itemView.findViewById(R.id.btnDelete);
         }
     }
 }
