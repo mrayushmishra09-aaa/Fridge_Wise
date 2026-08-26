@@ -24,22 +24,24 @@ public class CustomSpaceItem implements Serializable {
     private double quantity;
     private String unit;
     private String date;
-    private String reminderTime;
+    private Long reminderTimestamp;
     private String notes;
     private boolean isChecked; // For Checklist Mode
-    private int progressValue; // For Progress Tracking
     private String itemImageUri; // For Document/Gallery
+    private String documentUri; // For PDF/Docs
+    private String documentName; // Display name of file
+    private Long completionTimestamp; // Time when marked completed
 
-    public CustomSpaceItem(int spaceId, String name, double quantity, String unit, String date, String reminderTime, String notes) {
+    public CustomSpaceItem(int spaceId, String name, double quantity, String unit, String date, Long reminderTimestamp, String notes) {
         this.spaceId = spaceId;
         this.name = name;
         this.quantity = quantity;
         this.unit = unit;
         this.date = date;
-        this.reminderTime = reminderTime;
+        this.reminderTimestamp = reminderTimestamp;
         this.notes = notes;
         this.isChecked = false;
-        this.progressValue = 0;
+        this.completionTimestamp = null;
     }
 
     public int getId() { return id; }
@@ -60,8 +62,8 @@ public class CustomSpaceItem implements Serializable {
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
 
-    public String getReminderTime() { return reminderTime; }
-    public void setReminderTime(String reminderTime) { this.reminderTime = reminderTime; }
+    public Long getReminderTimestamp() { return reminderTimestamp; }
+    public void setReminderTimestamp(Long reminderTimestamp) { this.reminderTimestamp = reminderTimestamp; }
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
@@ -69,9 +71,15 @@ public class CustomSpaceItem implements Serializable {
     public boolean isChecked() { return isChecked; }
     public void setChecked(boolean checked) { isChecked = checked; }
 
-    public int getProgressValue() { return progressValue; }
-    public void setProgressValue(int progressValue) { this.progressValue = progressValue; }
-
     public String getItemImageUri() { return itemImageUri; }
     public void setItemImageUri(String itemImageUri) { this.itemImageUri = itemImageUri; }
+
+    public String getDocumentUri() { return documentUri; }
+    public void setDocumentUri(String documentUri) { this.documentUri = documentUri; }
+
+    public String getDocumentName() { return documentName; }
+    public void setDocumentName(String documentName) { this.documentName = documentName; }
+
+    public Long getCompletionTimestamp() { return completionTimestamp; }
+    public void setCompletionTimestamp(Long completionTimestamp) { this.completionTimestamp = completionTimestamp; }
 }

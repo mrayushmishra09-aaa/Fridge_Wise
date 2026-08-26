@@ -24,7 +24,9 @@ public class CreateSpaceFragment extends Fragment {
     private TextView tvNameCount, tvDescCount;
     private ImageView ivSelectedIcon, ivCustomPhoto, ivAdvancedChevron;
     private LinearLayout layoutAdvanced;
-    private android.widget.CheckBox cbProgressBar, cbTodoList, cbDocument, cbTracking;
+    private View btnOptCheckbox, btnOptReminder, btnOptNotes, btnOptQuantity, btnOptDate, btnOptAttachments;
+    private boolean hasCheckbox, hasReminder, hasNotes, hasQuantity, hasDate, hasImage, hasAttachments;
+    private android.widget.Spinner spinnerAutoRemove;
     private int selectedIconRes = R.drawable.round_camera_alt_24;
     private int selectedColor = Color.parseColor("#2D6A4F"); // Default Green
     private String privacyStatus = "Private";
@@ -96,10 +98,43 @@ public class CreateSpaceFragment extends Fragment {
         ivCustomPhoto = view.findViewById(R.id.ivCustomPhoto);
         ivAdvancedChevron = view.findViewById(R.id.ivAdvancedChevron);
         layoutAdvanced = view.findViewById(R.id.layoutAdvanced);
-        cbProgressBar = view.findViewById(R.id.cbProgressBar);
-        cbTodoList = view.findViewById(R.id.cbTodoList);
-        cbDocument = view.findViewById(R.id.cbDocument);
-        cbTracking = view.findViewById(R.id.cbTracking);
+        
+        btnOptCheckbox = view.findViewById(R.id.btnOptCheckbox);
+        btnOptReminder = view.findViewById(R.id.btnOptReminder);
+        btnOptNotes = view.findViewById(R.id.btnOptNotes);
+        btnOptQuantity = view.findViewById(R.id.btnOptQuantity);
+        btnOptDate = view.findViewById(R.id.btnOptDate);
+        btnOptAttachments = view.findViewById(R.id.btnOptAttachments);
+        
+        setupCapabilityButtons();
+        
+        spinnerAutoRemove = view.findViewById(R.id.spinnerAutoRemove);
+    }
+
+    private void setupCapabilityButtons() {
+        btnOptCheckbox.setOnClickListener(v -> toggleCapability("checkbox"));
+        btnOptReminder.setOnClickListener(v -> toggleCapability("reminder"));
+        btnOptNotes.setOnClickListener(v -> toggleCapability("notes"));
+        btnOptQuantity.setOnClickListener(v -> toggleCapability("quantity"));
+        btnOptDate.setOnClickListener(v -> toggleCapability("date"));
+        btnOptAttachments.setOnClickListener(v -> toggleCapability("attachments"));
+    }
+
+    private void toggleCapability(String type) {
+        switch (type) {
+            case "checkbox": hasCheckbox = !hasCheckbox; updateButtonState(btnOptCheckbox, hasCheckbox); break;
+            case "reminder": hasReminder = !hasReminder; updateButtonState(btnOptReminder, hasReminder); break;
+            case "notes": hasNotes = !hasNotes; updateButtonState(btnOptNotes, hasNotes); break;
+            case "quantity": hasQuantity = !hasQuantity; updateButtonState(btnOptQuantity, hasQuantity); break;
+            case "date": hasDate = !hasDate; updateButtonState(btnOptDate, hasDate); break;
+            case "attachments": hasAttachments = !hasAttachments; updateButtonState(btnOptAttachments, hasAttachments); break;
+        }
+    }
+
+    private void updateButtonState(View view, boolean active) {
+        view.setAlpha(active ? 1.0f : 0.5f);
+        view.setScaleX(active ? 1.05f : 1.0f);
+        view.setScaleY(active ? 1.05f : 1.0f);
     }
 
     private void setupCharacterCounters() {
@@ -189,10 +224,25 @@ public class CreateSpaceFragment extends Fragment {
         privacyStatus = editingSpace.getPrivacyStatus();
         customImageUri = editingSpace.getImageUri();
 
-        cbProgressBar.setChecked(editingSpace.isHasProgressBar());
-        cbTodoList.setChecked(editingSpace.isHasTodoList());
-        cbDocument.setChecked(editingSpace.isHasDocuments());
-        cbTracking.setChecked(editingSpace.isHasTracking());
+        hasCheckbox = editingSpace.isHasCheckbox();
+        hasReminder = editingSpace.isHasReminder();
+        hasNotes = editingSpace.isHasNotes();
+        hasQuantity = editingSpace.isHasQuantity();
+        hasDate = editingSpace.isHasDate();
+        hasImage = editingSpace.isHasImage();
+        hasAttachments = editingSpace.isHasAttachments();
+        
+        updateButtonState(btnOptCheckbox, hasCheckbox);
+        updateButtonState(btnOptReminder, hasReminder);
+        updateButtonState(btnOptNotes, hasNotes);
+        updateButtonState(btnOptQuantity, hasQuantity);
+        updateButtonState(btnOptDate, hasDate);
+        updateButtonState(btnOptAttachments, hasAttachments);
+        
+        int duration = editingSpace.getAutoRemoveDuration();
+        if (duration == 0) spinnerAutoRemove.setSelection(0);
+        else if (duration == 1) spinnerAutoRemove.setSelection(1);
+        else if (duration == 7) spinnerAutoRemove.setSelection(2);
 
         ivSelectedIcon.setImageResource(selectedIconRes);
         if (selectedColor != 0) {
@@ -217,11 +267,12 @@ public class CreateSpaceFragment extends Fragment {
     }
 
     private void saveSpace(String name, String desc) {
-        boolean hasProgress = cbProgressBar.isChecked();
-        boolean hasTodo = cbTodoList.isChecked();
-        boolean hasDoc = cbDocument.isChecked();
-        boolean hasTrack = cbTracking.isChecked();
+        int autoRemoveDuration = 0;
+        int selection = spinnerAutoRemove.getSelectedItemPosition();
+        if (selection == 1) autoRemoveDuration = 1;
+        else if (selection == 2) autoRemoveDuration = 7;
 
+        int finalAutoRemoveDuration = autoRemoveDuration;
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
             if (editingSpace == null) {
@@ -229,10 +280,14 @@ public class CreateSpaceFragment extends Fragment {
                 space.setDescription(desc);
                 space.setColorCode(selectedColor);
                 space.setPrivacyStatus(privacyStatus);
-                space.setHasProgressBar(hasProgress);
-                space.setHasTodoList(hasTodo);
-                space.setHasDocuments(hasDoc);
-                space.setHasTracking(hasTrack);
+                space.setHasCheckbox(hasCheckbox);
+                space.setHasReminder(hasReminder);
+                space.setHasNotes(hasNotes);
+                space.setHasQuantity(hasQuantity);
+                space.setHasDate(hasDate);
+                space.setHasImage(hasImage);
+                space.setHasAttachments(hasAttachments);
+                space.setAutoRemoveDuration(finalAutoRemoveDuration);
                 db.customSpaceDao().insertSpace(space);
             } else {
                 editingSpace.setName(name);
@@ -241,10 +296,14 @@ public class CreateSpaceFragment extends Fragment {
                 editingSpace.setColorCode(selectedColor);
                 editingSpace.setPrivacyStatus(privacyStatus);
                 editingSpace.setImageUri(customImageUri);
-                editingSpace.setHasProgressBar(hasProgress);
-                editingSpace.setHasTodoList(hasTodo);
-                editingSpace.setHasDocuments(hasDoc);
-                editingSpace.setHasTracking(hasTrack);
+                editingSpace.setHasCheckbox(hasCheckbox);
+                editingSpace.setHasReminder(hasReminder);
+                editingSpace.setHasNotes(hasNotes);
+                editingSpace.setHasQuantity(hasQuantity);
+                editingSpace.setHasDate(hasDate);
+                editingSpace.setHasImage(hasImage);
+                editingSpace.setHasAttachments(hasAttachments);
+                editingSpace.setAutoRemoveDuration(finalAutoRemoveDuration);
                 db.customSpaceDao().updateSpace(editingSpace);
             }
 

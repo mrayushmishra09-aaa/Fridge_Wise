@@ -25,7 +25,7 @@ public interface CustomSpaceDao {
     CustomSpace getSpaceById(int id);
 
     @Insert
-    void insertItem(CustomSpaceItem item);
+    long insertItem(CustomSpaceItem item);
 
     @Update
     void updateItem(CustomSpaceItem item);

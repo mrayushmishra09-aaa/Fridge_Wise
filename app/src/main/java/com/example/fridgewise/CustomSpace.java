@@ -15,11 +15,17 @@ public class CustomSpace implements Serializable {
     private String privacyStatus; // e.g. "Private", "Shared"
     private String imageUri; // Optional custom photo URI
 
-    // Advanced features
-    private boolean hasProgressBar;
-    private boolean hasTodoList;
-    private boolean hasDocuments;
-    private boolean hasTracking;
+    // Capabilities (Item Features)
+    private boolean hasCheckbox;
+    private boolean hasReminder;
+    private boolean hasNotes;
+    private boolean hasQuantity;
+    private boolean hasDate;
+    private boolean hasImage;
+    private boolean hasAttachments;
+
+    // Completion behavior
+    private int autoRemoveDuration; // 0: Never, 1: 24h, 7: 7 days
 
     public CustomSpace(String name, int iconResId, String imageUri) {
         this.name = name;
@@ -28,10 +34,14 @@ public class CustomSpace implements Serializable {
         this.description = "";
         this.colorCode = 0;
         this.privacyStatus = "Private";
-        this.hasProgressBar = false;
-        this.hasTodoList = false;
-        this.hasDocuments = false;
-        this.hasTracking = false;
+        this.hasCheckbox = false;
+        this.hasReminder = false;
+        this.hasNotes = false;
+        this.hasQuantity = false;
+        this.hasDate = false;
+        this.hasImage = false;
+        this.hasAttachments = false;
+        this.autoRemoveDuration = 0;
     }
 
     public int getId() { return id; }
@@ -55,15 +65,27 @@ public class CustomSpace implements Serializable {
     public String getImageUri() { return imageUri; }
     public void setImageUri(String imageUri) { this.imageUri = imageUri; }
 
-    public boolean isHasProgressBar() { return hasProgressBar; }
-    public void setHasProgressBar(boolean hasProgressBar) { this.hasProgressBar = hasProgressBar; }
+    public boolean isHasCheckbox() { return hasCheckbox; }
+    public void setHasCheckbox(boolean hasCheckbox) { this.hasCheckbox = hasCheckbox; }
 
-    public boolean isHasTodoList() { return hasTodoList; }
-    public void setHasTodoList(boolean hasTodoList) { this.hasTodoList = hasTodoList; }
+    public boolean isHasReminder() { return hasReminder; }
+    public void setHasReminder(boolean hasReminder) { this.hasReminder = hasReminder; }
 
-    public boolean isHasDocuments() { return hasDocuments; }
-    public void setHasDocuments(boolean hasDocuments) { this.hasDocuments = hasDocuments; }
+    public boolean isHasNotes() { return hasNotes; }
+    public void setHasNotes(boolean hasNotes) { this.hasNotes = hasNotes; }
 
-    public boolean isHasTracking() { return hasTracking; }
-    public void setHasTracking(boolean hasTracking) { this.hasTracking = hasTracking; }
+    public boolean isHasQuantity() { return hasQuantity; }
+    public void setHasQuantity(boolean hasQuantity) { this.hasQuantity = hasQuantity; }
+
+    public boolean isHasDate() { return hasDate; }
+    public void setHasDate(boolean hasDate) { this.hasDate = hasDate; }
+
+    public boolean isHasImage() { return hasImage; }
+    public void setHasImage(boolean hasImage) { this.hasImage = hasImage; }
+
+    public boolean isHasAttachments() { return hasAttachments; }
+    public void setHasAttachments(boolean hasAttachments) { this.hasAttachments = hasAttachments; }
+
+    public int getAutoRemoveDuration() { return autoRemoveDuration; }
+    public void setAutoRemoveDuration(int autoRemoveDuration) { this.autoRemoveDuration = autoRemoveDuration; }
 }

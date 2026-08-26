@@ -24,6 +24,10 @@ public class CustomSpaceInventoryFragment extends Fragment {
     private RecyclerView recyclerView;
     private CustomSpaceItemAdapter adapter;
     private List<CustomSpaceItem> allItems = new ArrayList<>();
+    
+    private TextView tvBannerMsg, tvProgressPercent;
+    private com.google.android.material.progressindicator.LinearProgressIndicator progressOverall;
+    private View layoutBanner, layoutEmptyState;
 
     public static CustomSpaceInventoryFragment newInstance(CustomSpace space) {
         CustomSpaceInventoryFragment fragment = new CustomSpaceInventoryFragment();
@@ -49,6 +53,26 @@ public class CustomSpaceInventoryFragment extends Fragment {
         TextView tvTitle = view.findViewById(R.id.tvSpaceTitle);
         tvTitle.setText(currentSpace.getName());
 
+        tvBannerMsg = view.findViewById(R.id.tvBannerMsg);
+        tvProgressPercent = view.findViewById(R.id.tvProgressPercent);
+        progressOverall = view.findViewById(R.id.progressOverall);
+        layoutBanner = view.findViewById(R.id.layoutBanner);
+        layoutEmptyState = view.findViewById(R.id.layoutEmptyState);
+        
+        // Professional Polish: Set banner color based on space theme
+        if (currentSpace.getColorCode() != 0) {
+            layoutBanner.setBackgroundTintList(android.content.res.ColorStateList.valueOf(currentSpace.getColorCode()));
+            layoutBanner.setBackgroundTintMode(android.graphics.PorterDuff.Mode.SRC_ATOP);
+        }
+        
+        // Hide progress elements if checkbox is not enabled for this space
+        if (!currentSpace.isHasCheckbox()) {
+            progressOverall.setVisibility(View.GONE);
+            tvProgressPercent.setVisibility(View.GONE);
+            view.findViewById(R.id.tvProgressLabel).setVisibility(View.GONE);
+            tvBannerMsg.setText(String.format("Manage your %s effectively!", currentSpace.getName()));
+        }
+
         recyclerView = view.findViewById(R.id.rvSpaceItems);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         
@@ -71,8 +95,18 @@ public class CustomSpaceInventoryFragment extends Fragment {
             @Override
             public void onCheckChanged(CustomSpaceItem item, boolean isChecked) {
                 item.setChecked(isChecked);
+                if (isChecked) {
+                    item.setCompletionTimestamp(System.currentTimeMillis());
+                } else {
+                    item.setCompletionTimestamp(null);
+                }
                 Executors.newSingleThreadExecutor().execute(() -> {
                     AppDatabase.getInstance(requireContext()).customSpaceDao().updateItem(item);
+                    // Refresh UI and Banner
+                    requireActivity().runOnUiThread(() -> {
+                        adapter.notifyDataSetChanged();
+                        updateBannerProgress();
+                    });
                 });
             }
         });
@@ -113,11 +147,72 @@ public class CustomSpaceInventoryFragment extends Fragment {
     private void loadItems() {
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
-            allItems = db.customSpaceDao().getItemsForSpace(currentSpace.getId());
+            List<CustomSpaceItem> items = db.customSpaceDao().getItemsForSpace(currentSpace.getId());
+            
+            // Handle auto-removal logic
+            long now = System.currentTimeMillis();
+            List<CustomSpaceItem> validItems = new ArrayList<>();
+            int duration = currentSpace.getAutoRemoveDuration();
+            
+            if (duration > 0) {
+                long durationMillis = duration * 24L * 60L * 60L * 1000L;
+                for (CustomSpaceItem item : items) {
+                    if (item.isChecked() && item.getCompletionTimestamp() != null) {
+                        if (now - item.getCompletionTimestamp() > durationMillis) {
+                            db.customSpaceDao().deleteItem(item);
+                            continue;
+                        }
+                    }
+                    validItems.add(item);
+                }
+                allItems = validItems;
+            } else {
+                allItems = items;
+            }
+
             if (isAdded()) {
-                requireActivity().runOnUiThread(() -> adapter.setItems(allItems, currentSpace));
+                requireActivity().runOnUiThread(() -> {
+                    adapter.setItems(allItems, currentSpace);
+                    updateBannerProgress();
+                    
+                    // Toggle Empty State
+                    if (allItems.isEmpty()) {
+                        layoutEmptyState.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE);
+                    } else {
+                        layoutEmptyState.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE);
+                    }
+                });
             }
         });
+    }
+
+    private void updateBannerProgress() {
+        if (!currentSpace.isHasCheckbox() || allItems.isEmpty()) {
+            return;
+        }
+
+        int total = allItems.size();
+        int completed = 0;
+        for (CustomSpaceItem item : allItems) {
+            if (item.isChecked()) completed++;
+        }
+
+        int percent = (completed * 100) / total;
+        progressOverall.setProgress(percent);
+        tvProgressPercent.setText(String.format("%d%% Completed", percent));
+
+        // Dynamic Professional Messages
+        if (percent == 0) {
+            tvBannerMsg.setText(String.format("Get started with your %s tasks!", currentSpace.getName()));
+        } else if (percent < 50) {
+            tvBannerMsg.setText(String.format("You're making progress on your %s!", currentSpace.getName()));
+        } else if (percent < 100) {
+            tvBannerMsg.setText(String.format("Almost there! Keep going with your %s.", currentSpace.getName()));
+        } else {
+            tvBannerMsg.setText(String.format("Excellent! All %s tasks completed.", currentSpace.getName()));
+        }
     }
 
     private void showMoreOptions(View v) {

@@ -173,62 +173,26 @@
                     android:focusable="false"
                     android:paddingHorizontal="12dp"
                     android:textSize="14sp" />
-            </LinearLayout>
 
-            <!-- Progress Tracking -->
-            <LinearLayout
-                android:id="@+id/layoutProgress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="vertical"
-                android:visibility="gone">
+                <!-- Reminder -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="PROGRESS (%)"
+                    android:layout_marginTop="20dp"
+                    android:text="REMINDER"
                     android:textColor="@color/text_gray"
                     android:textSize="11sp"
                     android:textStyle="bold" />
-                <SeekBar
-                    android:id="@+id/sbProgress"
+                <EditText
+                    android:id="@+id/etReminder"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:max="100"
-                    android:progressTint="@color/onboarding_primary"
-                    android:thumbTint="@color/onboarding_primary" />
-                <TextView
-                    android:id="@+id/tvProgressValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:text="0%"
-                    android:textColor="@color/text_dark"
-                    android:textSize="12sp" />
+                    android:layout_height="48dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_edittext"
+                    android:hint="Set reminder time"
+                    android:paddingHorizontal="12dp"
+                    android:textSize="14sp" />
             </LinearLayout>
-
-            <!-- Reminder -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="REMINDER"
-                android:textColor="@color/text_gray"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/etReminder"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/bg_edittext"
-                android:hint="Set Reminder"
-                android:clickable="true"
-                android:focusable="false"
-                android:paddingHorizontal="12dp"
-                android:textSize="14sp" />
 
             <!-- Notes -->
             <TextView
@@ -251,6 +215,68 @@
                 android:padding="12dp"
                 android:textSize="14sp"
                 android:inputType="textMultiLine" />
+
+            <!-- Attachments Section -->
+            <LinearLayout
+                android:id="@+id/layoutAttachments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ATTACHMENT"
+                    android:textColor="@color/text_gray"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnAttachFile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    app:cardBackgroundColor="#F8F9FE"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#E0E0E0"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="12dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/v02_img_icons_doccc"
+                            app:tint="@color/onboarding_primary" />
+
+                        <TextView
+                            android:id="@+id/tvFileName"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:text="Attach PDF or Document"
+                            android:textColor="@color/text_dark"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/btnRemoveFile"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_close"
+                            android:visibility="gone"
+                            app:tint="@color/text_gray" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
         </LinearLayout>
 

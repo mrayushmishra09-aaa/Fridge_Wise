@@ -112,4 +112,10 @@
         <item>Loaf</item>
         <item>Bottle</item>
     </string-array>
+
+    <string-array name="auto_remove_options">
+        <item>Never</item>
+        <item>After 24 hours</item>
+        <item>After 7 days</item>
+    </string-array>
 </resources>

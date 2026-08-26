@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.flexbox)
     implementation(libs.legacy.support.v4)
     implementation(libs.cardview)
     implementation(libs.fragment)
