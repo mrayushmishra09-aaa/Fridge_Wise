@@ -17,6 +17,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 
 import java.util.Calendar;
@@ -26,9 +28,33 @@ public class AddItemFragment extends Fragment {
 
     private ImageView img_01, add_item_photo, btnInfo;
     private FoodItem editingItem = null; // Track if we are editing
+    private ProductLookupManager lookupManager;
+    private ActivityResultLauncher<Intent> scannerLauncher;
+    
+    private EditText itemNameEditText;
+    private AutoCompleteTextView categoryDropdown;
+    private Spinner quantitySpinner;
 
     public AddItemFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        lookupManager = new ProductLookupManager();
+        
+        scannerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        String barcode = result.getData().getStringExtra("BARCODE_RESULT");
+                        if (barcode != null) {
+                            performProductLookup(barcode);
+                        }
+                    }
+                }
+        );
     }
 
     @Override
@@ -40,16 +66,25 @@ public class AddItemFragment extends Fragment {
         img_01 = view.findViewById(R.id.back_arrow);
         add_item_photo = view.findViewById(R.id.add_item_photo);
         btnInfo = view.findViewById(R.id.btnInfo);
-        EditText itemNameEditText = view.findViewById(R.id.itemNameEditText);
+        itemNameEditText = view.findViewById(R.id.itemNameEditText);
         EditText quantityEditText = view.findViewById(R.id.quantityEditText);
         EditText notesEditText = view.findViewById(R.id.notesEditText);
-        AutoCompleteTextView categoryDropdown = view.findViewById(R.id.categoryDropdown);
-        Spinner quantitySpinner = view.findViewById(R.id.spinner_units);
+        categoryDropdown = view.findViewById(R.id.categoryDropdown);
+        quantitySpinner = view.findViewById(R.id.spinner_units);
         TextView purchaseDateText = view.findViewById(R.id.purchaseDateText);
         View purchaseCalendarBtn = view.findViewById(R.id.purchaseCalendarIcon);
         TextView expiry_DateText = view.findViewById(R.id.expiry_DateText);
         View expiry_DateBtn = view.findViewById(R.id.expiry_DateIcon);
         Button saveButton = view.findViewById(R.id.save_button);
+        View btnScan = view.findViewById(R.id.btnScanBarcode);
+
+        if (btnScan != null) {
+            btnScan.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), BarcodeScannerActivity.class);
+                scannerLauncher.launch(intent);
+            });
+        }
+
 
         // --- Check for Edit Mode ---
         if (getArguments() != null && getArguments().containsKey("foodItem")) {
@@ -247,5 +282,65 @@ public class AddItemFragment extends Fragment {
     private void showAboutBottomSheet() {
         AboutAddItemBottomSheet bottomSheet = new AboutAddItemBottomSheet();
         bottomSheet.show(getChildFragmentManager(), "AboutAddItemBottomSheet");
+    }
+
+    private void performProductLookup(String barcode) {
+        Toast.makeText(getContext(), "Searching for product...", Toast.LENGTH_SHORT).show();
+        lookupManager.lookupProduct(barcode, new ProductLookupManager.ProductCallback() {
+            @Override
+            public void onProductFound(String name, String category) {
+                if (isAdded()) {
+                    itemNameEditText.setText(name);
+                    String appCategory = mapApiCategoryToApp(category);
+                    categoryDropdown.setText(appCategory, false);
+                    updateCategoryIcon(appCategory);
+                    
+                    // Trigger unit auto-selection
+                    ArrayAdapter<CharSequence> unitAdapter = (ArrayAdapter<CharSequence>) quantitySpinner.getAdapter();
+                    autoSelectUnit(appCategory, quantitySpinner, unitAdapter);
+                    
+                    Toast.makeText(getContext(), "Product found: " + name, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onNotFound() {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Product not found in database.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Error looking up product.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private String mapApiCategoryToApp(String apiCategory) {
+        if (apiCategory == null || apiCategory.isEmpty()) return "others";
+        
+        String lower = apiCategory.toLowerCase();
+        
+        if (lower.contains("dairy") || lower.contains("milk") || lower.contains("cheese") || lower.contains("yogurt")) 
+            return "Dairy";
+        if (lower.contains("vegetable") || lower.contains("plant")) 
+            return "Vegetable";
+        if (lower.contains("fruit")) 
+            return "Fruits";
+        if (lower.contains("meat") || lower.contains("chicken") || lower.contains("fish") || lower.contains("beef")) 
+            return "Non-veg";
+        if (lower.contains("drink") || lower.contains("beverage") || lower.contains("soda") || lower.contains("juice")) 
+            return "Drinks";
+        if (lower.contains("frozen")) 
+            return "Frozen-Food";
+        if (lower.contains("snack") || lower.contains("chip") || lower.contains("candy")) 
+            return "Snacks";
+        if (lower.contains("bakery") || lower.contains("bread") || lower.contains("cake")) 
+            return "Bakery";
+            
+        return "others";
     }
 }

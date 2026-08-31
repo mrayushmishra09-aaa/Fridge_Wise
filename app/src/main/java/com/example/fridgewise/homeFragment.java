@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.transition.TransitionManager;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class HomeFragment extends Fragment {
 
     private HomeViewModel viewModel;
+    private RecipeAdapter recipeAdapter;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -34,6 +36,10 @@ public class HomeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        recipeAdapter = new RecipeAdapter(recipe -> {
+            // TODO: Show recipe details in a BottomSheet
+            Toast.makeText(getContext(), "Recipe: " + recipe.getName(), Toast.LENGTH_SHORT).show();
+        });
     }
 
     @Override
@@ -65,6 +71,14 @@ public class HomeFragment extends Fragment {
             rvRecent.setLayoutManager(new LinearLayoutManager(getContext()));
             rvRecent.setAdapter(recentAdapter);
         }
+        
+        // Setup Recipe RecyclerView
+        RecyclerView rvRecipes = view.findViewById(R.id.rv_suggested_recipes);
+        if (rvRecipes != null) {
+            rvRecipes.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+            rvRecipes.setAdapter(recipeAdapter);
+        }
+        View llRecipesSection = view.findViewById(R.id.ll_recipes_section);
 
         View cvTodayInsight = view.findViewById(R.id.cv_today_insight);
         TextView tvInsightTitle = view.findViewById(R.id.tv_insight_title);
@@ -97,24 +111,33 @@ public class HomeFragment extends Fragment {
                     view.findViewById(R.id.textView8).setVisibility(state.recentActivities.isEmpty() ? View.GONE : View.VISIBLE);
                 }
             }
+            
+            // Update Recipes
+            if (state.suggestedRecipes != null && !state.suggestedRecipes.isEmpty()) {
+                if (llRecipesSection != null) llRecipesSection.setVisibility(View.VISIBLE);
+                recipeAdapter.setRecipes(state.suggestedRecipes);
+            } else {
+                if (llRecipesSection != null) llRecipesSection.setVisibility(View.GONE);
+            }
 
             // Update Attention Section
             if (state.attentionItems != null && !state.attentionItems.isEmpty()) {
-                llAttentionSection.setVisibility(View.VISIBLE);
-                rvAttention.setVisibility(View.VISIBLE);
+                if (llAttentionSection != null) llAttentionSection.setVisibility(View.VISIBLE);
+                if (rvAttention != null) {
+                    rvAttention.setVisibility(View.VISIBLE);
+                    rvAttention.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+                    rvAttention.setAdapter(new AttentionAdapter(context, state.attentionItems, item -> {
+                    }));
+                }
                 View emptyView = view.findViewById(R.id.cv_attention_empty);
                 if (emptyView != null) emptyView.setVisibility(View.GONE);
                 
-                tvAttentionCount.setText(state.attentionItems.size() + " things need attention");
-                rvAttention.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
-                rvAttention.setAdapter(new AttentionAdapter(context, state.attentionItems, item -> {
-                     // TODO: Add Navigation logic here based on item.getType()
-                }));
+                if (tvAttentionCount != null) tvAttentionCount.setText(state.attentionItems.size() + " things need attention");
             } else {
                 View emptyView = view.findViewById(R.id.cv_attention_empty);
                 if (emptyView != null) emptyView.setVisibility(View.VISIBLE);
-                rvAttention.setVisibility(View.GONE);
-                tvAttentionCount.setText("Everything is in order");
+                if (rvAttention != null) rvAttention.setVisibility(View.GONE);
+                if (tvAttentionCount != null) tvAttentionCount.setText("Everything is in order");
             }
 
             // Update Insight Card
@@ -123,17 +146,24 @@ public class HomeFragment extends Fragment {
                 if (state.isLoading) {
                     tvInsightTitle.setText("Thinking...");
                     tvInsightDesc.setText("Analyzing your fridge data...");
+                    if (btnInsightAction != null) btnInsightAction.setVisibility(View.GONE);
                 } else {
                     tvInsightTitle.setText(state.insightTitle);
                     tvInsightDesc.setText(state.insightDescription);
                     
                     if (btnInsightAction != null) {
+                        btnInsightAction.setVisibility(state.hasActionableItems ? View.VISIBLE : View.GONE);
                         btnInsightAction.setOnClickListener(v -> {
-                             // Navigate to Shopping list as a default helpful action
-                             replaceFragment(new ShoppingListFragment());
+                             viewModel.autoAddActionableToShoppingList();
                         });
                     }
                 }
+            }
+        });
+
+        viewModel.getActionMessage().observe(getViewLifecycleOwner(), message -> {
+            if (message != null && !message.isEmpty()) {
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
     }

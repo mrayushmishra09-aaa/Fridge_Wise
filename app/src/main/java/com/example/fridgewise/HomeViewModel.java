@@ -19,11 +19,14 @@ import java.util.concurrent.Executors;
 public class HomeViewModel extends AndroidViewModel {
 
     private final MutableLiveData<HomeUiState> uiState = new MutableLiveData<>();
+    private final MutableLiveData<String> actionMessage = new MutableLiveData<>();
     private final AppDatabase db;
     private final GeminiManager geminiManager;
     private final PreferenceManager prefManager;
     private final Executor executor = Executors.newSingleThreadExecutor();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
+    
+    private List<FoodItem> currentActionableItems = new ArrayList<>();
 
     public HomeViewModel(@NonNull Application application) {
         super(application);
@@ -37,118 +40,140 @@ public class HomeViewModel extends AndroidViewModel {
         return uiState;
     }
 
+    public LiveData<String> getActionMessage() {
+        return actionMessage;
+    }
+
     public void refreshDashboard() {
         String userName = prefManager.getUserName();
-        // Post initial loading state if needed
         HomeUiState current = uiState.getValue();
         if (current == null) {
-            uiState.postValue(new HomeUiState(new ArrayList<>(), "Thinking...", "Analyzing your fridge...", "Hello!", userName, new ArrayList<>(), true));
+            uiState.postValue(new HomeUiState(new ArrayList<>(), "Thinking...", "Analyzing fridge...", "Hello!", userName, new ArrayList<>(), new ArrayList<>(), false, true));
         }
 
         executor.execute(() -> {
             ArrayList<AttentionItem> attentionItems = new ArrayList<>();
+            ArrayList<FoodItem> lowStockItems = new ArrayList<>();
+            ArrayList<FoodItem> expiringSoonItems = new ArrayList<>();
             Calendar calNow = Calendar.getInstance();
 
-            // 0. Recent Activities
             List<ActivityRecord> recentActivities = db.activityDao().getRecentActivities(10);
             if (recentActivities == null) recentActivities = new ArrayList<>();
 
-            // 1. Food Data
             List<FoodItem> foodItems = db.foodItemDao().getAllItems();
             Date today = resetTime(calNow.getTime());
-
-            String fallbackInsightTitle = null;
-            String fallbackInsightDesc = null;
+            Calendar calSoon = Calendar.getInstance();
+            calSoon.add(Calendar.DAY_OF_YEAR, 3);
+            Date soonDate = resetTime(calSoon.getTime());
 
             for (FoodItem item : foodItems) {
-                if (fallbackInsightTitle == null && item.getQuantity() <= 1) {
-                    fallbackInsightTitle = item.getName() + " is running low";
-                    fallbackInsightDesc = "You have very little " + item.getName() + " left. Add to shopping list?";
-                }
+                if (item.getQuantity() <= 1) lowStockItems.add(item);
 
                 try {
                     Date expiry = dateFormat.parse(item.getExpiryDate());
                     if (expiry != null) {
                         expiry = resetTime(expiry);
                         if (expiry.before(today)) {
-                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expired", "In Fridge", "Has expired! Clean it out.", "View item", AttentionItem.Type.FOOD);
+                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expired", "In Fridge", "Has expired!", "View", AttentionItem.Type.FOOD);
                             ai.setPriorityScore(10);
                             ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
                             attentionItems.add(ai);
                         } else if (expiry.equals(today)) {
-                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expires today", "In Fridge", "Use today for best freshness.", "View item", AttentionItem.Type.FOOD);
+                            expiringSoonItems.add(item);
+                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expires today", "In Fridge", "Use today!", "View", AttentionItem.Type.FOOD);
                             ai.setPriorityScore(50);
                             ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
                             attentionItems.add(ai);
+                        } else if (expiry.before(soonDate)) {
+                            expiringSoonItems.add(item);
                         }
                     }
                 } catch (ParseException e) { }
             }
 
-            // 2. Meds
+            // Meds & Tasks (simplified for brevity)
             List<MedicineEntity> medicines = db.medicineDao().getAllMedicines();
-            int activeMedCount = 0;
-            int pendingMedCount = 0;
             String todayStr = dateFormat.format(calNow.getTime());
             for (MedicineEntity med : medicines) {
-                if (med.isReminderOn()) {
-                    activeMedCount++;
-                    // Only add to attention if NOT taken today
-                    if (!todayStr.equals(med.getLastTakenDate())) {
-                        pendingMedCount++;
-                        AttentionItem ai = new AttentionItem(String.valueOf(med.getId()), med.getMedicineName(), med.getStartTime(), "Medicine", "Time to take your meds.", "View", AttentionItem.Type.MEDICINE);
-                        ai.setPriorityScore(100);
-                        ai.setImageResId(med.getIconResId());
-                        attentionItems.add(ai);
-                    }
-                }
-            }
-
-            // 3. Tasks
-            List<TodoItem> pendingTodos = db.todoDao().getPendingTodos();
-            for (TodoItem todo : pendingTodos) {
-                if ("High".equalsIgnoreCase(todo.getPriority())) {
-                    AttentionItem ai = new AttentionItem(String.valueOf(todo.getId()), todo.getTitle(), "High Priority", "Tasks", "Pending task needs completion.", "View", AttentionItem.Type.TODO);
-                    ai.setPriorityScore(70);
-                    ai.setImageResId(R.drawable.ic_todo_item);
+                if (med.isReminderOn() && !todayStr.equals(med.getLastTakenDate())) {
+                    AttentionItem ai = new AttentionItem(String.valueOf(med.getId()), med.getMedicineName(), med.getStartTime(), "Medicine", "Time for meds.", "View", AttentionItem.Type.MEDICINE);
+                    ai.setPriorityScore(100);
+                    ai.setImageResId(med.getIconResId());
                     attentionItems.add(ai);
                 }
             }
 
             attentionItems.sort((a, b) -> Long.compare(b.getPriorityScore(), a.getPriorityScore()));
 
-            // Time-based fallback greeting
-            String timeOfDay;
-            int hour = calNow.get(Calendar.HOUR_OF_DAY);
-            if (hour >= 5 && hour < 12) timeOfDay = "Morning";
-            else if (hour >= 12 && hour < 17) timeOfDay = "Afternoon";
-            else if (hour >= 17 && hour < 21) timeOfDay = "Evening";
-            else timeOfDay = "Night";
-            String fallbackGreeting = "Good " + timeOfDay + "!";
-
-            // AI Insight
-            StringBuilder data = new StringBuilder("Time: " + timeOfDay + ". ");
-            data.append("Food count: ").append(foodItems.size()).append(". ");
-            data.append("Meds pending: ").append(pendingMedCount).append(" out of ").append(activeMedCount).append(". ");
-            data.append("High Priority Tasks: ").append(pendingTodos.size()).append(".");
-
-            final String fTitle = fallbackInsightTitle;
-            final String fDesc = fallbackInsightDesc;
+            List<FoodItem> combined = new ArrayList<>(lowStockItems);
+            for (FoodItem fi : expiringSoonItems) { if (!combined.contains(fi)) combined.add(fi); }
+            if (combined.size() > 5) combined = combined.subList(0, 5);
+            currentActionableItems = combined;
+            boolean hasActionable = !currentActionableItems.isEmpty();
             final List<ActivityRecord> activities = recentActivities;
 
-            geminiManager.getSmartInsight(data.toString(), new GeminiManager.InsightCallback() {
-                @Override
-                public void onInsightGenerated(String greeting, String title, String description) {
-                    uiState.postValue(new HomeUiState(attentionItems, title, description, greeting, userName, activities, false));
-                }
+            if (!expiringSoonItems.isEmpty()) {
+                StringBuilder ingredients = new StringBuilder();
+                for (FoodItem fi : expiringSoonItems) ingredients.append(fi.getName()).append(", ");
+                geminiManager.getRecipeSuggestions(ingredients.toString(), new GeminiManager.RecipeCallback() {
+                    @Override
+                    public void onRecipesGenerated(List<RecipeItem> recipes) {
+                        fetchInsight(attentionItems, activities, hasActionable, recipes);
+                    }
+                    @Override
+                    public void onError(Throwable t) {
+                        fetchInsight(attentionItems, activities, hasActionable, new ArrayList<>());
+                    }
+                });
+            } else {
+                fetchInsight(attentionItems, activities, hasActionable, new ArrayList<>());
+            }
+        });
+    }
 
-                @Override
-                public void onError(Throwable t) {
-                    String title = fTitle != null ? fTitle : "Welcome to FridgeWise!";
-                    String desc = fDesc != null ? fDesc : "Add your first item to start getting smart insights.";
-                    uiState.postValue(new HomeUiState(attentionItems, title, desc, fallbackGreeting, userName, activities, false));
+    private void fetchInsight(List<AttentionItem> attentionItems, List<ActivityRecord> activities, boolean hasActionable, List<RecipeItem> recipes) {
+        String userName = prefManager.getUserName();
+        Calendar calNow = Calendar.getInstance();
+        int hour = calNow.get(Calendar.HOUR_OF_DAY);
+        String timeOfDay = (hour >= 5 && hour < 12) ? "Morning" : (hour >= 12 && hour < 17) ? "Afternoon" : (hour >= 17 && hour < 21) ? "Evening" : "Night";
+        String fallbackGreeting = "Good " + timeOfDay + "!";
+
+        StringBuilder data = new StringBuilder("Time: " + timeOfDay + ". ");
+        if (hasActionable) {
+            data.append("Urgent items: ");
+            for (FoodItem fi : currentActionableItems) data.append(fi.getName()).append(", ");
+        }
+
+        geminiManager.getSmartInsight(data.toString(), new GeminiManager.InsightCallback() {
+            @Override
+            public void onInsightGenerated(String greeting, String title, String description) {
+                uiState.postValue(new HomeUiState(attentionItems, title, description, greeting, userName, activities, recipes, hasActionable, false));
+            }
+            @Override
+            public void onError(Throwable t) {
+                uiState.postValue(new HomeUiState(attentionItems, "Fridge Insight", "Check your stock.", fallbackGreeting, userName, activities, recipes, hasActionable, false));
+            }
+        });
+    }
+
+    public void autoAddActionableToShoppingList() {
+        if (currentActionableItems.isEmpty()) return;
+        executor.execute(() -> {
+            List<ShoppingItem> existingShopping = db.shoppingDao().getAllItems();
+            int addedCount = 0;
+            for (FoodItem food : currentActionableItems) {
+                boolean alreadyInList = false;
+                for (ShoppingItem shop : existingShopping) {
+                    if (shop.getName().equalsIgnoreCase(food.getName())) { alreadyInList = true; break; }
                 }
-            });
+                if (!alreadyInList) {
+                    db.shoppingDao().insert(new ShoppingItem(food.getName(), "1", food.getUnit(), false));
+                    addedCount++;
+                }
+            }
+            String message = addedCount > 0 ? "Added " + addedCount + " items to list!" : "Items already in list.";
+            actionMessage.postValue(message);
+            refreshDashboard();
         });
     }
 

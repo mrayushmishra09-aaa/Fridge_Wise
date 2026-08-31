@@ -12,6 +12,8 @@ public class HomeUiState {
     public final String greeting;
     public final String userName;
     public final List<ActivityRecord> recentActivities;
+    public final List<RecipeItem> suggestedRecipes;
+    public final boolean hasActionableItems;
     public final boolean isLoading;
 
     public HomeUiState(List<AttentionItem> attentionItems, 
@@ -20,6 +22,8 @@ public class HomeUiState {
                       String greeting,
                       String userName,
                       List<ActivityRecord> recentActivities,
+                      List<RecipeItem> suggestedRecipes,
+                      boolean hasActionableItems,
                       boolean isLoading) {
         this.attentionItems = attentionItems;
         this.insightTitle = insightTitle;
@@ -27,6 +31,8 @@ public class HomeUiState {
         this.greeting = greeting;
         this.userName = userName;
         this.recentActivities = recentActivities;
+        this.suggestedRecipes = suggestedRecipes;
+        this.hasActionableItems = hasActionableItems;
         this.isLoading = isLoading;
     }
 }

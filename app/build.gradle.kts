@@ -57,6 +57,15 @@ dependencies {
     implementation(libs.cardview)
     implementation(libs.fragment)
     implementation(libs.recyclerview)
+    implementation(libs.camerax.camera2)
+    implementation(libs.camerax.core)
+    implementation(libs.camerax.lifecycle)
+    implementation(libs.camerax.view)
+    implementation(libs.mlkit.barcode.scanning)
+    // Networking for Product Lookup
+    
+    implementation(libs.okhttp)
+
 
     // Room Database
     implementation(libs.roomruntime)

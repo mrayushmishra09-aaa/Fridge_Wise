@@ -109,16 +109,33 @@
                             android:textStyle="bold" />
                     </LinearLayout>
 
-                    <EditText
-                        android:id="@+id/itemNameEditText"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:layout_marginTop="4dp"
-                        android:background="@drawable/bg_edittext"
-                        android:hint="e.g. Milk"
-                        android:paddingHorizontal="12dp"
-                        android:textSize="14sp"
-                        android:inputType="textCapWords" />
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/itemNameEditText"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_edittext"
+                            android:hint="e.g. Milk"
+                            android:inputType="textCapWords"
+                            android:paddingHorizontal="12dp"
+                            android:textSize="14sp" />
+
+                        <ImageButton
+                            android:id="@+id/btnScanBarcode"
+                            android:layout_width="48dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/bg_edittext"
+                            android:contentDescription="Scan Barcode"
+                            android:src="@drawable/ic_barcode_scan"
+                            app:tint="@color/text_gray" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
