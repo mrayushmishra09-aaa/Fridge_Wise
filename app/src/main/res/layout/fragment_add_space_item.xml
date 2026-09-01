@@ -67,33 +67,6 @@
                 android:textSize="14sp"
                 android:inputType="textCapWords" />
 
-            <!-- Photo Section -->
-            <LinearLayout
-                android:id="@+id/layoutItemPhoto"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="vertical"
-                android:visibility="gone">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="PHOTO"
-                    android:textColor="@color/text_gray"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-                <ImageView
-                    android:id="@+id/ivItemPhoto"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_marginTop="8dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/round_camera_alt_24"
-                    android:background="@drawable/bg_input_field"
-                    android:padding="20dp"
-                    app:tint="@color/onboarding_primary" />
-            </LinearLayout>
-
             <!-- Quantity & Unit -->
             <LinearLayout
                 android:id="@+id/layoutTracking"

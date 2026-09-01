@@ -1,5 +1,6 @@
 package com.example.fridgewise;
 
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import java.util.List;
 public class CustomSpaceAdapter extends RecyclerView.Adapter<CustomSpaceAdapter.SpaceViewHolder> {
 
     private List<CustomSpace> spaces = new ArrayList<>();
+    private SparseIntArray spaceItemCounts = new SparseIntArray();
     private final OnSpaceClickListener listener;
 
     public interface OnSpaceClickListener {
@@ -24,8 +26,9 @@ public class CustomSpaceAdapter extends RecyclerView.Adapter<CustomSpaceAdapter.
         this.listener = listener;
     }
 
-    public void setSpaces(List<CustomSpace> spaces) {
+    public void setSpaces(List<CustomSpace> spaces, SparseIntArray counts) {
         this.spaces = spaces;
+        this.spaceItemCounts = counts;
         notifyDataSetChanged();
     }
 
@@ -40,6 +43,9 @@ public class CustomSpaceAdapter extends RecyclerView.Adapter<CustomSpaceAdapter.
     public void onBindViewHolder(@NonNull SpaceViewHolder holder, int position) {
         CustomSpace space = spaces.get(position);
         holder.tvName.setText(space.getName());
+        
+        int itemCount = spaceItemCounts.get(space.getId(), 0);
+        holder.tvCount.setText(itemCount + (itemCount == 1 ? " item" : " items"));
         
         if (space.getImageUri() != null && !space.getImageUri().isEmpty()) {
             // Load custom image if exists (simplified for now)

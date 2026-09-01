@@ -149,13 +149,29 @@ public class Memory extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getView() != null) {
+            updateCounts(getView());
+            loadCustomSpaces();
+        }
+    }
+
     private void loadCustomSpaces() {
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
             List<CustomSpace> spaces = db.customSpaceDao().getAllSpaces();
+            // Fetch counts for each space
+            android.util.SparseIntArray counts = new android.util.SparseIntArray();
+            for (CustomSpace space : spaces) {
+                int count = db.customSpaceDao().getItemCountForSpace(space.getId());
+                counts.put(space.getId(), count);
+            }
+            
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
-                    customSpaceAdapter.setSpaces(spaces);
+                    customSpaceAdapter.setSpaces(spaces, counts);
                 });
             }
         });
@@ -202,12 +218,14 @@ public class Memory extends Fragment {
     }
 
     private void updateCounts(View view) {
+        if (view == null) return;
+        
         TextView tvMedicineCount = view.findViewById(R.id.tvMedicineCount);
         TextView tvTodoCount = view.findViewById(R.id.tvTodoCount);
         TextView tvShoppingCount = view.findViewById(R.id.tvShoppingCount);
         TextView tvDocsCount = view.findViewById(R.id.tvDocsCount);
 
-        new Thread(() -> {
+        Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
             int medCount = db.medicineDao().getAllMedicines().size();
             int todoCount = db.todoDao().getAllTodos().size();
@@ -216,8 +234,8 @@ public class Memory extends Fragment {
 
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
-                    tvMedicineCount.setText(medCount + (medCount == 1 ? " reminder" : " reminders"));
-                    tvTodoCount.setText(todoCount + (todoCount == 1 ? " task" : " tasks"));
+                    if (tvMedicineCount != null) tvMedicineCount.setText(medCount + (medCount == 1 ? " reminder" : " reminders"));
+                    if (tvTodoCount != null) tvTodoCount.setText(todoCount + (todoCount == 1 ? " task" : " tasks"));
                     if (tvShoppingCount != null) {
                         tvShoppingCount.setText(shoppingCount + (shoppingCount == 1 ? " item" : " items"));
                     }
@@ -226,6 +244,6 @@ public class Memory extends Fragment {
                     }
                 });
             }
-        }).start();
+        });
     }
 }

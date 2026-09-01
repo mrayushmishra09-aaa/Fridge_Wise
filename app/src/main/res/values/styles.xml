@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="BottomNavTextInactive" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="BottomNavTextActive" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+</resources>

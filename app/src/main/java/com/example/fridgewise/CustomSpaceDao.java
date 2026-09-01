@@ -35,4 +35,7 @@ public interface CustomSpaceDao {
 
     @Query("SELECT * FROM custom_space_items WHERE spaceId = :spaceId")
     List<CustomSpaceItem> getItemsForSpace(int spaceId);
+
+    @Query("SELECT COUNT(*) FROM custom_space_items WHERE spaceId = :spaceId")
+    int getItemCountForSpace(int spaceId);
 }

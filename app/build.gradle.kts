@@ -40,6 +40,11 @@ android {
     buildFeatures {
         buildConfig = true
     }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
     compileOptions {
         // Java 17 is required for recent Android Gradle Plugin versions
         sourceCompatibility = JavaVersion.VERSION_17
@@ -65,6 +70,7 @@ dependencies {
     // Networking for Product Lookup
     
     implementation(libs.okhttp)
+    implementation(libs.gson)
 
 
     // Room Database

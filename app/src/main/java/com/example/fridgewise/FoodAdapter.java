@@ -17,6 +17,7 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
     public interface onItemClickListener {
         void onEditClick(FoodItem foodItem);
         void onDeleteClick(FoodItem foodItem);
+        void onInfoClick(FoodItem foodItem);
     }
 
     private List<FoodItem> foodList = new ArrayList<>();
@@ -31,6 +32,10 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
         this.foodList.clear();
         this.foodList.addAll(newList);
         diffResult.dispatchUpdatesTo(this);
+    }
+
+    public List<FoodItem> getFoodList() {
+        return foodList;
     }
 
     @NonNull
@@ -50,6 +55,14 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
 
         // Category-based image linking
         setCategoryImage(holder.imgItem, currentItem.getCategory());
+
+        holder.btnInfo.setOnClickListener(v -> {
+            if (listener != null) listener.onInfoClick(currentItem);
+        });
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onEditClick(currentItem);
+        });
 
         // Three-dot menu logic
         holder.btnMore.setOnClickListener(v -> {
@@ -80,7 +93,7 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
 
     static class FoodViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvCategory, tvExpiry, tvQuantity;
-        ImageView imgItem, btnMore;
+        ImageView imgItem, btnMore, btnInfo;
 
         public FoodViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -90,6 +103,7 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
             tvQuantity = itemView.findViewById(R.id.itemQuantity);
             imgItem = itemView.findViewById(R.id.itemImage);
             btnMore = itemView.findViewById(R.id.btnMore);
+            btnInfo = itemView.findViewById(R.id.btnInfo);
         }
     }
 

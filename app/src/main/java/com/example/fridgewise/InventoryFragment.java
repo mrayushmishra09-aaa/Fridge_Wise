@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,8 +72,16 @@ public class InventoryFragment extends Fragment {
             public void onDeleteClick(FoodItem foodItem) {
                 deleteItem(foodItem);
             }
+
+            @Override
+            public void onInfoClick(FoodItem foodItem) {
+                FoodInfoBottomSheet sheet = FoodInfoBottomSheet.newInstance(foodItem);
+                sheet.show(getChildFragmentManager(), "food_info");
+            }
         });
         recyclerView.setAdapter(adapter);
+
+        setupSwipeToDelete();
 
         // Setup Category Chips
         ChipGroup chipGroup = view.findViewById(R.id.category_chip_group);
@@ -180,5 +189,21 @@ public class InventoryFragment extends Fragment {
             db.foodItemDao().delete(foodItem);
             loadItems();
         });
+    }
+
+    private void setupSwipeToDelete() {
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getBindingAdapterPosition();
+                FoodItem itemToDelete = adapter.getFoodList().get(position);
+                deleteItem(itemToDelete);
+            }
+        }).attachToRecyclerView(recyclerView);
     }
 }

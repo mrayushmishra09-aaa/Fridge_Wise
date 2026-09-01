@@ -46,7 +46,8 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
         DocumentItem currentDoc = documentItemList.get(position);
 
         holder.tvName.setText(currentDoc.getName());
-        holder.tvCategory.setText(currentDoc.getCategory());
+        // Counting the list: Document #01, #02...
+        holder.tvCategory.setText(String.format("Document #%02d", position + 1));
 
         // Set thumbnail if image exists
         if (currentDoc.getImagePath() != null && !currentDoc.getImagePath().isEmpty()) {

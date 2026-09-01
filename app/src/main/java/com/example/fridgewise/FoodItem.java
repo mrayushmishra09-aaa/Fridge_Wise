@@ -20,6 +20,7 @@ public class FoodItem implements Serializable {
     private String purchaseDate;
     private String expiryDate;
     private String imageUri;
+    private String notes;
 
     public FoodItem() {
     }
@@ -32,6 +33,9 @@ public class FoodItem implements Serializable {
         this.purchaseDate = purchaseDate;
         this.expiryDate = expiryDate;
     }
+    
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

@@ -24,10 +24,8 @@ public class AddSpaceItemFragment extends Fragment {
     private CustomSpace parentSpace;
     private CustomSpaceItem existingItem;
     private EditText etName, etQuantity, etUnit, etDate, etReminder, etNotes;
-    private android.widget.ImageView ivItemPhoto;
     private TextView tvFileName;
-    private View layoutPhoto, layoutTracking, layoutAttachments, btnRemoveFile;
-    private String itemImageUri = null;
+    private View layoutTracking, layoutAttachments, btnRemoveFile;
     private String documentUri = null;
     private String documentName = null;
     private Long selectedReminderTimestamp = null;
@@ -73,8 +71,6 @@ public class AddSpaceItemFragment extends Fragment {
         etDate = view.findViewById(R.id.etDate);
         etReminder = view.findViewById(R.id.etReminder);
         etNotes = view.findViewById(R.id.etNotes);
-        ivItemPhoto = view.findViewById(R.id.ivItemPhoto);
-        layoutPhoto = view.findViewById(R.id.layoutItemPhoto);
         layoutTracking = view.findViewById(R.id.layoutTracking);
         layoutAttachments = view.findViewById(R.id.layoutAttachments);
         tvFileName = view.findViewById(R.id.tvFileName);
@@ -97,17 +93,13 @@ public class AddSpaceItemFragment extends Fragment {
             }
             
             etNotes.setText(existingItem.getNotes());
-            itemImageUri = existingItem.getItemImageUri();
-            documentUri = existingItem.getDocumentUri();
             documentName = existingItem.getDocumentName();
             if (documentName != null) {
                 tvFileName.setText(documentName);
                 btnRemoveFile.setVisibility(View.VISIBLE);
             }
-            // TODO: Load image if itemImageUri is not null
         }
 
-        ivItemPhoto.setOnClickListener(v -> Toast.makeText(getContext(), "Photo selection coming soon", Toast.LENGTH_SHORT).show());
         etDate.setOnClickListener(v -> showDatePicker());
         etReminder.setOnClickListener(v -> showCombinedDateTimePicker());
         
@@ -134,7 +126,6 @@ public class AddSpaceItemFragment extends Fragment {
             parentSpace = db.customSpaceDao().getSpaceById(spaceId);
             if (isAdded() && parentSpace != null) {
                 requireActivity().runOnUiThread(() -> {
-                    layoutPhoto.setVisibility(parentSpace.isHasImage() ? View.VISIBLE : View.GONE);
                     layoutTracking.setVisibility(parentSpace.isHasQuantity() || parentSpace.isHasDate() || parentSpace.isHasReminder() ? View.VISIBLE : View.GONE);
                     layoutAttachments.setVisibility(parentSpace.isHasAttachments() ? View.VISIBLE : View.GONE);
                     
@@ -206,7 +197,6 @@ public class AddSpaceItemFragment extends Fragment {
         String notes = etNotes.getText().toString().trim();
 
         CustomSpaceItem item = new CustomSpaceItem(spaceId, name, quantity, unit, date, selectedReminderTimestamp, notes);
-        item.setItemImageUri(itemImageUri);
         item.setDocumentUri(documentUri);
         item.setDocumentName(documentName);
         

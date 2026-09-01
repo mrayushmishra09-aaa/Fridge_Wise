@@ -129,14 +129,6 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             itemHolder.tagNotesIcon.setVisibility(View.GONE);
         }
 
-        // 3. Image capability
-        if (parentSpace.isHasImage()) {
-            itemHolder.cardImage.setVisibility(View.VISIBLE);
-            // itemHolder.ivImage.setImageResource(R.drawable.round_camera_alt_24); // Default
-        } else {
-            itemHolder.cardImage.setVisibility(View.GONE);
-        }
-
         // 4. Quantity Tag
         if (parentSpace.isHasQuantity() && item.getQuantity() > 0) {
             itemHolder.tagQuantity.setVisibility(View.VISIBLE);
@@ -225,10 +217,10 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvNotes, tvTagQuantity, tvTagDate, tvTagReminder, tvTagStatus, tvTagAttachment, tvCompletionFooter;
         android.widget.CheckBox checkBox;
-        View cardImage, tagsLayout;
+        View tagsLayout;
         com.google.android.material.card.MaterialCardView cardMain;
         View tagQuantity, tagDate, tagReminder, tagStatus, tagNotesIcon, tagAttachment;
-        android.widget.ImageView ivImage, btnDelete;
+        android.widget.ImageView btnDelete;
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -237,8 +229,6 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             tvNotes = itemView.findViewById(R.id.tvItemNotes);
             tvCompletionFooter = itemView.findViewById(R.id.tvCompletionFooter);
             checkBox = itemView.findViewById(R.id.itemCheckBox);
-            cardImage = itemView.findViewById(R.id.itemImageCard);
-            ivImage = itemView.findViewById(R.id.ivItemImage);
             btnDelete = itemView.findViewById(R.id.btnDelete);
             
             tagsLayout = itemView.findViewById(R.id.tagsLayout);

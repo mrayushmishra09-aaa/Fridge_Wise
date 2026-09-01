@@ -96,6 +96,7 @@ public class AddItemFragment extends Fragment {
                 categoryDropdown.setText(editingItem.getCategory(), false);
                 purchaseDateText.setText(editingItem.getPurchaseDate());
                 expiry_DateText.setText(editingItem.getExpiryDate());
+                notesEditText.setText(editingItem.getNotes());
                 updateCategoryIcon(editingItem.getCategory());
                 saveButton.setText("Update Item");
             }
@@ -156,6 +157,7 @@ public class AddItemFragment extends Fragment {
             String unit = quantitySpinner.getSelectedItem().toString();
             String purchaseDate = purchaseDateText.getText().toString().trim();
             String expiryDate = expiry_DateText.getText().toString().trim();
+            String notes = notesEditText.getText().toString().trim();
 
             if (itemName.isEmpty() || quantityStr.isEmpty() || category.isEmpty() || expiryDate.isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
@@ -172,6 +174,7 @@ public class AddItemFragment extends Fragment {
                 if (editingItem == null) {
                     // INSERT new item
                     FoodItem newItem = new FoodItem(itemName, quantity, unit, category, purchaseDate, expiryDate);
+                    newItem.setNotes(notes);
                     long id = database.foodItemDao().insert(newItem);
                     newItem.setId((int) id);
                     itemToSchedule = newItem;
@@ -185,6 +188,7 @@ public class AddItemFragment extends Fragment {
                     editingItem.setCategory(category);
                     editingItem.setPurchaseDate(purchaseDate);
                     editingItem.setExpiryDate(expiryDate);
+                    editingItem.setNotes(notes);
                     database.foodItemDao().update(editingItem);
                     itemToSchedule = editingItem;
                     // LOG ACTIVITY

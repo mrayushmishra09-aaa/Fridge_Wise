@@ -27,7 +27,6 @@ public class CustomSpaceItem implements Serializable {
     private Long reminderTimestamp;
     private String notes;
     private boolean isChecked; // For Checklist Mode
-    private String itemImageUri; // For Document/Gallery
     private String documentUri; // For PDF/Docs
     private String documentName; // Display name of file
     private Long completionTimestamp; // Time when marked completed
@@ -70,9 +69,6 @@ public class CustomSpaceItem implements Serializable {
 
     public boolean isChecked() { return isChecked; }
     public void setChecked(boolean checked) { isChecked = checked; }
-
-    public String getItemImageUri() { return itemImageUri; }
-    public void setItemImageUri(String itemImageUri) { this.itemImageUri = itemImageUri; }
 
     public String getDocumentUri() { return documentUri; }
     public void setDocumentUri(String documentUri) { this.documentUri = documentUri; }

@@ -37,8 +37,8 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         recipeAdapter = new RecipeAdapter(recipe -> {
-            // TODO: Show recipe details in a BottomSheet
-            Toast.makeText(getContext(), "Recipe: " + recipe.getName(), Toast.LENGTH_SHORT).show();
+            RecipeDetailsBottomSheet sheet = RecipeDetailsBottomSheet.newInstance(recipe);
+            sheet.show(getChildFragmentManager(), "recipe_details");
         });
     }
 
@@ -79,6 +79,8 @@ public class HomeFragment extends Fragment {
             rvRecipes.setAdapter(recipeAdapter);
         }
         View llRecipesSection = view.findViewById(R.id.ll_recipes_section);
+        View cvSmartTip = view.findViewById(R.id.cv_smart_tip);
+        TextView tvSmartTip = view.findViewById(R.id.tv_smart_tip_text);
 
         View cvTodayInsight = view.findViewById(R.id.cv_today_insight);
         TextView tvInsightTitle = view.findViewById(R.id.tv_insight_title);
@@ -115,9 +117,14 @@ public class HomeFragment extends Fragment {
             // Update Recipes
             if (state.suggestedRecipes != null && !state.suggestedRecipes.isEmpty()) {
                 if (llRecipesSection != null) llRecipesSection.setVisibility(View.VISIBLE);
+                if (cvSmartTip != null) cvSmartTip.setVisibility(View.GONE);
                 recipeAdapter.setRecipes(state.suggestedRecipes);
             } else {
                 if (llRecipesSection != null) llRecipesSection.setVisibility(View.GONE);
+                if (cvSmartTip != null) {
+                    cvSmartTip.setVisibility(View.VISIBLE);
+                    if (tvSmartTip != null) tvSmartTip.setText(state.smartTip);
+                }
             }
 
             // Update Attention Section

@@ -40,17 +40,6 @@
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="bold" />
-
-            <ImageView
-                android:id="@+id/btnMenu"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:padding="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_more_vert"
-                app:tint="@color/black" />
         </RelativeLayout>
 
         <!-- Space Icon/Photo Section -->
@@ -98,26 +87,6 @@
                 android:src="@drawable/bg_photo_ring" />
         </FrameLayout>
 
-        <TextView
-            android:id="@+id/btnChangePhoto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="12dp"
-            android:text="@string/add_photo"
-            android:textColor="@color/onboarding_primary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="4dp"
-            android:text="@string/make_it_recognizable"
-            android:textColor="@color/text_gray"
-            android:textSize="12sp" />
-
         <!-- Name Input -->
         <RelativeLayout
             android:layout_width="match_parent"
@@ -157,43 +126,6 @@
             android:drawableStart="@drawable/outline_person_24"
             android:drawablePadding="12dp"
             app:drawableTint="@color/onboarding_primary" />
-
-        <!-- Description Input -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/description_optional"
-                android:textColor="@color/text_dark"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvDescCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:text="0/80"
-                android:textColor="@color/text_light"
-                android:textSize="12sp" />
-        </RelativeLayout>
-
-        <EditText
-            android:id="@+id/etSpaceDesc"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_input_field"
-            android:hint="@string/hint_space_desc"
-            android:inputType="textCapSentences"
-            android:maxLength="80"
-            android:paddingHorizontal="16dp"
-            android:textColor="@color/text_dark"
-            android:textSize="15sp" />
 
         <!-- Icon Picker -->
         <RelativeLayout
@@ -261,77 +193,6 @@
                 <!-- Color dots will be added here -->
             </LinearLayout>
         </HorizontalScrollView>
-
-        <!-- Privacy Selector -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/privacy"
-            android:textColor="@color/text_dark"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/btnPrivacy"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:layout_marginTop="8dp"
-            app:cardBackgroundColor="#F8FAF9"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeColor="#E8EBE9"
-            app:strokeWidth="1dp">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingHorizontal="16dp">
-
-                <ImageView
-                    android:id="@+id/ivPrivacyIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/outline_person_24"
-                    app:tint="@color/onboarding_primary" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_toEndOf="@id/ivPrivacyIcon"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvPrivacyTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/private_title"
-                        android:textColor="@color/text_dark"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvPrivacyDesc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/private_desc"
-                        android:textColor="@color/text_gray"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/outline_chevron_right_24"
-                    android:rotation="90"
-                    app:tint="@color/text_light" />
-            </RelativeLayout>
-        </com.google.android.material.card.MaterialCardView>
 
         <!-- Advanced Options -->
         <LinearLayout

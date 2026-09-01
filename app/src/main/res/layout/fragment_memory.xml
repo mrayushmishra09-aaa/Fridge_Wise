@@ -374,7 +374,6 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/tvDocsCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Documents"
@@ -383,9 +382,10 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvDocsCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="2 documents"
+                            android:text="0 documents"
                             android:textColor="@color/text_gray"
                             android:textSize="13sp" />
                     </LinearLayout>

@@ -26,26 +26,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/tvItemName" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/itemImageCard"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:layout_marginStart="8dp"
-            android:visibility="gone"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/itemCheckBox"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:id="@+id/ivItemImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/round_camera_alt_24" />
-        </com.google.android.material.card.MaterialCardView>
-
         <TextView
             android:id="@+id/tvItemName"
             android:layout_width="0dp"
@@ -57,7 +37,7 @@
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/btnDelete"
-            app:layout_constraintStart_toEndOf="@id/itemImageCard"
+            app:layout_constraintStart_toEndOf="@id/itemCheckBox"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_goneMarginStart="0dp" />
 

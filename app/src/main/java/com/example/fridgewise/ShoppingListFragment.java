@@ -28,7 +28,7 @@ public class ShoppingListFragment extends Fragment {
     private List<ShoppingItem> shoppingItems = new ArrayList<>();
     private TextView tvItemCount;
     private EditText etQuickAdd;
-    private ImageButton btnQuickAdd, btnBack;
+    private ImageButton btnQuickAdd, btnBack, btnShare;
     private FloatingActionButton fabAdd;
     private AppDatabase db;
     private View llEmptyState;
@@ -45,6 +45,7 @@ public class ShoppingListFragment extends Fragment {
         etQuickAdd = view.findViewById(R.id.etQuickAdd);
         btnQuickAdd = view.findViewById(R.id.btnQuickAdd);
         btnBack = view.findViewById(R.id.btnBack);
+        btnShare = view.findViewById(R.id.btnShare);
         fabAdd = view.findViewById(R.id.fabAddShopping);
         llEmptyState = view.findViewById(R.id.ll_shopping_empty_state);
 
@@ -63,9 +64,44 @@ public class ShoppingListFragment extends Fragment {
 
         btnBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
+        btnShare.setOnClickListener(v -> shareShoppingList());
+
         fabAdd.setOnClickListener(v -> showAddEditDialog(null));
 
         return view;
+    }
+
+    private void shareShoppingList() {
+        if (shoppingItems.isEmpty()) {
+            Toast.makeText(getContext(), "List is empty, nothing to share", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("🛒 My Shopping List from FridgeWise:\n\n");
+        for (int i = 0; i < shoppingItems.size(); i++) {
+            ShoppingItem item = shoppingItems.get(i);
+            sb.append(i + 1).append(". ").append(item.getName());
+            if (item.getQuantity() != null && !item.getQuantity().isEmpty()) {
+                sb.append(" (").append(item.getQuantity());
+                if (item.getUnit() != null && !item.getUnit().isEmpty()) {
+                    sb.append(" ").append(item.getUnit());
+                }
+                sb.append(")");
+            }
+            if (item.isCompleted()) {
+                sb.append(" ✅");
+            }
+            sb.append("\n");
+        }
+
+        android.content.Intent sendIntent = new android.content.Intent();
+        sendIntent.setAction(android.content.Intent.ACTION_SEND);
+        sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, sb.toString());
+        sendIntent.setType("text/plain");
+
+        android.content.Intent shareIntent = android.content.Intent.createChooser(sendIntent, "Share Shopping List via");
+        startActivity(shareIntent);
     }
 
     private void setupRecyclerView() {

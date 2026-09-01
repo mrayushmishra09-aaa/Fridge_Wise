@@ -21,7 +21,6 @@ public class CustomSpace implements Serializable {
     private boolean hasNotes;
     private boolean hasQuantity;
     private boolean hasDate;
-    private boolean hasImage;
     private boolean hasAttachments;
 
     // Completion behavior
@@ -39,7 +38,6 @@ public class CustomSpace implements Serializable {
         this.hasNotes = false;
         this.hasQuantity = false;
         this.hasDate = false;
-        this.hasImage = false;
         this.hasAttachments = false;
         this.autoRemoveDuration = 0;
     }
@@ -79,9 +77,6 @@ public class CustomSpace implements Serializable {
 
     public boolean isHasDate() { return hasDate; }
     public void setHasDate(boolean hasDate) { this.hasDate = hasDate; }
-
-    public boolean isHasImage() { return hasImage; }
-    public void setHasImage(boolean hasImage) { this.hasImage = hasImage; }
 
     public boolean isHasAttachments() { return hasAttachments; }
     public void setHasAttachments(boolean hasAttachments) { this.hasAttachments = hasAttachments; }

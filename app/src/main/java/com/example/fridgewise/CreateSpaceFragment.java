@@ -20,12 +20,12 @@ import java.util.concurrent.Executors;
 
 public class CreateSpaceFragment extends Fragment {
 
-    private EditText etName, etDesc;
-    private TextView tvNameCount, tvDescCount;
+    private EditText etName;
+    private TextView tvNameCount;
     private ImageView ivSelectedIcon, ivCustomPhoto, ivAdvancedChevron;
     private LinearLayout layoutAdvanced;
     private View btnOptCheckbox, btnOptReminder, btnOptNotes, btnOptQuantity, btnOptDate, btnOptAttachments;
-    private boolean hasCheckbox, hasReminder, hasNotes, hasQuantity, hasDate, hasImage, hasAttachments;
+    private boolean hasCheckbox, hasReminder, hasNotes, hasQuantity, hasDate, hasAttachments;
     private android.widget.Spinner spinnerAutoRemove;
     private int selectedIconRes = R.drawable.round_camera_alt_24;
     private int selectedColor = Color.parseColor("#2D6A4F"); // Default Green
@@ -83,17 +83,13 @@ public class CreateSpaceFragment extends Fragment {
 
         view.findViewById(R.id.btnBack).setOnClickListener(v -> getParentFragmentManager().popBackStack());
         view.findViewById(R.id.btnCreateSpace).setOnClickListener(v -> validateAndSave());
-        view.findViewById(R.id.btnChangePhoto).setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Photo selection coming soon", Toast.LENGTH_SHORT).show());
 
         return view;
     }
 
     private void initializeViews(View view) {
         etName = view.findViewById(R.id.etSpaceName);
-        etDesc = view.findViewById(R.id.etSpaceDesc);
         tvNameCount = view.findViewById(R.id.tvNameCount);
-        tvDescCount = view.findViewById(R.id.tvDescCount);
         ivSelectedIcon = view.findViewById(R.id.ivSpaceIcon);
         ivCustomPhoto = view.findViewById(R.id.ivCustomPhoto);
         ivAdvancedChevron = view.findViewById(R.id.ivAdvancedChevron);
@@ -144,17 +140,6 @@ public class CreateSpaceFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 tvNameCount.setText(getString(R.string.char_count_30, s.length()));
-            }
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
-
-        etDesc.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                tvDescCount.setText(getString(R.string.char_count_80, s.length()));
             }
             @Override
             public void afterTextChanged(Editable s) {}
@@ -218,10 +203,8 @@ public class CreateSpaceFragment extends Fragment {
 
     private void populateEditingData(View view) {
         etName.setText(editingSpace.getName());
-        etDesc.setText(editingSpace.getDescription());
         selectedIconRes = editingSpace.getIconResId();
         selectedColor = editingSpace.getColorCode();
-        privacyStatus = editingSpace.getPrivacyStatus();
         customImageUri = editingSpace.getImageUri();
 
         hasCheckbox = editingSpace.isHasCheckbox();
@@ -229,7 +212,6 @@ public class CreateSpaceFragment extends Fragment {
         hasNotes = editingSpace.isHasNotes();
         hasQuantity = editingSpace.isHasQuantity();
         hasDate = editingSpace.isHasDate();
-        hasImage = editingSpace.isHasImage();
         hasAttachments = editingSpace.isHasAttachments();
         
         updateButtonState(btnOptCheckbox, hasCheckbox);
@@ -257,16 +239,15 @@ public class CreateSpaceFragment extends Fragment {
 
     private void validateAndSave() {
         String name = etName.getText().toString().trim();
-        String desc = etDesc.getText().toString().trim();
         
         if (name.isEmpty()) {
             Toast.makeText(getContext(), "Please enter a space name", Toast.LENGTH_SHORT).show();
             return;
         }
-        saveSpace(name, desc);
+        saveSpace(name);
     }
 
-    private void saveSpace(String name, String desc) {
+    private void saveSpace(String name) {
         int autoRemoveDuration = 0;
         int selection = spinnerAutoRemove.getSelectedItemPosition();
         if (selection == 1) autoRemoveDuration = 1;
@@ -277,31 +258,25 @@ public class CreateSpaceFragment extends Fragment {
             AppDatabase db = AppDatabase.getInstance(requireContext());
             if (editingSpace == null) {
                 CustomSpace space = new CustomSpace(name, selectedIconRes, customImageUri);
-                space.setDescription(desc);
                 space.setColorCode(selectedColor);
-                space.setPrivacyStatus(privacyStatus);
                 space.setHasCheckbox(hasCheckbox);
                 space.setHasReminder(hasReminder);
                 space.setHasNotes(hasNotes);
                 space.setHasQuantity(hasQuantity);
                 space.setHasDate(hasDate);
-                space.setHasImage(hasImage);
                 space.setHasAttachments(hasAttachments);
                 space.setAutoRemoveDuration(finalAutoRemoveDuration);
                 db.customSpaceDao().insertSpace(space);
             } else {
                 editingSpace.setName(name);
-                editingSpace.setDescription(desc);
                 editingSpace.setIconResId(selectedIconRes);
                 editingSpace.setColorCode(selectedColor);
-                editingSpace.setPrivacyStatus(privacyStatus);
                 editingSpace.setImageUri(customImageUri);
                 editingSpace.setHasCheckbox(hasCheckbox);
                 editingSpace.setHasReminder(hasReminder);
                 editingSpace.setHasNotes(hasNotes);
                 editingSpace.setHasQuantity(hasQuantity);
                 editingSpace.setHasDate(hasDate);
-                editingSpace.setHasImage(hasImage);
                 editingSpace.setHasAttachments(hasAttachments);
                 editingSpace.setAutoRemoveDuration(finalAutoRemoveDuration);
                 db.customSpaceDao().updateSpace(editingSpace);

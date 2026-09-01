@@ -26,6 +26,17 @@ public class HomeViewModel extends AndroidViewModel {
     private final Executor executor = Executors.newSingleThreadExecutor();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
     
+    private static final String[] SMART_TIPS = {
+        "Store potatoes and onions separately; they spoil faster if kept together.",
+        "Keep milk in the main part of the fridge, not the door, where it's coldest.",
+        "Store honey at room temperature; it won't spoil and crystallizes slower.",
+        "Put a paper towel with your salad greens to absorb moisture and keep them crisp.",
+        "Bread stays fresh longer on the counter than in the fridge where it dries out.",
+        "Only move avocados to the fridge once they are fully ripe.",
+        "Wrap banana stems in plastic wrap to slow down the ripening process.",
+        "Store mushrooms in a paper bag instead of plastic to keep them from getting slimy."
+    };
+    
     private List<FoodItem> currentActionableItems = new ArrayList<>();
 
     public HomeViewModel(@NonNull Application application) {
@@ -48,7 +59,7 @@ public class HomeViewModel extends AndroidViewModel {
         String userName = prefManager.getUserName();
         HomeUiState current = uiState.getValue();
         if (current == null) {
-            uiState.postValue(new HomeUiState(new ArrayList<>(), "Thinking...", "Analyzing fridge...", "Hello!", userName, new ArrayList<>(), new ArrayList<>(), false, true));
+            uiState.postValue(new HomeUiState(new ArrayList<>(), "Thinking...", "Analyzing fridge...", "Hello!", userName, new ArrayList<>(), new ArrayList<>(), getRandomTip(), false, true));
         }
 
         executor.execute(() -> {
@@ -147,13 +158,18 @@ public class HomeViewModel extends AndroidViewModel {
         geminiManager.getSmartInsight(data.toString(), new GeminiManager.InsightCallback() {
             @Override
             public void onInsightGenerated(String greeting, String title, String description) {
-                uiState.postValue(new HomeUiState(attentionItems, title, description, greeting, userName, activities, recipes, hasActionable, false));
+                uiState.postValue(new HomeUiState(attentionItems, title, description, greeting, userName, activities, recipes, getRandomTip(), hasActionable, false));
             }
             @Override
             public void onError(Throwable t) {
-                uiState.postValue(new HomeUiState(attentionItems, "Fridge Insight", "Check your stock.", fallbackGreeting, userName, activities, recipes, hasActionable, false));
+                uiState.postValue(new HomeUiState(attentionItems, "Fridge Insight", "Check your stock.", fallbackGreeting, userName, activities, recipes, getRandomTip(), hasActionable, false));
             }
         });
+    }
+
+    private String getRandomTip() {
+        int index = (int) (Math.random() * SMART_TIPS.length);
+        return SMART_TIPS[index];
     }
 
     public void autoAddActionableToShoppingList() {

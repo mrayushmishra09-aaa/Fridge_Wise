@@ -6,4 +6,12 @@
     </style>
 
     <style name="Theme.FridgeWise" parent="Base.Theme.FridgeWise" />
+
+    <style name="FloatingBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/FloatingBottomSheet</item>
+    </style>
+
+    <style name="FloatingBottomSheet" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
 </resources>
