@@ -55,7 +55,7 @@
                         android:id="@+id/tv_user_message"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="What are we cooking today?"
+                        android:text="@string/hello_cooking_today"
                         android:textSize="10sp"
                         android:ellipsize="end"
                         android:maxLines="2"/>
@@ -80,7 +80,7 @@
                         android:id="@+id/textView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Smart Food Manager"
+                        android:text="@string/smart_food_manager"
                         android:textSize="10sp" />
                 </LinearLayout>
 
@@ -100,7 +100,7 @@
                 android:layout_margin="10dp"
                 android:elevation="2dp"
                 android:outlineAmbientShadowColor="@color/text_gray"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="@color/surface_bg"
                 app:cardCornerRadius="20dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -156,7 +156,7 @@
                         android:id="@+id/tv_attention_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Needs your attention"
+                        android:text="@string/needs_attention"
                         android:textColor="@color/text_dark"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -165,7 +165,7 @@
                         android:id="@+id/tv_attention_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0 things need your attention today"
+                        android:text="@string/attention_count_default"
                         android:textColor="@color/text_gray"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -176,7 +176,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:text="View all >"
+                    android:text="@string/view_all_attention_text"
                     android:textColor="#D32F2F"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -220,7 +220,7 @@
                 android:layout_margin="10dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardBackgroundColor="@color/surface_bg">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -242,7 +242,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="＋ Quick Add"
+                            android:text="@string/quick_add_title"
                             android:textColor="@color/green_primary"
                             android:textSize="17sp"
                             android:textStyle="bold" />
@@ -286,7 +286,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Food"
+                                android:text="@string/food_label"
                                 android:textColor="@color/text_dark"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
@@ -313,7 +313,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Medicine"
+                                android:text="@string/medicine_label"
                                 android:textColor="@color/text_dark"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
@@ -340,7 +340,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="To-Do"
+                                android:text="@string/todo_label"
                                 android:textColor="@color/text_dark"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
@@ -367,7 +367,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Shopping"
+                                android:text="@string/shopping_label"
                                 android:textColor="@color/text_dark"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
@@ -474,7 +474,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:text="Today's Insight"
+                            android:text="@string/todays_insight_label"
                             android:textColor="@color/white"
                             android:textSize="12sp"
                             android:textStyle="bold" />
@@ -488,7 +488,7 @@
                         android:backgroundTint="#FFD700"
                         android:paddingHorizontal="8dp"
                         android:paddingVertical="2dp"
-                        android:text="NEW"
+                        android:text="@string/new_badge_label"
                         android:textColor="@color/black"
                         android:textSize="10sp"
                         android:textStyle="bold"
@@ -512,7 +512,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:text="Smart Insight Heading"
+                        android:text="@string/insight_heading_default"
                         android:textColor="@color/white"
                         android:textSize="17sp"
                         android:textStyle="bold"
@@ -524,13 +524,14 @@
                         android:id="@+id/tv_insight_description"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_marginTop="6dp"
                         android:lineSpacingExtra="2dp"
-                        android:text="Detailed description of what FridgeWise noticed today."
+                        android:text="@string/insight_desc_default"
                         android:textColor="#E1D7FF"
                         android:textSize="13sp"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="@id/tv_insight_title"
+                        app:layout_constraintStart_toEndOf="@id/iv_insight_illustration"
                         app:layout_constraintTop_toBottomOf="@id/tv_insight_title" />
 
                     <TextView
@@ -570,7 +571,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Suggested Recipes"
+                        android:text="@string/suggested_recipes_title"
                         android:textColor="@color/text_dark"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -581,7 +582,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:text="View all"
+                        android:text="@string/view_all_recipes_text"
                         android:textColor="@color/green_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -634,7 +635,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Smart Chef Tip"
+                            android:text="@string/smart_chef_tip_title"
                             android:textColor="@color/green_primary"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -644,7 +645,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Did you know? Storing tomatoes at room temp keeps them flavorful."
+                            android:text="@string/smart_chef_tip_default"
                             android:textColor="@color/text_dark"
                             android:textSize="13sp"
                             android:lineSpacingExtra="2dp" />
@@ -658,7 +659,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:layout_marginHorizontal="4dp"
-                android:text="Recent Activity"
+                android:text="@string/recent_activity_title"
                 android:textColor="@color/text_dark"
                 android:textSize="18sp"
                 android:textStyle="bold"

@@ -82,6 +82,34 @@
     <string name="reviewing_meds">Reviewing your medications&#8230;</string>
     <string name="looking_tasks">Looking at your tasks&#8230;</string>
     <string name="take_action">Take Action</string>
+    <string name="hello_cooking_today">What are we cooking today?</string>
+    <string name="smart_food_manager">Smart Food Manager</string>
+    <string name="needs_attention">Needs your attention</string>
+    <string name="attention_count_default">0 things need your attention today</string>
+    <string name="view_all_attention_text">View all ></string>
+    <string name="quick_add_title">＋ Quick Add</string>
+    <string name="food_label">Food</string>
+    <string name="medicine_label">Medicine</string>
+    <string name="todo_label">To-Do</string>
+    <string name="shopping_label">Shopping</string>
+    <string name="todays_insight_label">Today\'s Insight</string>
+    <string name="new_badge_label">NEW</string>
+    <string name="insight_heading_default">Smart Insight Heading</string>
+    <string name="insight_desc_default">Detailed description of what FridgeWise noticed today.</string>
+    <string name="suggested_recipes_title">Suggested Recipes</string>
+    <string name="view_all_recipes_text">View all</string>
+    <string name="smart_chef_tip_title">Smart Chef Tip</string>
+    <string name="smart_chef_tip_default">Did you know? Storing tomatoes at room temp keeps them flavorful.</string>
+    <string name="recent_activity_title">Recent Activity</string>
+    <string name="global_search_title">Global Search</string>
+    <string name="search_hint_global">Search food, meds, docs...</string>
+    <string name="inventory_items_header">Inventory Items</string>
+    <string name="medicines_header">Medicines</string>
+    <string name="documents_header">Documents</string>
+    <string name="type_to_find_anything">Type to find anything</string>
+    <string name="no_results_found">No results found for your search</string>
+    <string name="no_documents_yet">No documents yet</string>
+    <string name="tap_add_doc_hint">Tap + to save your first prescription or receipt</string>
 
     <!-- category section -->
     <string-array name="category_array">

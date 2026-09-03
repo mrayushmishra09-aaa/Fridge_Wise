@@ -1,9 +1,14 @@
 package com.example.fridgewise;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +22,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
@@ -35,37 +41,39 @@ public class AddDocumentFragment extends Fragment {
     private String selectedImageUri = "";
     private ImageView ivDocPreview;
     private ActivityResultLauncher<PickVisualMediaRequest> imagePickerLauncher;
+    private ActivityResultLauncher<Intent> cameraLauncher;
     private DocumentItem editingDocument = null;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Initialize the Image Picker
+        // Initialize the Image Picker (Gallery)
         imagePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.PickVisualMedia(),
                 uri -> {
                     if (uri != null) {
-                        Context context = getContext();
-                        if (context != null) {
-                            // Copy the image to internal storage immediately to avoid SecurityException later
-                            new Thread(() -> {
-                                String localPath = saveImageToInternalStorage(context, uri);
-                                if (getActivity() != null) {
-                                    getActivity().runOnUiThread(() -> {
-                                        if (!localPath.isEmpty()) {
-                                            selectedImageUri = localPath;
-                                            if (ivDocPreview != null) {
-                                                ivDocPreview.setImageURI(Uri.parse(selectedImageUri));
-                                                ivDocPreview.setPadding(0, 0, 0, 0);
-                                                ivDocPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                                            }
-                                        } else {
-                                            Toast.makeText(getContext(), "Error saving image locally", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                        saveAndShowImage(uri);
+                    }
+                }
+        );
+
+        // Initialize the Camera Launcher
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Bitmap bitmap = (Bitmap) result.getData().getExtras().get("data");
+                        if (bitmap != null) {
+                            String path = saveBitmapToInternalStorage(bitmap);
+                            if (!path.isEmpty()) {
+                                selectedImageUri = path;
+                                if (ivDocPreview != null) {
+                                    ivDocPreview.setImageBitmap(bitmap);
+                                    ivDocPreview.setPadding(0, 0, 0, 0);
+                                    ivDocPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
                                 }
-                            }).start();
+                            }
                         }
                     }
                 }
@@ -121,9 +129,23 @@ public class AddDocumentFragment extends Fragment {
         }
 
         // --- Photo Capture Click ---
-        view.findViewById(R.id.cardCapture).setOnClickListener(v -> imagePickerLauncher.launch(new PickVisualMediaRequest.Builder()
-                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                .build()));
+        view.findViewById(R.id.cardCapture).setOnClickListener(v -> {
+            String[] options = {"Take Photo", "Choose from Gallery"};
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Add Photo")
+                    .setItems(options, (dialog, which) -> {
+                        if (which == 0) {
+                            // Open Camera
+                            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            cameraLauncher.launch(cameraIntent);
+                        } else {
+                            // Open Gallery
+                            imagePickerLauncher.launch(new PickVisualMediaRequest.Builder()
+                                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                                    .build());
+                        }
+                    }).show();
+        });
 
         // --- Save Button ---
         btnSaveDoc.setOnClickListener(v -> {
@@ -173,6 +195,46 @@ public class AddDocumentFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void saveAndShowImage(Uri uri) {
+        Context context = getContext();
+        if (context != null) {
+            new Thread(() -> {
+                String localPath = saveImageToInternalStorage(context, uri);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        if (!localPath.isEmpty()) {
+                            selectedImageUri = localPath;
+                            if (ivDocPreview != null) {
+                                ivDocPreview.setImageURI(Uri.parse(selectedImageUri));
+                                ivDocPreview.setPadding(0, 0, 0, 0);
+                                ivDocPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                            }
+                        } else {
+                            Toast.makeText(getContext(), "Error saving image locally", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }).start();
+        }
+    }
+
+    private String saveBitmapToInternalStorage(Bitmap bitmap) {
+        Context context = getContext();
+        if (context == null) return "";
+        
+        File storageDir = context.getFilesDir();
+        String fileName = "doc_" + UUID.randomUUID().toString() + ".jpg";
+        File file = new File(storageDir, fileName);
+
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            return Uri.fromFile(file).toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 
     /**

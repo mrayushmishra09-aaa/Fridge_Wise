@@ -201,7 +201,7 @@ public class HomeFragment extends Fragment {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
                     if (query != null && !query.isEmpty()) {
-                        InventoryFragment fragment = new InventoryFragment();
+                        GlobalSearchFragment fragment = new GlobalSearchFragment();
                         Bundle args = new Bundle();
                         args.putString("search_query", query);
                         fragment.setArguments(args);

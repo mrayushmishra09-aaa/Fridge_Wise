@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Mode Overrides -->
+    <color name="white">#1E1E1E</color>
+    <color name="background">#121212</color>
+    <color name="text_dark">#FFFFFF</color>
+    <color name="text_gray">#BDBDBD</color>
+    <color name="text_light">#757575</color>
+
+    <color name="app_bg">#121212</color>
+    <color name="surface_bg">#1E1E1E</color>
+    <color name="divider_color">#2C2C2C</color>
+    <color name="input_field_bg">#2C2C2C</color>
+    <color name="card_stroke_color">#333333</color>
+
+    <!-- Medicine/Specific Colors -->
+    <color name="card_bg">#1E1E1E</color>
+    <color name="text_header">#FFFFFF</color>
+    <color name="text_body">#BDBDBD</color>
+
+    <!-- Specific Banner Overrides -->
+    <color name="card_green">#1B3320</color>
+    <color name="card_orange">#33251B</color>
+    <color name="card_red">#331B1B</color>
+    <color name="card_purple">#251B33</color>
+
+    <!-- Badge Backgrounds -->
+    <color name="badge_red_bg">#441B1B</color>
+    <color name="badge_orange_bg">#442A1B</color>
+    <color name="badge_purple_bg">#2D1B44</color>
+</resources>

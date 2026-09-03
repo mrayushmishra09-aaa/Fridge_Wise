@@ -81,6 +81,7 @@ public class Memory extends Fragment {
         CardView cardMedicine = view.findViewById(R.id.cardMedicine);
         cardMedicine.setOnClickListener(v ->{
             getParentFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
                     .replace(R.id.fragmentContainerView2, new Med_section())
                     .addToBackStack(null)
                     .commit();
@@ -90,6 +91,7 @@ public class Memory extends Fragment {
         cardTodo = view.findViewById(R.id.cardTodo);
         cardTodo.setOnClickListener(v ->{
             getParentFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
                     .replace(R.id.fragmentContainerView2, new TodoListFragment())
                     .addToBackStack(null)
                     .commit();
@@ -99,6 +101,7 @@ public class Memory extends Fragment {
         CardView cardShopping = view.findViewById(R.id.cardShopping);
         cardShopping.setOnClickListener(v -> {
             getParentFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
                     .replace(R.id.fragmentContainerView2, new ShoppingListFragment())
                     .addToBackStack(null)
                     .commit();
@@ -108,6 +111,7 @@ public class Memory extends Fragment {
         CardView cardDocs = view.findViewById(R.id.cardDocs);
         cardDocs.setOnClickListener(v -> {
             getParentFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
                     .replace(R.id.fragmentContainerView2, new DocumentListFragment())
                     .addToBackStack(null)
                     .commit();

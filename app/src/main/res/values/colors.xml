@@ -34,6 +34,13 @@
     <color name="badge_orange_text">#E65100</color>
     <color name="badge_purple_text">#6200EA</color>
 
+    <!-- Semantic Colors for Dark Mode Support -->
+    <color name="app_bg">#F8F9FE</color>
+    <color name="surface_bg">#FFFFFF</color>
+    <color name="divider_color">#EEEEEE</color>
+    <color name="input_field_bg">#F5F5F5</color>
+    <color name="card_stroke_color">#F5F5F5</color>
+
     <!-- Dark Mode -->
     <color name="dark_background">#121212</color>
     <color name="dark_surface">#1E1E1E</color>

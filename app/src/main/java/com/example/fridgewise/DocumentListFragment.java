@@ -31,6 +31,8 @@ public class DocumentListFragment extends Fragment {
 
     private DocumentAdapter adapter;
     private TextView tvDocCount;
+    private View llEmptyState;
+    private RecyclerView rvDocuments;
 
     @Nullable
     @Override
@@ -55,8 +57,9 @@ public class DocumentListFragment extends Fragment {
         }
 
         // Initialize UI Elements
-        RecyclerView rvDocuments = view.findViewById(R.id.rvDocuments);
+        rvDocuments = view.findViewById(R.id.rvDocuments);
         tvDocCount = view.findViewById(R.id.tvDocCount);
+        llEmptyState = view.findViewById(R.id.llEmptyState);
 
         // Setup the RecyclerView
         adapter = new DocumentAdapter(new DocumentAdapter.OnDocumentClickListener() {
@@ -105,6 +108,15 @@ public class DocumentListFragment extends Fragment {
                     }
                     if (tvDocCount != null) {
                         tvDocCount.setText(getString(R.string.documents_saved_count, documents.size()));
+                    }
+                    if (llEmptyState != null && rvDocuments != null) {
+                        if (documents.isEmpty()) {
+                            llEmptyState.setVisibility(View.VISIBLE);
+                            rvDocuments.setVisibility(View.GONE);
+                        } else {
+                            llEmptyState.setVisibility(View.GONE);
+                            rvDocuments.setVisibility(View.VISIBLE);
+                        }
                     }
                 });
             }

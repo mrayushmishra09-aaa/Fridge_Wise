@@ -63,6 +63,7 @@ public class InventoryFragment extends Fragment {
                 fragment.setArguments(args);
 
                 getParentFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
                         .replace(R.id.fragmentContainerView2, fragment)
                         .addToBackStack(null)
                         .commit();
@@ -131,6 +132,7 @@ public class InventoryFragment extends Fragment {
         FloatingActionButton fab = view.findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(v -> {
             getParentFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
                     .replace(R.id.fragmentContainerView2, new AddItemFragment())
                     .addToBackStack(null)
                     .commit();
