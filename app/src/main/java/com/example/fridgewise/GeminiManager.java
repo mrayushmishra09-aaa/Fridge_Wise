@@ -58,10 +58,12 @@ public class GeminiManager {
     }
 
     public void getSmartInsight(String contextData, InsightCallback callback) {
-        String prompt = "You are FridgeWise, a smart assistant. Based on this data: " + contextData +
-                "\n1. Generate a short, friendly greeting for the user (max 5 words)." +
-                "\n2. Generate ONE smart, data-driven insight." +
-                "\nReturn the response in this JSON format:" +
+        String prompt = "You are FridgeWise, a highly intelligent and empathetic life assistant. Based on this user data: " + contextData +
+                "\n\nTASKS:" +
+                "\n1. GREETING: Generate a very personal, friendly greeting (e.g., 'Good morning, Ayush! Ready to conquer?'). Max 5 words." +
+                "\n2. INSIGHT TITLE: A short, catchy heading for today's main focus." +
+                "\n3. DESCRIPTION: A concise summary of the day. Connect the dots: if meds are remaining, remind them; if food is expiring, suggest using it; if shopping is long, encourage a trip. Make it sound like a proactive friend, not a computer." +
+                "\n\nReturn the response in this JSON format:" +
                 "\n{" +
                 "\n  \"greeting\": \"...\", " +
                 "\n  \"title\": \"...\", " +

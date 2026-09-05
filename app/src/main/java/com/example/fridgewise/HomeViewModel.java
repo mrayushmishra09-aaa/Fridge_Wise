@@ -102,17 +102,35 @@ public class HomeViewModel extends AndroidViewModel {
                 } catch (ParseException e) { }
             }
 
-            // Meds & Tasks (simplified for brevity)
+            // Meds & Tasks
             List<MedicineEntity> medicines = db.medicineDao().getAllMedicines();
             String todayStr = dateFormat.format(calNow.getTime());
+            int totalMedsToday = medicines.size();
+            int takenMedsToday = 0;
+            
             for (MedicineEntity med : medicines) {
-                if (med.isReminderOn() && !todayStr.equals(med.getLastTakenDate())) {
+                boolean isTaken = todayStr.equals(med.getLastTakenDate());
+                if (isTaken) takenMedsToday++;
+                
+                if (med.isReminderOn() && !isTaken) {
                     AttentionItem ai = new AttentionItem(String.valueOf(med.getId()), med.getMedicineName(), med.getStartTime(), "Medicine", "Time for meds.", "View", AttentionItem.Type.MEDICINE);
                     ai.setPriorityScore(100);
                     ai.setImageResId(med.getIconResId());
                     attentionItems.add(ai);
                 }
             }
+
+            List<TodoItem> todos = db.todoDao().getPendingTodos();
+            for (TodoItem todo : todos) {
+                if ("High".equalsIgnoreCase(todo.getPriority())) {
+                    AttentionItem ai = new AttentionItem(String.valueOf(todo.getId()), todo.getTitle(), todo.getTime() != null ? todo.getTime() : "Today", "To-Do", "High priority task.", "View", AttentionItem.Type.TODO);
+                    ai.setPriorityScore(80);
+                    ai.setImageResId(R.drawable.ic_todo_item);
+                    attentionItems.add(ai);
+                }
+            }
+
+            int shoppingCount = db.shoppingDao().getAllItems().size();
 
             attentionItems.sort((a, b) -> Long.compare(b.getPriorityScore(), a.getPriorityScore()));
 
@@ -122,6 +140,11 @@ public class HomeViewModel extends AndroidViewModel {
             currentActionableItems = combined;
             boolean hasActionable = !currentActionableItems.isEmpty();
             final List<ActivityRecord> activities = recentActivities;
+            
+            final int fTotalMeds = totalMedsToday;
+            final int fTakenMeds = takenMedsToday;
+            final int fTodoCount = todos.size();
+            final int fShoppingCount = shoppingCount;
 
             if (!expiringSoonItems.isEmpty()) {
                 StringBuilder ingredients = new StringBuilder();
@@ -129,31 +152,32 @@ public class HomeViewModel extends AndroidViewModel {
                 geminiManager.getRecipeSuggestions(ingredients.toString(), new GeminiManager.RecipeCallback() {
                     @Override
                     public void onRecipesGenerated(List<RecipeItem> recipes) {
-                        fetchInsight(attentionItems, activities, hasActionable, recipes);
+                        fetchInsight(attentionItems, activities, hasActionable, recipes, fTotalMeds, fTakenMeds, fTodoCount, fShoppingCount);
                     }
                     @Override
                     public void onError(Throwable t) {
-                        fetchInsight(attentionItems, activities, hasActionable, new ArrayList<>());
+                        fetchInsight(attentionItems, activities, hasActionable, new ArrayList<>(), fTotalMeds, fTakenMeds, fTodoCount, fShoppingCount);
                     }
                 });
             } else {
-                fetchInsight(attentionItems, activities, hasActionable, new ArrayList<>());
+                fetchInsight(attentionItems, activities, hasActionable, new ArrayList<>(), fTotalMeds, fTakenMeds, fTodoCount, fShoppingCount);
             }
         });
     }
 
-    private void fetchInsight(List<AttentionItem> attentionItems, List<ActivityRecord> activities, boolean hasActionable, List<RecipeItem> recipes) {
+    private void fetchInsight(List<AttentionItem> attentionItems, List<ActivityRecord> activities, boolean hasActionable, List<RecipeItem> recipes, 
+                              int totalMeds, int takenMeds, int todoCount, int shoppingCount) {
         String userName = prefManager.getUserName();
         Calendar calNow = Calendar.getInstance();
         int hour = calNow.get(Calendar.HOUR_OF_DAY);
         String timeOfDay = (hour >= 5 && hour < 12) ? "Morning" : (hour >= 12 && hour < 17) ? "Afternoon" : (hour >= 17 && hour < 21) ? "Evening" : "Night";
         String fallbackGreeting = "Good " + timeOfDay + "!";
 
-        StringBuilder data = new StringBuilder("Time: " + timeOfDay + ". ");
-        if (hasActionable) {
-            data.append("Urgent items: ");
-            for (FoodItem fi : currentActionableItems) data.append(fi.getName()).append(", ");
-        }
+        StringBuilder data = new StringBuilder("User: " + userName + ". Time: " + timeOfDay + ". ");
+        data.append("Food: " + (hasActionable ? currentActionableItems.size() + " urgent" : "stocked") + ". ");
+        data.append("Meds: " + takenMeds + " of " + totalMeds + " doses taken. ");
+        data.append("Tasks: " + todoCount + " pending. ");
+        data.append("Shopping: " + shoppingCount + " items on list. ");
 
         geminiManager.getSmartInsight(data.toString(), new GeminiManager.InsightCallback() {
             @Override
@@ -162,7 +186,7 @@ public class HomeViewModel extends AndroidViewModel {
             }
             @Override
             public void onError(Throwable t) {
-                uiState.postValue(new HomeUiState(attentionItems, "Fridge Insight", "Check your stock.", fallbackGreeting, userName, activities, recipes, getRandomTip(), hasActionable, false));
+                uiState.postValue(new HomeUiState(attentionItems, "Fridge Insight", "Everything is looking good today!", fallbackGreeting, userName, activities, recipes, getRandomTip(), hasActionable, false));
             }
         });
     }

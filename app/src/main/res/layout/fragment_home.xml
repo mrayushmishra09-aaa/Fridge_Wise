@@ -95,6 +95,7 @@
             </RelativeLayout>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cv_home_search"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_margin="10dp"
@@ -105,12 +106,15 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <SearchView
                         android:id="@+id/home_searchbar"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:iconifiedByDefault="false"
                         android:queryHint="Search items.."
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -206,9 +210,10 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="180dp"
-                        android:scaleType="fitCenter"
                         android:alpha="0.7"
+                        android:scaleType="fitCenter"
                         android:src="@drawable/attention_alert_img" />
+
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
 
@@ -373,6 +378,33 @@
                                 android:textStyle="bold" />
                         </LinearLayout>
 
+                        <LinearLayout
+                            android:id="@+id/btn_add_document"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:padding="8dp"
+                                android:src="@drawable/v02_img_icons_doccc"
+                                app:tint="@color/doc_primary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/documents_header"
+                                android:textColor="@color/text_dark"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -412,6 +444,7 @@
 
                     <!-- Background Stars for psychological appeal -->
                     <ImageView
+                        android:id="@+id/iv_sparkle_1"
                         android:layout_width="15dp"
                         android:layout_height="15dp"
                         android:alpha="0.4"

@@ -107,13 +107,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleIntent(Intent intent) {
         if (intent == null) return;
+        
         String target = intent.getStringExtra("target_fragment");
+        
+        // Avoid reloading Home if it's already displayed and no target is specified
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView2);
         if (target == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
-                    .replace(R.id.fragmentContainerView2, new HomeFragment())
-                    .commit();
+            if (currentFragment == null) {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
+                        .replace(R.id.fragmentContainerView2, new HomeFragment())
+                        .commit();
+            }
             return;
         }
 

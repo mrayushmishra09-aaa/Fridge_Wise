@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -14,7 +13,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -22,17 +20,22 @@ import java.util.stream.Collectors;
 
 public class GlobalSearchFragment extends Fragment {
 
-    private RecyclerView rvFood, rvMed, rvDoc;
+    private RecyclerView rvFood, rvMed, rvDoc, rvShopping, rvTodo;
     private FoodAdapter foodAdapter;
     private MedicineAdapter medAdapter;
     private DocumentAdapter docAdapter;
+    private ShoppingAdapter shoppingAdapter;
+    private TodoAdapter todoAdapter;
+    private SearchView searchView;
     
-    private TextView tvFoodHeader, tvMedHeader, tvDocHeader, tvEmptyMessage;
+    private TextView tvFoodHeader, tvMedHeader, tvDocHeader, tvShoppingHeader, tvTodoHeader, tvEmptyMessage;
     private View llEmptyState;
     
     private List<FoodItem> allFood = new ArrayList<>();
     private List<MedicineEntity> allMeds = new ArrayList<>();
     private List<DocumentItem> allDocs = new ArrayList<>();
+    private List<ShoppingItem> allShopping = new ArrayList<>();
+    private List<TodoItem> allTodos = new ArrayList<>();
 
     @Nullable
     @Override
@@ -48,6 +51,8 @@ public class GlobalSearchFragment extends Fragment {
         tvFoodHeader = view.findViewById(R.id.tvFoodHeader);
         tvMedHeader = view.findViewById(R.id.tvMedHeader);
         tvDocHeader = view.findViewById(R.id.tvDocHeader);
+        tvShoppingHeader = view.findViewById(R.id.tvShoppingHeader);
+        tvTodoHeader = view.findViewById(R.id.tvTodoHeader);
         tvEmptyMessage = view.findViewById(R.id.tvEmptyMessage);
         llEmptyState = view.findViewById(R.id.llEmptyState);
 
@@ -55,13 +60,14 @@ public class GlobalSearchFragment extends Fragment {
         rvFood = view.findViewById(R.id.rvFoodResults);
         rvMed = view.findViewById(R.id.rvMedResults);
         rvDoc = view.findViewById(R.id.rvDocResults);
+        rvShopping = view.findViewById(R.id.rvShoppingResults);
+        rvTodo = view.findViewById(R.id.rvTodoResults);
 
         setupAdapters();
-        loadAllData();
 
         view.findViewById(R.id.btnBack).setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
-        SearchView searchView = view.findViewById(R.id.searchView);
+        searchView = view.findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -84,6 +90,12 @@ public class GlobalSearchFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadAllData();
+    }
+
     private void setupAdapters() {
         // Food Adapter
         foodAdapter = new FoodAdapter(new FoodAdapter.onItemClickListener() {
@@ -94,7 +106,6 @@ public class GlobalSearchFragment extends Fragment {
 
             @Override
             public void onDeleteClick(FoodItem foodItem) {
-                // Handle delete in search? Maybe better to just navigate to edit
                 navigateToEdit(foodItem);
             }
 
@@ -117,7 +128,6 @@ public class GlobalSearchFragment extends Fragment {
 
             @Override
             public void onTakeDose(MedicineEntity medicine) {
-                // Simple dose log
             }
 
             @Override
@@ -151,6 +161,48 @@ public class GlobalSearchFragment extends Fragment {
         });
         rvDoc.setLayoutManager(new LinearLayoutManager(getContext()));
         rvDoc.setAdapter(docAdapter);
+
+        // Shopping Adapter
+        shoppingAdapter = new ShoppingAdapter();
+        shoppingAdapter.setOnItemClickListener(new ShoppingAdapter.OnItemClickListener() {
+            @Override
+            public void onEditClick(ShoppingItem item) {
+                replaceFragment(new ShoppingListFragment());
+            }
+
+            @Override
+            public void onDeleteClick(ShoppingItem item) {
+                replaceFragment(new ShoppingListFragment());
+            }
+
+            @Override
+            public void onStatusChange(ShoppingItem item, boolean isCompleted) {
+                updateShopping(item);
+            }
+        });
+        rvShopping.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvShopping.setAdapter(shoppingAdapter);
+
+        // Todo Adapter
+        todoAdapter = new TodoAdapter(new ArrayList<>());
+        todoAdapter.setOnTodoItemClickListener(new TodoAdapter.OnTodoItemClickListener() {
+            @Override
+            public void onEditClick(TodoItem item) {
+                replaceFragment(new TodoListFragment());
+            }
+
+            @Override
+            public void onDeleteClick(TodoItem item) {
+                replaceFragment(new TodoListFragment());
+            }
+
+            @Override
+            public void onStatusChange(TodoItem item, boolean isCompleted) {
+                updateTodo(item, isCompleted);
+            }
+        });
+        rvTodo.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvTodo.setAdapter(todoAdapter);
     }
 
     private void loadAllData() {
@@ -159,6 +211,16 @@ public class GlobalSearchFragment extends Fragment {
             allFood = db.foodItemDao().getAllItems();
             allMeds = db.medicineDao().getAllMedicines();
             allDocs = db.documentDao().getAllDocuments();
+            allShopping = db.shoppingDao().getAllItems();
+            allTodos = db.todoDao().getAllTodos();
+
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    if (searchView != null) {
+                        performSearch(searchView.getQuery().toString());
+                    }
+                });
+            }
         });
     }
 
@@ -184,11 +246,19 @@ public class GlobalSearchFragment extends Fragment {
                 .filter(i -> i.getName().toLowerCase().contains(q) || i.getCategory().toLowerCase().contains(q))
                 .collect(Collectors.toList());
 
-        updateUI(filteredFood, filteredMeds, filteredDocs);
+        List<ShoppingItem> filteredShopping = allShopping.stream()
+                .filter(i -> i.getName().toLowerCase().contains(q))
+                .collect(Collectors.toList());
+
+        List<TodoItem> filteredTodos = allTodos.stream()
+                .filter(i -> i.getTitle().toLowerCase().contains(q) || i.getNote().toLowerCase().contains(q))
+                .collect(Collectors.toList());
+
+        updateUI(filteredFood, filteredMeds, filteredDocs, filteredShopping, filteredTodos);
     }
 
-    private void updateUI(List<FoodItem> food, List<MedicineEntity> meds, List<DocumentItem> docs) {
-        boolean hasResults = !food.isEmpty() || !meds.isEmpty() || !docs.isEmpty();
+    private void updateUI(List<FoodItem> food, List<MedicineEntity> meds, List<DocumentItem> docs, List<ShoppingItem> shopping, List<TodoItem> todos) {
+        boolean hasResults = !food.isEmpty() || !meds.isEmpty() || !docs.isEmpty() || !shopping.isEmpty() || !todos.isEmpty();
 
         tvFoodHeader.setVisibility(food.isEmpty() ? View.GONE : View.VISIBLE);
         rvFood.setVisibility(food.isEmpty() ? View.GONE : View.VISIBLE);
@@ -201,6 +271,14 @@ public class GlobalSearchFragment extends Fragment {
         tvDocHeader.setVisibility(docs.isEmpty() ? View.GONE : View.VISIBLE);
         rvDoc.setVisibility(docs.isEmpty() ? View.GONE : View.VISIBLE);
         docAdapter.setDocs(docs);
+
+        tvShoppingHeader.setVisibility(shopping.isEmpty() ? View.GONE : View.VISIBLE);
+        rvShopping.setVisibility(shopping.isEmpty() ? View.GONE : View.VISIBLE);
+        shoppingAdapter.setItems(shopping);
+
+        tvTodoHeader.setVisibility(todos.isEmpty() ? View.GONE : View.VISIBLE);
+        rvTodo.setVisibility(todos.isEmpty() ? View.GONE : View.VISIBLE);
+        todoAdapter.updateList(todos);
 
         llEmptyState.setVisibility(hasResults ? View.GONE : View.VISIBLE);
         if (!hasResults) {
@@ -215,6 +293,10 @@ public class GlobalSearchFragment extends Fragment {
         rvMed.setVisibility(View.GONE);
         tvDocHeader.setVisibility(View.GONE);
         rvDoc.setVisibility(View.GONE);
+        tvShoppingHeader.setVisibility(View.GONE);
+        rvShopping.setVisibility(View.GONE);
+        tvTodoHeader.setVisibility(View.GONE);
+        rvTodo.setVisibility(View.GONE);
     }
 
     private void updateMedicine(MedicineEntity medicine) {
@@ -223,10 +305,23 @@ public class GlobalSearchFragment extends Fragment {
         });
     }
 
+    private void updateShopping(ShoppingItem item) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            AppDatabase.getInstance(requireContext()).shoppingDao().update(item);
+        });
+    }
+
+    private void updateTodo(TodoItem item, boolean isDone) {
+        item.setCompleted(isDone);
+        Executors.newSingleThreadExecutor().execute(() -> {
+            AppDatabase.getInstance(requireContext()).todoDao().update(item);
+        });
+    }
+
     private void navigateToEdit(FoodItem item) {
         AddItemFragment fragment = new AddItemFragment();
         Bundle args = new Bundle();
-        args.putSerializable("foodItem", (Serializable) item);
+        args.putSerializable("foodItem", item);
         fragment.setArguments(args);
         replaceFragment(fragment);
     }
@@ -249,6 +344,7 @@ public class GlobalSearchFragment extends Fragment {
 
     private void replaceFragment(Fragment fragment) {
         getParentFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
                 .replace(R.id.fragmentContainerView2, fragment)
                 .addToBackStack(null)
                 .commit();

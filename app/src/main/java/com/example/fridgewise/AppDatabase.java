@@ -4,8 +4,10 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {FoodItem.class, TodoItem.class, MedicineEntity.class, ShoppingItem.class, DocumentItem.class, CustomSpace.class, CustomSpaceItem.class, ActivityRecord.class}, version = 17, exportSchema = false)
+@Database(entities = {FoodItem.class, TodoItem.class, MedicineEntity.class, ShoppingItem.class, DocumentItem.class, CustomSpace.class, CustomSpaceItem.class, ActivityRecord.class}, version = 18, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract FoodItemDao foodItemDao();
@@ -24,7 +26,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "fridge_database")
-                            .fallbackToDestructiveMigration()
+                            .addMigrations(MIGRATION_17_18)
                             .build();
                 }
             }
@@ -32,7 +34,10 @@ public abstract class AppDatabase extends RoomDatabase {
         return INSTANCE;
     }
 
-
-
-
+    static final Migration MIGRATION_17_18 = new Migration(17, 18) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE food_items ADD COLUMN expiryTimestamp INTEGER NOT NULL DEFAULT 0");
+        }
+    };
 }

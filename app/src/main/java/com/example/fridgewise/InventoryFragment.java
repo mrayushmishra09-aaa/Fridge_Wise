@@ -106,25 +106,41 @@ public class InventoryFragment extends Fragment {
 
         // Setup Search
         SearchView searchView = view.findViewById(R.id.inventory_search_view);
-        if (!currentSearchQuery.isEmpty()) {
-            searchView.setQuery(currentSearchQuery, false);
-            searchView.setIconified(false);
-        }
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                currentSearchQuery = query;
-                filterItems();
-                return true;
-            }
+        View cvSearch = view.findViewById(R.id.cv_inventory_search);
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                currentSearchQuery = newText;
-                filterItems();
-                return true;
+        if (cvSearch != null && searchView != null) {
+            cvSearch.setOnClickListener(v -> {
+                searchView.setIconified(false);
+                searchView.requestFocus();
+            });
+
+            searchView.setOnClickListener(v -> {
+                searchView.setIconified(false);
+                searchView.requestFocus();
+            });
+        }
+
+        if (searchView != null) {
+            if (!currentSearchQuery.isEmpty()) {
+                searchView.setQuery(currentSearchQuery, false);
+                searchView.setIconified(false);
             }
-        });
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    currentSearchQuery = query;
+                    filterItems();
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    currentSearchQuery = newText;
+                    filterItems();
+                    return true;
+                }
+            });
+        }
 
         // Fetch items from Database
         loadItems();

@@ -28,4 +28,7 @@ public interface TodoDao {
 
     @Query("SELECT * FROM todo_items WHERE isCompleted = 1 ORDER BY id DESC")
     List<TodoItem> getCompletedTodos();
+
+    @Query("SELECT * FROM todo_items WHERE id = :id")
+    TodoItem getTodoById(int id);
 }

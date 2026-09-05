@@ -34,15 +34,13 @@ public class CleanupWorker extends Worker {
             }
         }
 
-        // 2. Cleanup Taken Medicines (>24h)
-        // Note: For medicine, we usually just want to reset the "taken" status,
-        // but the user asked to "remove that item". If he meant delete the record:
+        // 2. Reset Taken Medicines (>24h)
         List<MedicineEntity> allMeds = db.medicineDao().getAllMedicines();
         for (MedicineEntity med : allMeds) {
             if (med.getLastTakenDate() != null && (now - med.getStatusChangeTime() > twentyFourHours)) {
-                // If it's a recurring medicine, we might just want to clear the LastTakenDate.
-                // But following user's "remove that item" request:
-                db.medicineDao().delete(med);
+                // Reset status for recurring medicines instead of deleting
+                med.setLastTakenDate(null);
+                db.medicineDao().update(med);
             }
         }
 
@@ -56,6 +54,9 @@ public class CleanupWorker extends Worker {
                     // Move to shopping list first
                     ShoppingItem shoppingItem = new ShoppingItem(food.getName(), String.valueOf(food.getQuantity()), food.getUnit(), false);
                     db.shoppingDao().insert(shoppingItem);
+                    
+                    // LOG ACTIVITY
+                    db.activityDao().insert(new ActivityRecord("Shopping List", "Auto-moved (Expired)", food.getName(), System.currentTimeMillis(), CategoryUtils.getCategoryIcon(food.getCategory())));
                     
                     // Delete from inventory
                     db.foodItemDao().delete(food);

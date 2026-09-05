@@ -21,6 +21,7 @@ public class ProductLookupManager {
     private static final String API_URL = "https://world.openfoodfacts.org/api/v2/product/";
     private final OkHttpClient client;
     private final Handler mainHandler;
+    private Call currentCall;
 
     public interface ProductCallback {
         void onProductFound(String name, String category);
@@ -34,6 +35,8 @@ public class ProductLookupManager {
     }
 
     public void lookupProduct(String barcode, ProductCallback callback) {
+        cancel(); // Cancel any existing call
+        
         String url = API_URL + barcode + ".json?fields=product_name,categories";
 
         Request request = new Request.Builder()
@@ -41,7 +44,8 @@ public class ProductLookupManager {
                 .addHeader("User-Agent", "FridgeWise - Android - Version 1.0")
                 .build();
 
-        client.newCall(request).enqueue(new Callback() {
+        currentCall = client.newCall(request);
+        currentCall.enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 mainHandler.post(() -> callback.onError(e));
@@ -80,5 +84,12 @@ public class ProductLookupManager {
                 }
             }
         });
+    }
+
+    public void cancel() {
+        if (currentCall != null) {
+            currentCall.cancel();
+            currentCall = null;
+        }
     }
 }

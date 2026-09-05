@@ -60,6 +60,16 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupDashboard(View view) {
+        View ivSparkle = view.findViewById(R.id.iv_sparkle_1);
+        if (ivSparkle != null) {
+            ivSparkle.animate().rotation(360f).scaleX(1.2f).scaleY(1.2f).setDuration(3000).setListener(new android.animation.AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(android.animation.Animator animation) {
+                    ivSparkle.animate().rotation(0f).scaleX(1.0f).scaleY(1.0f).setDuration(3000).start();
+                }
+            }).start();
+        }
+
         LinearLayout llAttentionSection = view.findViewById(R.id.ll_attention_section);
         RecyclerView rvAttention = view.findViewById(R.id.rv_attention);
         TextView tvAttentionCount = view.findViewById(R.id.tv_attention_count);
@@ -98,8 +108,17 @@ public class HomeFragment extends Fragment {
         viewModel.getUiState().observe(getViewLifecycleOwner(), state -> {
             if (state == null) return;
 
+            // Smoothly animate UI changes
+            TransitionManager.beginDelayedTransition((ViewGroup) view);
+
             // Update Greeting & Name
-            if (tvUserMessage != null) tvUserMessage.setText(state.greeting);
+            if (tvUserMessage != null) {
+                if (!state.greeting.equals(tvUserMessage.getText().toString())) {
+                    tvUserMessage.setAlpha(0f);
+                    tvUserMessage.setText(state.greeting);
+                    tvUserMessage.animate().alpha(1f).setDuration(500).start();
+                }
+            }
             
             TextView tvUserName = view.findViewById(R.id.tv_user_name);
             if (tvUserName != null && state.userName != null) {
@@ -184,6 +203,12 @@ public class HomeFragment extends Fragment {
         
         View btnAddTodo = view.findViewById(R.id.btn_add_todo);
         if (btnAddTodo != null) btnAddTodo.setOnClickListener(v -> replaceFragment(new AddTodoFragment()));
+
+        View btnAddShopping = view.findViewById(R.id.btn_add_shopping);
+        if (btnAddShopping != null) btnAddShopping.setOnClickListener(v -> replaceFragment(new ShoppingListFragment()));
+
+        View btnAddDoc = view.findViewById(R.id.btn_add_document);
+        if (btnAddDoc != null) btnAddDoc.setOnClickListener(v -> replaceFragment(new AddDocumentFragment()));
         
         LinearLayout llHeader = view.findViewById(R.id.ll_quick_add_header);
         LinearLayout llOptions = view.findViewById(R.id.ll_quick_add_options);
@@ -196,6 +221,20 @@ public class HomeFragment extends Fragment {
         }
 
         android.widget.SearchView searchBar = view.findViewById(R.id.home_searchbar);
+        View cvSearch = view.findViewById(R.id.cv_home_search);
+
+        if (cvSearch != null && searchBar != null) {
+            cvSearch.setOnClickListener(v -> {
+                searchBar.setIconified(false);
+                searchBar.requestFocus();
+            });
+
+            searchBar.setOnClickListener(v -> {
+                searchBar.setIconified(false);
+                searchBar.requestFocus();
+            });
+        }
+
         if (searchBar != null) {
             searchBar.setOnQueryTextListener(new android.widget.SearchView.OnQueryTextListener() {
                 @Override

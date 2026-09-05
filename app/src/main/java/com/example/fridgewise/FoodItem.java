@@ -19,6 +19,7 @@ public class FoodItem implements Serializable {
     private String category;
     private String purchaseDate;
     private String expiryDate;
+    private long expiryTimestamp;
     private String imageUri;
     private String notes;
 
@@ -58,6 +59,9 @@ public class FoodItem implements Serializable {
 
     public String getExpiryDate() { return expiryDate; }
     public void setExpiryDate(String expiryDate) { this.expiryDate = expiryDate; }
+
+    public long getExpiryTimestamp() { return expiryTimestamp; }
+    public void setExpiryTimestamp(long expiryTimestamp) { this.expiryTimestamp = expiryTimestamp; }
 
     public String getImageUri() { return imageUri; }
     public void setImageUri(String imageUri) { this.imageUri = imageUri; }

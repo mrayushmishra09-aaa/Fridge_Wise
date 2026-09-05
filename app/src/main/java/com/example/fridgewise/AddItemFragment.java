@@ -4,7 +4,11 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +25,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 
 public class AddItemFragment extends Fragment {
@@ -175,6 +182,7 @@ public class AddItemFragment extends Fragment {
                     // INSERT new item
                     FoodItem newItem = new FoodItem(itemName, quantity, unit, category, purchaseDate, expiryDate);
                     newItem.setNotes(notes);
+                    newItem.setExpiryTimestamp(parseDateToTimestamp(expiryDate));
                     long id = database.foodItemDao().insert(newItem);
                     newItem.setId((int) id);
                     itemToSchedule = newItem;
@@ -188,6 +196,7 @@ public class AddItemFragment extends Fragment {
                     editingItem.setCategory(category);
                     editingItem.setPurchaseDate(purchaseDate);
                     editingItem.setExpiryDate(expiryDate);
+                    editingItem.setExpiryTimestamp(parseDateToTimestamp(expiryDate));
                     editingItem.setNotes(notes);
                     database.foodItemDao().update(editingItem);
                     itemToSchedule = editingItem;
@@ -198,9 +207,20 @@ public class AddItemFragment extends Fragment {
                 // Schedule notification for expiry
                 scheduleFoodNotification(context, itemToSchedule);
 
-                Activity activity = getActivity();
-                if (activity != null) {
-                    activity.runOnUiThread(() -> {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        // Dynamic UX: Suble vibration on success
+                        try {
+                            Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                            if (vibrator != null && vibrator.hasVibrator()) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
+                                } else {
+                                    vibrator.vibrate(50);
+                                }
+                            }
+                        } catch (Exception ignored) {}
+                        
                         Toast.makeText(context, editingItem == null ? "Item added" : "Item updated", Toast.LENGTH_SHORT).show();
                         getParentFragmentManager().popBackStack();
                     });
@@ -211,17 +231,35 @@ public class AddItemFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (lookupManager != null) {
+            lookupManager.cancel();
+        }
+    }
+
+    private long parseDateToTimestamp(String dateStr) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
+            Date date = sdf.parse(dateStr);
+            return date != null ? date.getTime() : 0;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     private void scheduleFoodNotification(Context context, FoodItem item) {
         try {
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("d/M/yyyy", java.util.Locale.getDefault());
-            java.util.Date expiryDate = sdf.parse(item.getExpiryDate());
+            SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
+            Date expiryDate = sdf.parse(item.getExpiryDate());
             if (expiryDate != null) {
-                java.util.Calendar cal = java.util.Calendar.getInstance();
+                Calendar cal = Calendar.getInstance();
                 cal.setTime(expiryDate);
                 // Schedule for 8:00 AM on the day of expiry
-                cal.set(java.util.Calendar.HOUR_OF_DAY, 8);
-                cal.set(java.util.Calendar.MINUTE, 0);
-                cal.set(java.util.Calendar.SECOND, 0);
+                cal.set(Calendar.HOUR_OF_DAY, 8);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
 
                 if (cal.getTimeInMillis() > System.currentTimeMillis()) {
                     Bundle extras = new Bundle();
@@ -232,7 +270,7 @@ public class AddItemFragment extends Fragment {
                     NotificationHelper.scheduleNotification(context, cal.getTimeInMillis(),
                             "Food Expiry: " + item.getName(),
                             "Your " + item.getName() + " expires today. Don't forget to use it!",
-                            item.getId() + 20000,
+                            item.getId() + 30000,
                             CategoryUtils.getCategoryIcon(item.getCategory()),
                             "FOOD",
                             extras,
@@ -240,7 +278,7 @@ public class AddItemFragment extends Fragment {
                 }
             }
         } catch (Exception e) {
-            android.util.Log.e("AddItemFragment", "Error scheduling notification", e);
+            Log.e("AddItemFragment", "Error scheduling notification", e);
         }
     }
 

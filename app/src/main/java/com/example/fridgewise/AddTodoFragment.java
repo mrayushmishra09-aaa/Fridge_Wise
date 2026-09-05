@@ -123,7 +123,7 @@ public class AddTodoFragment extends Fragment {
                     if (existingTask.isReminderSet()) {
                         scheduleTodoNotification(existingTask);
                     } else {
-                        NotificationHelper.cancelNotification(requireContext(), existingTask.getId() + 10000); // Unique offset for todos
+                        NotificationHelper.cancelNotification(requireContext(), existingTask.getId() + 20000); // Unique offset for todos
                     }
 
                     requireActivity().runOnUiThread(() -> {
@@ -222,7 +222,7 @@ public class AddTodoFragment extends Fragment {
                 NotificationHelper.scheduleNotification(requireContext(), date.getTime(),
                         "Task Reminder: " + task.getTitle(),
                         "Priority: " + task.getPriority() + (task.getNote().isEmpty() ? "" : " - " + task.getNote()),
-                        task.getId() + 10000,
+                        task.getId() + 20000,
                         R.drawable.ic_todo_item,
                         "TODO",
                         null,

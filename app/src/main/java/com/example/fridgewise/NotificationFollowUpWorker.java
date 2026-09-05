@@ -29,7 +29,8 @@ public class NotificationFollowUpWorker extends Worker {
         boolean isPending = false;
 
         if ("MEDICINE".equals(type)) {
-            MedicineEntity med = db.medicineDao().getMedicineById(id);
+            int actualId = id - 10000;
+            MedicineEntity med = db.medicineDao().getMedicineById(actualId);
             if (med != null) {
                 String today = new SimpleDateFormat("d/M/yyyy", Locale.getDefault()).format(new Date());
                 if (!today.equals(med.getLastTakenDate())) {
@@ -37,14 +38,8 @@ public class NotificationFollowUpWorker extends Worker {
                 }
             }
         } else if ("TODO".equals(type)) {
-            int actualId = id - 10000;
-            TodoItem todo = null;
-            for (TodoItem item : db.todoDao().getAllTodos()) {
-                if (item.getId() == actualId) {
-                    todo = item;
-                    break;
-                }
-            }
+            int actualId = id - 20000;
+            TodoItem todo = db.todoDao().getTodoById(actualId);
             if (todo != null && !todo.isCompleted()) {
                 isPending = true;
             }

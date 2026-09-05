@@ -129,6 +129,48 @@
                 android:paddingHorizontal="10dp"
                 android:visibility="gone" />
 
+            <!-- Shopping Results Section -->
+            <TextView
+                android:id="@+id/tvShoppingHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:text="Shopping List"
+                android:textColor="@color/orange_warning"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvShoppingResults"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:paddingHorizontal="10dp"
+                android:visibility="gone" />
+
+            <!-- Todo Results Section -->
+            <TextView
+                android:id="@+id/tvTodoHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:text="To-Do Tasks"
+                android:textColor="@color/purple_primary"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTodoResults"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:paddingHorizontal="10dp"
+                android:visibility="gone" />
+
             <!-- Empty State -->
             <LinearLayout
                 android:id="@+id/llEmptyState"

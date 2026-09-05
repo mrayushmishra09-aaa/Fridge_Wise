@@ -61,6 +61,7 @@
             </LinearLayout>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cv_inventory_search"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_margin="5dp"
@@ -72,12 +73,15 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <SearchView
                         android:id="@+id/inventory_search_view"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:iconifiedByDefault="false"
                         android:queryHint="Search items.."
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"

@@ -18,6 +18,6 @@ public interface FoodItemDao {
     @Delete
     void delete(FoodItem item);
 
-    @Query("SELECT * FROM food_items ORDER BY expiryDate ASC")
+    @Query("SELECT * FROM food_items ORDER BY expiryTimestamp ASC")
     List<FoodItem> getAllItems();
 }

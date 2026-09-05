@@ -40,6 +40,7 @@
     <color name="divider_color">#EEEEEE</color>
     <color name="input_field_bg">#F5F5F5</color>
     <color name="card_stroke_color">#F5F5F5</color>
+    <color name="doc_primary">#1565C0</color>
 
     <!-- Dark Mode -->
     <color name="dark_background">#121212</color>

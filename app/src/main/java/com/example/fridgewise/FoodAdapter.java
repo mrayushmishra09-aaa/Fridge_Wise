@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.widget.PopupMenu;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder> {
 
@@ -51,7 +52,9 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
         holder.tvName.setText(currentItem.getName());
         holder.tvCategory.setText(currentItem.getCategory());
         holder.tvExpiry.setText("Expires " + currentItem.getExpiryDate());
-        holder.tvQuantity.setText(currentItem.getQuantity() + " " + currentItem.getUnit());
+        
+        String formattedQty = formatQuantity(currentItem.getQuantity());
+        holder.tvQuantity.setText(formattedQty + " " + currentItem.getUnit());
 
         // Category-based image linking
         setCategoryImage(holder.imgItem, currentItem.getCategory());
@@ -71,10 +74,13 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
             popup.getMenu().add("Delete");
             
             popup.setOnMenuItemClickListener(item -> {
-                if (item.getTitle().equals("Edit")) {
-                    if (listener != null) listener.onEditClick(currentItem);
-                } else if (item.getTitle().equals("Delete")) {
-                    if (listener != null) listener.onDeleteClick(currentItem);
+                CharSequence title = item.getTitle();
+                if (title != null) {
+                    if (title.equals("Edit")) {
+                        if (listener != null) listener.onEditClick(currentItem);
+                    } else if (title.equals("Delete")) {
+                        if (listener != null) listener.onDeleteClick(currentItem);
+                    }
                 }
                 return true;
             });
@@ -84,6 +90,14 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
 
     private void setCategoryImage(ImageView imageView, String category) {
         imageView.setImageResource(CategoryUtils.getCategoryIcon(category));
+    }
+
+    private String formatQuantity(double quantity) {
+        if (quantity == (long) quantity) {
+            return String.format(Locale.getDefault(), "%d", (long) quantity);
+        } else {
+            return String.format(Locale.getDefault(), "%s", quantity);
+        }
     }
 
     @Override

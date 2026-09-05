@@ -4,6 +4,8 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.work.Data;
@@ -84,20 +86,16 @@ public class NotificationReceiver extends BroadcastReceiver {
     private void handleMarkTodoDone(Context context, int todoId) {
         new Thread(() -> {
             AppDatabase db = AppDatabase.getInstance(context);
-            int actualId = todoId - 10000;
-            List<TodoItem> all = db.todoDao().getAllTodos();
-            TodoItem target = null;
-            for (TodoItem item : all) {
-                if (item.getId() == actualId) {
-                    target = item;
-                    break;
-                }
-            }
+            int actualId = todoId - 20000;
+            TodoItem target = db.todoDao().getTodoById(actualId);
             if (target != null) {
                 target.setCompleted(true);
                 db.todoDao().update(target);
+                // LOG ACTIVITY
+                db.activityDao().insert(new ActivityRecord("Tasks", "Completed (via Notify)", target.getTitle(), System.currentTimeMillis(), R.drawable.ic_todo_item));
+                
                 NotificationManagerCompat.from(context).cancel(todoId);
-                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                new Handler(Looper.getMainLooper()).post(() -> {
                     Toast.makeText(context, "Task marked as completed", Toast.LENGTH_SHORT).show();
                 });
             }
@@ -114,8 +112,12 @@ public class NotificationReceiver extends BroadcastReceiver {
             AppDatabase db = AppDatabase.getInstance(context);
             ShoppingItem item = new ShoppingItem(name != null ? name : "Expired Item", qty, unit, false);
             db.shoppingDao().insert(item);
+            
+            // LOG ACTIVITY
+            db.activityDao().insert(new ActivityRecord("Shopping List", "Added (via Notify)", name, System.currentTimeMillis(), R.drawable.v02_img_icons_shopping));
+
             NotificationManagerCompat.from(context).cancel(notificationId);
-            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+            new Handler(Looper.getMainLooper()).post(() -> {
                 Toast.makeText(context, "Added " + name + " to shopping list", Toast.LENGTH_SHORT).show();
             });
         }).start();
@@ -124,7 +126,8 @@ public class NotificationReceiver extends BroadcastReceiver {
     private void handleTakeDose(Context context, int medicineId) {
         new Thread(() -> {
             AppDatabase db = AppDatabase.getInstance(context);
-            MedicineEntity med = db.medicineDao().getMedicineById(medicineId);
+            int actualId = medicineId - 10000;
+            MedicineEntity med = db.medicineDao().getMedicineById(actualId);
             if (med != null) {
                 // Update taken date
                 String today = new SimpleDateFormat("d/M/yyyy", Locale.getDefault()).format(new Date());
@@ -135,17 +138,26 @@ public class NotificationReceiver extends BroadcastReceiver {
                     double currentQty = Double.parseDouble(med.getQuantity());
                     double dosage = Double.parseDouble(med.getDosage());
                     if (currentQty >= dosage) {
-                        med.setQuantity(String.valueOf(currentQty - dosage));
+                        double remaining = currentQty - dosage;
+                        // Format to remove .0 if it's a whole number
+                        if (remaining == (long) remaining) {
+                            med.setQuantity(String.valueOf((long) remaining));
+                        } else {
+                            med.setQuantity(String.valueOf(remaining));
+                        }
                     }
                 } catch (Exception e) {}
 
                 db.medicineDao().update(med);
 
+                // LOG ACTIVITY
+                db.activityDao().insert(new ActivityRecord("Medicine", "Dose Taken (via Notify)", med.getMedicineName(), System.currentTimeMillis(), med.getIconResId()));
+
                 // Dismiss notification
                 NotificationManagerCompat.from(context).cancel(medicineId);
                 
                 // Show toast (must be on main thread)
-                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                new Handler(Looper.getMainLooper()).post(() -> {
                     Toast.makeText(context, "Dose logged for " + med.getMedicineName(), Toast.LENGTH_SHORT).show();
                 });
             }
