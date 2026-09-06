@@ -1,23 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dark Mode Overrides -->
-    <color name="white">#1E1E1E</color>
-    <color name="background">#121212</color>
-    <color name="text_dark">#FFFFFF</color>
-    <color name="text_gray">#BDBDBD</color>
-    <color name="text_light">#757575</color>
+    <!-- PREMIUM DARK MODE COLORS (GitHub/Midnight Theme) -->
 
-    <color name="app_bg">#121212</color>
-    <color name="surface_bg">#1E1E1E</color>
-    <color name="divider_color">#2C2C2C</color>
-    <color name="input_field_bg">#2C2C2C</color>
-    <color name="card_stroke_color">#333333</color>
-    <color name="doc_primary">#64B5F6</color>
+    <!-- Main Backgrounds -->
+    <color name="bg_primary">#0D1117</color> <!-- Deep Midnight Navy -->
+    <color name="bg_secondary">#161B22</color> <!-- Soft Navy Black -->
+
+    <!-- Surface & Cards -->
+    <color name="surface_card">#161B22</color> <!-- Elevated Navy Surface -->
+    <color name="surface_elevated">#21262D</color> <!-- Lighter Navy Surface -->
+    <color name="divider_color">#30363D</color> <!-- Border Gray -->
+
+    <!-- Input Fields -->
+    <color name="input_bg">#0D1117</color>
+    <color name="input_border">#30363D</color>
+
+    <!-- Text Palette -->
+    <color name="text_primary">#F0F6FC</color> <!-- Off White -->
+    <color name="text_secondary">#8B949E</color> <!-- Muted Blue Gray -->
+    <color name="text_muted">#484F58</color> <!-- Darker Gray -->
+
+    <!-- Premium Accents -->
+    <color name="green_primary">#238636</color> <!-- Forest Green -->
+    <color name="green_light">#2EA043</color> <!-- Vibrant Green -->
+    <color name="green_pale">#1B3320</color> <!-- Dark Forest for Indicators -->
+
+    <!-- Backwards Compatibility -->
+    <color name="white">#FFFFFF</color>
+    <color name="background">#0D1117</color>
+    <color name="text_dark">#F0F6FC</color>
+    <color name="text_gray">#8B949E</color>
+    <color name="text_light">#484F58</color>
+
+    <color name="app_bg">#0D1117</color>
+    <color name="surface_bg">#161B22</color>
+    <color name="input_field_bg">#0D1117</color>
+    <color name="card_stroke_color">#30363D</color>
+    <color name="doc_primary">#58A6FF</color>
+    <color name="doc_banner_bg">#111E2E</color>
 
     <!-- Medicine/Specific Colors -->
-    <color name="card_bg">#1E1E1E</color>
-    <color name="text_header">#FFFFFF</color>
-    <color name="text_body">#BDBDBD</color>
+    <color name="card_bg">#161B22</color>n
+    <color name="text_header">#F0F6FC</color>
+    <color name="text_body">#8B949E</color>
 
     <!-- Specific Banner Overrides -->
     <color name="card_green">#1B3320</color>

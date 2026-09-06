@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FE"
+    android:background="@color/bg_primary"
     android:fillViewport="true"
     tools:context=".AddItemFragment">
 
@@ -28,7 +28,7 @@
                 android:layout_centerVertical="true"
                 android:contentDescription="Back"
                 android:src="@drawable/outline_arrow_back_24"
-                app:tint="@color/text_dark" />
+                app:tint="@color/text_primary" />
 
             <TextView
                 android:id="@+id/tvHeaderTitle"
@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:text="Add Item"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/text_primary"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -47,7 +47,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:src="@drawable/ic_info"
-                app:tint="@color/text_dark" />
+                app:tint="@color/text_primary" />
         </RelativeLayout>
 
         <!-- Main Content Card -->
@@ -70,7 +70,7 @@
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:layout_marginEnd="16dp"
-                    app:cardBackgroundColor="#E8F5E9"
+                    app:cardBackgroundColor="@color/bg_secondary"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp">
 
@@ -88,26 +88,14 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <LinearLayout
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-                        <ImageView
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:src="@drawable/outline_edit_24"
-                            app:tint="@color/text_gray" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:letterSpacing="0.1"
-                            android:text="ITEM NAME"
-                            android:textColor="@color/text_gray"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                        android:letterSpacing="0.1"
+                        android:text="ITEM NAME"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -134,33 +122,21 @@
                             android:background="@drawable/bg_edittext"
                             android:contentDescription="Scan Barcode"
                             android:src="@drawable/ic_barcode_scan"
-                            app:tint="@color/text_gray" />
+                            app:tint="@color/text_secondary" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
             <!-- Category Section -->
-            <LinearLayout
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:src="@drawable/ic_info"
-                    app:tint="@color/text_gray" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:letterSpacing="0.1"
-                    android:text="CATEGORY"
-                    android:textColor="@color/text_gray"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                android:letterSpacing="0.1"
+                android:text="CATEGORY"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -186,7 +162,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="20dp"
-                android:background="#EEEEEE" />
+                android:background="@color/divider_color" />
 
             <!-- Quantity & Unit Row -->
             <LinearLayout
@@ -201,26 +177,14 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <LinearLayout
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-                        <ImageView
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:src="@drawable/ic_todo_item"
-                            app:tint="@color/text_gray" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:letterSpacing="0.1"
-                            android:text="QUANTITY"
-                            android:textColor="@color/text_gray"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                        android:letterSpacing="0.1"
+                        android:text="QUANTITY"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/quantityEditText"
@@ -240,26 +204,14 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <LinearLayout
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-                        <ImageView
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:src="@drawable/ic_check_tick"
-                            app:tint="@color/text_gray" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:letterSpacing="0.1"
-                            android:text="UNIT"
-                            android:textColor="@color/text_gray"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                        android:letterSpacing="0.1"
+                        android:text="UNIT"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
 
                     <!-- Using a Spinner wrapped in a FrameLayout to maintain bg_edittext styling -->
                     <FrameLayout
@@ -291,7 +243,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="20dp"
-                android:background="#EEEEEE" />
+                android:background="@color/divider_color" />
 
             <!-- Purchase & Expiry Date Row -->
             <LinearLayout
@@ -306,26 +258,14 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <LinearLayout
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-                        <ImageView
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:src="@drawable/outline_calendar_month_24"
-                            app:tint="@color/text_gray" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:letterSpacing="0.1"
-                            android:text="PURCHASE DATE"
-                            android:textColor="@color/text_gray"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                        android:letterSpacing="0.1"
+                        android:text="PURCHASE DATE"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
 
                     <RelativeLayout
                         android:id="@+id/purchaseCalendarIcon"
@@ -362,26 +302,14 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <LinearLayout
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-                        <ImageView
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:src="@drawable/outline_calendar_month_24"
-                            app:tint="@color/text_gray" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:letterSpacing="0.1"
-                            android:text="EXPIRY DATE"
-                            android:textColor="@color/text_gray"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                        android:letterSpacing="0.1"
+                        android:text="EXPIRY DATE"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
 
                     <RelativeLayout
                         android:id="@+id/expiry_DateIcon"
@@ -417,29 +345,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="20dp"
-                android:background="#EEEEEE" />
+                android:background="@color/divider_color" />
 
             <!-- Notes Section -->
-            <LinearLayout
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:src="@drawable/outline_edit_24"
-                    app:tint="@color/text_gray" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:letterSpacing="0.1"
-                    android:text="NOTES (OPTIONAL)"
-                    android:textColor="@color/text_gray"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                android:letterSpacing="0.1"
+                android:text="NOTES (OPTIONAL)"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/notesEditText"

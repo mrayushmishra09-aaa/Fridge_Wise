@@ -6,10 +6,11 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
-    app:cardBackgroundColor="@color/card_bg"
+    app:cardBackgroundColor="@color/surface_card"
     app:cardCornerRadius="16dp"
     app:cardElevation="2dp"
-    app:strokeWidth="0dp">
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/divider_color">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -36,7 +37,7 @@
             android:layout_marginStart="16dp"
             android:fontFamily="sans-serif-medium"
             android:text="Vitamin C"
-            android:textColor="@color/text_header"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@+id/btnMore"
             app:layout_constraintStart_toEndOf="@+id/ivMedicineIcon"
@@ -47,7 +48,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="1 pill · After meal"
-            android:textColor="@color/text_body"
+            android:textColor="@color/text_secondary"
             android:textSize="14sp"
             app:layout_constraintEnd_toStartOf="@+id/btnMore"
             app:layout_constraintStart_toStartOf="@+id/tvMedicineTitle"
@@ -59,7 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="08:00 AM"
-            android:textColor="@color/text_header"
+            android:textColor="@color/text_primary"
             android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/tvMedicineTitle"

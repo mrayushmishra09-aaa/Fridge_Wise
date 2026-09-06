@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA"
+    android:background="@color/bg_primary"
     tools:context=".Med_section">
 
     <ScrollView
@@ -24,6 +24,7 @@
                 android:layout_marginStart="12dp"
                 android:padding="8dp"
                 android:src="@drawable/outline_arrow_back_24"
+                app:tint="@color/text_primary"
                 app:layout_constraintBottom_toBottomOf="@+id/tvHeaderTitle"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tvHeaderTitle" />
@@ -38,7 +39,7 @@
                 android:layout_marginTop="24dp"
                 android:fontFamily="sans-serif-black"
                 android:text="Medicine"
-                android:textColor="@color/text_header"
+                android:textColor="@color/text_primary"
                 android:textSize="28sp"
                 app:layout_constraintStart_toEndOf="@id/backBtn_medsec"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -48,7 +49,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Track your daily doses"
-                android:textColor="@color/text_body"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="@+id/tvHeaderTitle"
                 app:layout_constraintTop_toBottomOf="@+id/tvHeaderTitle" />
@@ -63,7 +64,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/tvHeaderSubtitle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tvHeaderTitle"
-                app:tint="@color/text_header" />
+                app:tint="@color/text_primary" />
 
 
             <!-- Banner Card -->
@@ -137,7 +138,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="32dp"
                 android:text="Today's Schedule"
-                android:textColor="@color/text_header"
+                android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
@@ -181,7 +182,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="No Medicine Scheduled"
-                    android:textColor="@color/text_header"
+                    android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -191,7 +192,7 @@
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:text="You don't have any medicine reminders set for today. Stay healthy!"
-                    android:textColor="@color/text_body"
+                    android:textColor="@color/text_secondary"
                     android:textSize="14sp" />
             </LinearLayout>
 

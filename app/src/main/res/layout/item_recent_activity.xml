@@ -35,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Added Milk to Fridge"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -44,7 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Food Inventory"
-                android:textColor="@color/text_gray"
+                android:textColor="@color/text_secondary"
                 android:textSize="11sp" />
         </LinearLayout>
 
@@ -53,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="2 min ago"
-            android:textColor="@color/text_gray"
+            android:textColor="@color/text_secondary"
             android:textSize="11sp" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

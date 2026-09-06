@@ -90,6 +90,9 @@ dependencies {
     // Security
     implementation(libs.security.crypto)
 
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

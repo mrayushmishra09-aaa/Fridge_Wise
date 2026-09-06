@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.fridgewise.ui.fragments.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_inventory"
+        android:name="com.example.fridgewise.ui.fragments.InventoryFragment"
+        android:label="Inventory"
+        tools:layout="@layout/fragment_inventory" />
+
+    <fragment
+        android:id="@+id/nav_memory"
+        android:name="com.example.fridgewise.ui.fragments.Memory"
+        android:label="Memory"
+        tools:layout="@layout/fragment_memory" />
+
+    <fragment
+        android:id="@+id/nav_alerts"
+        android:name="com.example.fridgewise.ui.fragments.AlertsFragment"
+        android:label="Alerts"
+        tools:layout="@layout/fragment_alerts" />
+
+    <fragment
+        android:id="@+id/nav_pfp"
+        android:name="com.example.fridgewise.ui.fragments.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <!-- Sub-fragments for Memory/Home -->
+    <fragment
+        android:id="@+id/med_section"
+        android:name="com.example.fridgewise.ui.fragments.Med_section"
+        android:label="Medicine"
+        tools:layout="@layout/fragment_med_section" />
+
+    <fragment
+        android:id="@+id/todoListFragment"
+        android:name="com.example.fridgewise.ui.fragments.TodoListFragment"
+        android:label="Tasks"
+        tools:layout="@layout/fragment_todo_list" />
+
+    <fragment
+        android:id="@+id/shoppingListFragment"
+        android:name="com.example.fridgewise.ui.fragments.ShoppingListFragment"
+        android:label="Shopping"
+        tools:layout="@layout/fragment_shopping_list" />
+
+    <fragment
+        android:id="@+id/documentListFragment"
+        android:name="com.example.fridgewise.ui.fragments.DocumentListFragment"
+        android:label="Documents"
+        tools:layout="@layout/fragment_document_list" />
+
+    <fragment
+        android:id="@+id/addItemFragment"
+        android:name="com.example.fridgewise.ui.fragments.AddItemFragment"
+        android:label="Add Item"
+        tools:layout="@layout/fragment_add_item" />
+
+    <fragment
+        android:id="@+id/createSpaceFragment"
+        android:name="com.example.fridgewise.ui.fragments.CreateSpaceFragment"
+        android:label="Create Space"
+        tools:layout="@layout/fragment_create_space" />
+
+    <fragment
+        android:id="@+id/customSpaceInventoryFragment"
+        android:name="com.example.fridgewise.ui.fragments.CustomSpaceInventoryFragment"
+        android:label="Space Inventory"
+        tools:layout="@layout/fragment_custom_space_inventory" />
+
+</navigation>

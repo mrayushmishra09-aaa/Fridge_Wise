@@ -35,12 +35,24 @@
     <color name="badge_purple_text">#6200EA</color>
 
     <!-- Semantic Colors for Dark Mode Support -->
+    <color name="bg_primary">#F5F5F5</color>
+    <color name="bg_secondary">#FFFFFF</color>
+    <color name="surface_card">#FFFFFF</color>
+    <color name="surface_elevated">#FFFFFF</color>
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_muted">#BDBDBD</color>
+    <color name="input_bg">#F5F5F5</color>
+    <color name="input_border">#E0E0E0</color>
+    <color name="banner_bg_start">#F8F4FF</color>
+    <color name="banner_bg_end">#F3E5F5</color>
     <color name="app_bg">#F8F9FE</color>
     <color name="surface_bg">#FFFFFF</color>
     <color name="divider_color">#EEEEEE</color>
     <color name="input_field_bg">#F5F5F5</color>
     <color name="card_stroke_color">#F5F5F5</color>
     <color name="doc_primary">#1565C0</color>
+    <color name="doc_banner_bg">#E3F2FD</color>
 
     <!-- Dark Mode -->
     <color name="dark_background">#121212</color>

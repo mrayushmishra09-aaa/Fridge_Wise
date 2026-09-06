@@ -1,0 +1,399 @@
+package com.example.fridgewise.ui.fragments;
+
+import com.example.fridgewise.R;
+import com.example.fridgewise.data.*;
+import com.example.fridgewise.model.*;
+import com.example.fridgewise.adapter.*;
+import com.example.fridgewise.util.*;
+import com.example.fridgewise.ui.viewmodel.*;
+import com.example.fridgewise.ui.activities.*;
+import com.example.fridgewise.ui.bottomsheet.*;
+
+import com.example.fridgewise.R;
+
+import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.fragment.app.Fragment;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.Executors;
+
+public class AddItemFragment extends Fragment {
+
+    private ImageView img_01, add_item_photo, btnInfo;
+    private FoodItem editingItem = null; // Track if we are editing
+    private ProductLookupManager lookupManager;
+    private ActivityResultLauncher<Intent> scannerLauncher;
+    
+    private EditText itemNameEditText;
+    private AutoCompleteTextView categoryDropdown;
+    private Spinner quantitySpinner;
+
+    public AddItemFragment() {
+        // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        lookupManager = new ProductLookupManager();
+        
+        scannerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        String barcode = result.getData().getStringExtra("BARCODE_RESULT");
+                        if (barcode != null) {
+                            performProductLookup(barcode);
+                        }
+                    }
+                }
+        );
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_add_item, container, false);
+
+        // --- View Initializations ---
+        img_01 = view.findViewById(R.id.back_arrow);
+        add_item_photo = view.findViewById(R.id.add_item_photo);
+        btnInfo = view.findViewById(R.id.btnInfo);
+        itemNameEditText = view.findViewById(R.id.itemNameEditText);
+        EditText quantityEditText = view.findViewById(R.id.quantityEditText);
+        EditText notesEditText = view.findViewById(R.id.notesEditText);
+        categoryDropdown = view.findViewById(R.id.categoryDropdown);
+        quantitySpinner = view.findViewById(R.id.spinner_units);
+        TextView purchaseDateText = view.findViewById(R.id.purchaseDateText);
+        View purchaseCalendarBtn = view.findViewById(R.id.purchaseCalendarIcon);
+        TextView expiry_DateText = view.findViewById(R.id.expiry_DateText);
+        View expiry_DateBtn = view.findViewById(R.id.expiry_DateIcon);
+        Button saveButton = view.findViewById(R.id.save_button);
+        View btnScan = view.findViewById(R.id.btnScanBarcode);
+
+        if (btnScan != null) {
+            btnScan.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), BarcodeScannerActivity.class);
+                scannerLauncher.launch(intent);
+            });
+        }
+
+
+        // --- Check for Edit Mode ---
+        if (getArguments() != null && getArguments().containsKey("foodItem")) {
+            editingItem = (FoodItem) getArguments().getSerializable("foodItem");
+            if (editingItem != null) {
+                // Populate fields with existing data
+                itemNameEditText.setText(editingItem.getName());
+                quantityEditText.setText(String.valueOf(editingItem.getQuantity()));
+                categoryDropdown.setText(editingItem.getCategory(), false);
+                purchaseDateText.setText(editingItem.getPurchaseDate());
+                expiry_DateText.setText(editingItem.getExpiryDate());
+                notesEditText.setText(editingItem.getNotes());
+                updateCategoryIcon(editingItem.getCategory());
+                saveButton.setText("Update Item");
+            }
+        }
+
+        // --- Default Date if not editing ---
+        if (editingItem == null) {
+            Calendar c = Calendar.getInstance();
+            String today = c.get(Calendar.DAY_OF_MONTH) + "/" + (c.get(Calendar.MONTH) + 1) + "/" + c.get(Calendar.YEAR);
+            purchaseDateText.setText(today);
+        }
+
+        // --- Setup Dropdowns/Spinners ---
+        String[] categories = getResources().getStringArray(R.array.category_array);
+        categoryDropdown.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, categories));
+        categoryDropdown.setOnClickListener(v -> categoryDropdown.showDropDown());
+        
+        ArrayAdapter<CharSequence> unitAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.quantity_units, android.R.layout.simple_spinner_item);
+        unitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        quantitySpinner.setAdapter(unitAdapter);
+
+        categoryDropdown.setOnItemClickListener((parent, view1, position, id) -> {
+            String selectedCategory = categories[position];
+            updateCategoryIcon(selectedCategory);
+            autoSelectUnit(selectedCategory, quantitySpinner, unitAdapter);
+        });
+
+        // Select correct unit if editing
+        if (editingItem != null) {
+            int spinnerPosition = unitAdapter.getPosition(editingItem.getUnit());
+            quantitySpinner.setSelection(spinnerPosition);
+        }
+
+        // --- Date Pickers ---
+        View.OnClickListener datePickerListener = v -> {
+            boolean isPurchase = v.getId() == R.id.purchaseCalendarIcon;
+            Calendar cal = Calendar.getInstance();
+            new DatePickerDialog(requireContext(), (view1, year, month, day) -> {
+                String date = day + "/" + (month + 1) + "/" + year;
+                if (isPurchase) purchaseDateText.setText(date);
+                else expiry_DateText.setText(date);
+            }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
+        };
+        purchaseCalendarBtn.setOnClickListener(datePickerListener);
+        expiry_DateBtn.setOnClickListener(datePickerListener);
+
+        if (img_01 != null) img_01.setOnClickListener(v -> requireActivity().onBackPressed());
+        
+        if (btnInfo != null) {
+            btnInfo.setOnClickListener(v -> showAboutBottomSheet());
+        }
+
+        // --- Save / Update Logic ---
+        saveButton.setOnClickListener(v -> {
+            String itemName = itemNameEditText.getText().toString().trim();
+            String quantityStr = quantityEditText.getText().toString().trim();
+            String category = categoryDropdown.getText().toString().trim();
+            String unit = quantitySpinner.getSelectedItem().toString();
+            String purchaseDate = purchaseDateText.getText().toString().trim();
+            String expiryDate = expiry_DateText.getText().toString().trim();
+            String notes = notesEditText.getText().toString().trim();
+
+            if (itemName.isEmpty() || quantityStr.isEmpty() || category.isEmpty() || expiryDate.isEmpty()) {
+                Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            double quantity = Double.parseDouble(quantityStr);
+
+            Context context = getContext();
+            if (context == null) return;
+            AppDatabase database = AppDatabase.getInstance(context);
+            Executors.newSingleThreadExecutor().execute(() -> {
+                FoodItem itemToSchedule;
+                if (editingItem == null) {
+                    // INSERT new item
+                    FoodItem newItem = new FoodItem(itemName, quantity, unit, category, purchaseDate, expiryDate);
+                    newItem.setNotes(notes);
+                    newItem.setExpiryTimestamp(parseDateToTimestamp(expiryDate));
+                    long id = database.foodItemDao().insert(newItem);
+                    newItem.setId((int) id);
+                    itemToSchedule = newItem;
+                    // LOG ACTIVITY
+                    database.activityDao().insert(new ActivityRecord("Food Inventory", "Added", itemName, System.currentTimeMillis(), CategoryUtils.getCategoryIcon(category)));
+                } else {
+                    // UPDATE existing item
+                    editingItem.setName(itemName);
+                    editingItem.setQuantity(quantity);
+                    editingItem.setUnit(unit);
+                    editingItem.setCategory(category);
+                    editingItem.setPurchaseDate(purchaseDate);
+                    editingItem.setExpiryDate(expiryDate);
+                    editingItem.setExpiryTimestamp(parseDateToTimestamp(expiryDate));
+                    editingItem.setNotes(notes);
+                    database.foodItemDao().update(editingItem);
+                    itemToSchedule = editingItem;
+                    // LOG ACTIVITY
+                    database.activityDao().insert(new ActivityRecord("Food Inventory", "Updated", itemName, System.currentTimeMillis(), CategoryUtils.getCategoryIcon(category)));
+                }
+
+                // Schedule notification for expiry
+                scheduleFoodNotification(context, itemToSchedule);
+
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        // Dynamic UX: Suble vibration on success
+                        try {
+                            Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                            if (vibrator != null && vibrator.hasVibrator()) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
+                                } else {
+                                    vibrator.vibrate(50);
+                                }
+                            }
+                        } catch (Exception ignored) {}
+                        
+                        Toast.makeText(context, editingItem == null ? "Item added" : "Item updated", Toast.LENGTH_SHORT).show();
+                        getParentFragmentManager().popBackStack();
+                    });
+                }
+            });
+        });
+
+        return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (lookupManager != null) {
+            lookupManager.cancel();
+        }
+    }
+
+    private long parseDateToTimestamp(String dateStr) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
+            Date date = sdf.parse(dateStr);
+            return date != null ? date.getTime() : 0;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private void scheduleFoodNotification(Context context, FoodItem item) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
+            Date expiryDate = sdf.parse(item.getExpiryDate());
+            if (expiryDate != null) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(expiryDate);
+                // Schedule for 8:00 AM on the day of expiry
+                cal.set(Calendar.HOUR_OF_DAY, 8);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+
+                if (cal.getTimeInMillis() > System.currentTimeMillis()) {
+                    Bundle extras = new Bundle();
+                    extras.putString("item_name", item.getName());
+                    extras.putString("item_unit", item.getUnit());
+                    extras.putString("item_qty", String.valueOf(item.getQuantity()));
+
+                    NotificationHelper.scheduleNotification(context, cal.getTimeInMillis(),
+                            "Food Expiry: " + item.getName(),
+                            "Your " + item.getName() + " expires today. Don't forget to use it!",
+                            item.getId() + 30000,
+                            CategoryUtils.getCategoryIcon(item.getCategory()),
+                            "FOOD",
+                            extras,
+                            "group_food");
+                }
+            }
+        } catch (Exception e) {
+            Log.e("AddItemFragment", "Error scheduling notification", e);
+        }
+    }
+
+    private void updateCategoryIcon(String category) {
+        if (add_item_photo == null) return;
+        
+        int resId = CategoryUtils.getAddItemPlaceholderIcon(category);
+        
+        add_item_photo.setImageResource(resId);
+        add_item_photo.setPadding(0, 0, 0, 0);
+        add_item_photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
+    }
+
+    private void autoSelectUnit(String category, Spinner spinner, ArrayAdapter<CharSequence> adapter) {
+        String defaultUnit = "pcs";
+        switch (category.toLowerCase()) {
+            case "dairy":
+                defaultUnit = "L";
+                break;
+            case "vegetable":
+            case "fruits":
+            case "non-veg":
+                defaultUnit = "kg";
+                break;
+            case "drinks":
+                defaultUnit = "ml";
+                break;
+            case "frozen-food":
+            case "snacks":
+            case "bakery":
+                defaultUnit = "pkt";
+                break;
+            case "others":
+                defaultUnit = "kg";
+                break;
+        }
+        int position = adapter.getPosition(defaultUnit);
+        if (position >= 0) {
+            spinner.setSelection(position);
+        }
+    }
+
+    private void showAboutBottomSheet() {
+        AboutAddItemBottomSheet bottomSheet = new AboutAddItemBottomSheet();
+        bottomSheet.show(getChildFragmentManager(), "AboutAddItemBottomSheet");
+    }
+
+    private void performProductLookup(String barcode) {
+        Toast.makeText(getContext(), "Searching for product...", Toast.LENGTH_SHORT).show();
+        lookupManager.lookupProduct(barcode, new ProductLookupManager.ProductCallback() {
+            @Override
+            public void onProductFound(String name, String category) {
+                if (isAdded()) {
+                    itemNameEditText.setText(name);
+                    String appCategory = mapApiCategoryToApp(category);
+                    categoryDropdown.setText(appCategory, false);
+                    updateCategoryIcon(appCategory);
+                    
+                    // Trigger unit auto-selection
+                    ArrayAdapter<CharSequence> unitAdapter = (ArrayAdapter<CharSequence>) quantitySpinner.getAdapter();
+                    autoSelectUnit(appCategory, quantitySpinner, unitAdapter);
+                    
+                    Toast.makeText(getContext(), "Product found: " + name, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onNotFound() {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Product not found in database.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Error looking up product.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private String mapApiCategoryToApp(String apiCategory) {
+        if (apiCategory == null || apiCategory.isEmpty()) return "others";
+        
+        String lower = apiCategory.toLowerCase();
+        
+        if (lower.contains("dairy") || lower.contains("milk") || lower.contains("cheese") || lower.contains("yogurt")) 
+            return "Dairy";
+        if (lower.contains("vegetable") || lower.contains("plant")) 
+            return "Vegetable";
+        if (lower.contains("fruit")) 
+            return "Fruits";
+        if (lower.contains("meat") || lower.contains("chicken") || lower.contains("fish") || lower.contains("beef")) 
+            return "Non-veg";
+        if (lower.contains("drink") || lower.contains("beverage") || lower.contains("soda") || lower.contains("juice")) 
+            return "Drinks";
+        if (lower.contains("frozen")) 
+            return "Frozen-Food";
+        if (lower.contains("snack") || lower.contains("chip") || lower.contains("candy")) 
+            return "Snacks";
+        if (lower.contains("bakery") || lower.contains("bread") || lower.contains("cake")) 
+            return "Bakery";
+            
+        return "others";
+    }
+}

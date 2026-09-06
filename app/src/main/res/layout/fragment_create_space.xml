@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/bg_primary"
     android:fillViewport="true"
     tools:context=".CreateSpaceFragment">
 
@@ -29,7 +29,7 @@
                 android:padding="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/outline_arrow_back_24"
-                app:tint="@color/black" />
+                app:tint="@color/green_primary" />
 
             <TextView
                 android:id="@+id/tvTitle"
@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:text="@string/create_space"
-                android:textColor="@color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
         </RelativeLayout>
@@ -56,13 +56,13 @@
                 android:layout_gravity="center"
                 app:cardCornerRadius="60dp"
                 app:cardElevation="0dp"
-                app:strokeColor="#F0F0F0"
+                app:strokeColor="@color/divider_color"
                 app:strokeWidth="1dp">
 
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#F8FAF9">
+                    android:background="@color/bg_secondary">
 
                     <ImageView
                         android:id="@+id/ivSpaceIcon"
@@ -70,7 +70,7 @@
                         android:layout_height="48dp"
                         android:layout_gravity="center"
                         android:src="@drawable/round_camera_alt_24"
-                        app:tint="@color/onboarding_primary" />
+                        app:tint="@color/green_primary" />
 
                     <ImageView
                         android:id="@+id/ivCustomPhoto"
@@ -97,7 +97,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/space_name"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -121,11 +121,11 @@
             android:inputType="textCapWords"
             android:maxLength="30"
             android:paddingHorizontal="16dp"
-            android:textColor="@color/text_dark"
+            android:textColor="@color/text_primary"
             android:textSize="15sp"
             android:drawableStart="@drawable/outline_person_24"
             android:drawablePadding="12dp"
-            app:drawableTint="@color/onboarding_primary" />
+            app:drawableTint="@color/green_primary" />
 
         <!-- Icon Picker -->
         <RelativeLayout
@@ -137,7 +137,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/choose_icon"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -174,7 +174,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="@string/choose_color"
-            android:textColor="@color/text_dark"
+            android:textColor="@color/text_primary"
             android:textSize="13sp"
             android:textStyle="bold" />
 
@@ -207,7 +207,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/advanced_options"
-                android:textColor="@color/onboarding_primary"
+                android:textColor="@color/green_primary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -218,7 +218,7 @@
                 android:layout_marginStart="4dp"
                 android:src="@drawable/outline_chevron_right_24"
                 android:rotation="90"
-                app:tint="@color/onboarding_primary" />
+                app:tint="@color/green_primary" />
         </LinearLayout>
 
         <LinearLayout
@@ -278,7 +278,7 @@
                             android:layout_marginTop="8dp"
                             android:text="Checkbox"
                             android:textSize="11sp"
-                            android:textColor="@color/text_dark"/>
+                            android:textColor="@color/text_primary"/>
                     </LinearLayout>
 
                     <!-- Reminder Option -->
@@ -310,7 +310,7 @@
                             android:layout_marginTop="8dp"
                             android:text="Reminder"
                             android:textSize="11sp"
-                            android:textColor="@color/text_dark"/>
+                            android:textColor="@color/text_primary"/>
                     </LinearLayout>
 
                     <!-- Notes Option -->
@@ -342,7 +342,7 @@
                             android:layout_marginTop="8dp"
                             android:text="Notes"
                             android:textSize="11sp"
-                            android:textColor="@color/text_dark"/>
+                            android:textColor="@color/text_primary"/>
                     </LinearLayout>
 
                     <!-- Quantity Option -->
@@ -376,7 +376,7 @@
                             android:layout_marginTop="8dp"
                             android:text="Quantity"
                             android:textSize="11sp"
-                            android:textColor="@color/text_dark"/>
+                            android:textColor="@color/text_primary"/>
                     </LinearLayout>
 
                     <!-- Date Option -->
@@ -408,7 +408,7 @@
                             android:layout_marginTop="8dp"
                             android:text="Date"
                             android:textSize="11sp"
-                            android:textColor="@color/text_dark"/>
+                            android:textColor="@color/text_primary"/>
                     </LinearLayout>
 
                     <!-- Attachments Option -->
@@ -440,7 +440,7 @@
                             android:layout_marginTop="8dp"
                             android:text="Attachments"
                             android:textSize="11sp"
-                            android:textColor="@color/text_dark"/>
+                            android:textColor="@color/text_primary"/>
                     </LinearLayout>
 
                 </LinearLayout>
@@ -468,7 +468,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Remove completed items"
-                    android:textColor="@color/text_gray"
+                    android:textColor="@color/text_secondary"
                     android:textSize="13sp" />
                 <Spinner
                     android:id="@+id/spinnerAutoRemove"
@@ -500,7 +500,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/onboarding_primary" />
+                app:tint="@color/green_primary" />
 
             <TextView
                 android:id="@+id/tvCreateButtonLabel"

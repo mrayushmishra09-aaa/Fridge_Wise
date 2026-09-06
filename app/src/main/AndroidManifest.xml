@@ -25,14 +25,14 @@
         tools:targetApi="35">
         <property android:name="android.pageSizeCompat" android:value="false"/>
         <activity
-            android:name=".BarcodeScannerActivity"
+            android:name=".ui.activities.BarcodeScannerActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".InventoryActivity"
+            android:name=".ui.activities.InventoryActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity2"
+            android:name=".ui.activities.MainActivity2"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,15 +41,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:exported="false" />
         <activity
-            android:name=".OnboardingActivity"
+            android:name=".ui.activities.OnboardingActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
-        <receiver android:name=".NotificationReceiver" android:exported="false" />
-        <receiver android:name=".ReminderReceiver" android:exported="false" />
+        <receiver android:name=".util.NotificationReceiver" android:exported="false" />
+        <receiver android:name=".util.ReminderReceiver" android:exported="false" />
     </application>
 
 </manifest>

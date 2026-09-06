@@ -123,26 +123,12 @@
             app:layout_constraintTop_toBottomOf="@id/clProfilePic">
 
             <!-- Name Input -->
-            <LinearLayout
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/outline_person_24"
-                    app:tint="@color/onboarding_primary" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Your name"
-                    android:textColor="@color/black"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                android:text="Your name"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/etName"
@@ -164,16 +150,9 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/outline_calendar_month_24"
-                    app:tint="@color/onboarding_primary" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:text="Your age"
                     android:textColor="@color/black"
                     android:textStyle="bold" />

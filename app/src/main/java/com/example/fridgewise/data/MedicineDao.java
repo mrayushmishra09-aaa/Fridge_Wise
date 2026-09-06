@@ -1,0 +1,25 @@
+package com.example.fridgewise.data;
+
+
+import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.Update;
+import androidx.room.Delete;
+import androidx.room.Query;
+import com.example.fridgewise.model.MedicineEntity;
+import java.util.List;
+@Dao
+public interface MedicineDao {
+    @Insert
+    long insert (MedicineEntity medicine);
+    @Delete
+    void delete (MedicineEntity medicine);
+    @Update
+    void update (MedicineEntity medicine);
+    @Query("SELECT * FROM medicine_table")
+    List<MedicineEntity> getAllMedicines();
+
+    @Query("SELECT * FROM medicine_table WHERE id = :id")
+    MedicineEntity getMedicineById(int id);
+
+}
