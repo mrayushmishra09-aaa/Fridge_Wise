@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.navigation.Navigation;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class InventoryFragment extends Fragment {
@@ -41,6 +43,7 @@ public class InventoryFragment extends Fragment {
     private List<FoodItem> allFoodItems = new ArrayList<>();
     private String currentCategory = "All";
     private String currentSearchQuery = "";
+    private final Executor executor = Executors.newSingleThreadExecutor();
 
     public InventoryFragment() {
         // Required empty public constructor
@@ -68,16 +71,9 @@ public class InventoryFragment extends Fragment {
         adapter = new FoodAdapter(new FoodAdapter.onItemClickListener() {
             @Override
             public void onEditClick(FoodItem foodItem) {
-                AddItemFragment fragment = new AddItemFragment();
                 Bundle args = new Bundle();
                 args.putSerializable("foodItem", (Serializable) foodItem);
-                fragment.setArguments(args);
-
-                getParentFragmentManager().beginTransaction()
-                        .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
-                        .replace(R.id.fragmentContainerView2, fragment)
-                        .addToBackStack(null)
-                        .commit();
+                Navigation.findNavController(view).navigate(R.id.addItemFragment, args);
             }
 
             @Override
@@ -158,11 +154,7 @@ public class InventoryFragment extends Fragment {
 
         FloatingActionButton fab = view.findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction()
-                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
-                    .replace(R.id.fragmentContainerView2, new AddItemFragment())
-                    .addToBackStack(null)
-                    .commit();
+            Navigation.findNavController(v).navigate(R.id.addItemFragment);
         });
     }
 
@@ -170,7 +162,7 @@ public class InventoryFragment extends Fragment {
         Context context = getContext();
         if (context == null) return;
         AppDatabase db = AppDatabase.getInstance(context);
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             List<FoodItem> items = db.foodItemDao().getAllItems();
             allFoodItems = items;
             
@@ -182,39 +174,48 @@ public class InventoryFragment extends Fragment {
     }
 
     private void filterItems() {
-        List<FoodItem> filteredList = new ArrayList<>();
-        
-        for (FoodItem item : allFoodItems) {
-            boolean matchesCategory = currentCategory.equals("All") || 
-                                     item.getCategory().equalsIgnoreCase(currentCategory);
+        executor.execute(() -> {
+            List<FoodItem> filteredList = new ArrayList<>();
             
-            boolean matchesSearch = currentSearchQuery.isEmpty() || 
-                                   item.getName().toLowerCase().contains(currentSearchQuery.trim().toLowerCase());
-            
-            if (matchesCategory && matchesSearch) {
-                filteredList.add(item);
+            for (FoodItem item : allFoodItems) {
+                boolean matchesCategory = currentCategory.equals("All") || 
+                                         item.getCategory().equalsIgnoreCase(currentCategory);
+                
+                boolean matchesSearch = currentSearchQuery.isEmpty() || 
+                                       item.getName().toLowerCase().contains(currentSearchQuery.trim().toLowerCase());
+                
+                if (matchesCategory && matchesSearch) {
+                    filteredList.add(item);
+                }
             }
-        }
-        
-        adapter.setFoodList(filteredList);
+            
+            Activity activity = getActivity();
+            if (activity != null && isAdded()) {
+                activity.runOnUiThread(() -> {
+                    if (adapter != null) {
+                        adapter.setFoodList(filteredList);
+                    }
 
-        // Toggle empty state visibility
-        if (llEmptyState != null) {
-            if (filteredList.isEmpty()) {
-                llEmptyState.setVisibility(View.VISIBLE);
-                recyclerView.setVisibility(View.GONE);
-            } else {
-                llEmptyState.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
+                    // Toggle empty state visibility
+                    if (llEmptyState != null) {
+                        if (filteredList.isEmpty()) {
+                            llEmptyState.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
+                        } else {
+                            llEmptyState.setVisibility(View.GONE);
+                            recyclerView.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
             }
-        }
+        });
     }
 
     private void deleteItem(FoodItem foodItem) {
         Context context = getContext();
         if (context == null) return;
         AppDatabase db = AppDatabase.getInstance(context);
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             db.foodItemDao().delete(foodItem);
             loadItems();
         });

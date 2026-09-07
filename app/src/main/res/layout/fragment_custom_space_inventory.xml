@@ -134,7 +134,7 @@
             android:layout_height="56dp"
             android:layout_marginHorizontal="20dp"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="#F5F5F5"
+            app:cardBackgroundColor="@color/surface_elevated"
             app:cardCornerRadius="28dp"
             app:cardElevation="0dp">
 
@@ -157,34 +157,67 @@
             android:paddingBottom="80dp" />
 
         <!-- Universal Empty State -->
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutEmptyState"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
             android:padding="32dp"
             android:visibility="gone"
             tools:visibility="visible">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="No items added yet"
-                android:textColor="@color/text_dark"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cvEmptyIllustration"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                app:cardCornerRadius="60dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/surface_elevated"
+                app:layout_constraintBottom_toTopOf="@+id/tvEmptyTitle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed">
+
+                <ImageView
+                    android:id="@+id/ivEmptyIllustration"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_gravity="center"
+                    android:alpha="0.5"
+                    android:src="@drawable/v02_img_icons_household"
+                    app:tint="@color/text_light" />
+            </com.google.android.material.card.MaterialCardView>
 
             <TextView
+                android:id="@+id/tvEmptyTitle"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/empty_space_title"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/tvEmptyDesc"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cvEmptyIllustration" />
+
+            <TextView
+                android:id="@+id/tvEmptyDesc"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
-                android:text="Tap the + button to add your first item to this space."
-                android:textColor="@color/text_gray"
-                android:textSize="14sp" />
-        </LinearLayout>
+                android:text="@string/empty_space_desc"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvEmptyTitle" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
 
@@ -197,6 +230,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="@color/white"
-        app:backgroundTint="#4CAF50"/>
+        app:backgroundTint="@color/green_primary"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

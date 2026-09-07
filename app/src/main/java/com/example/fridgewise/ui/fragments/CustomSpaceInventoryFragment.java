@@ -10,18 +10,29 @@ import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
 
 import com.example.fridgewise.R;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.os.Vibrator;
+import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
@@ -30,14 +41,14 @@ import java.util.concurrent.Executors;
 
 public class CustomSpaceInventoryFragment extends Fragment {
 
-    private static final String ARG_SPACE = "arg_space";
+    private static final String ARG_SPACE = "space";
     private CustomSpace currentSpace;
     private RecyclerView recyclerView;
     private CustomSpaceItemAdapter adapter;
     private List<CustomSpaceItem> allItems = new ArrayList<>();
     
     private TextView tvBannerMsg, tvProgressPercent;
-    private com.google.android.material.progressindicator.LinearProgressIndicator progressOverall;
+    private LinearProgressIndicator progressOverall;
     private View layoutBanner, layoutEmptyState;
 
     public static CustomSpaceInventoryFragment newInstance(CustomSpace space) {
@@ -61,19 +72,24 @@ public class CustomSpaceInventoryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_custom_space_inventory, container, false);
 
-        TextView tvTitle = view.findViewById(R.id.tvSpaceTitle);
-        tvTitle.setText(currentSpace.getName());
-
         tvBannerMsg = view.findViewById(R.id.tvBannerMsg);
         tvProgressPercent = view.findViewById(R.id.tvProgressPercent);
         progressOverall = view.findViewById(R.id.progressOverall);
         layoutBanner = view.findViewById(R.id.layoutBanner);
         layoutEmptyState = view.findViewById(R.id.layoutEmptyState);
+        TextView tvTitle = view.findViewById(R.id.tvSpaceTitle);
+
+        if (currentSpace == null) {
+            tvTitle.setText(R.string.unknown_space);
+            return view;
+        }
+
+        tvTitle.setText(currentSpace.getName());
         
         // Professional Polish: Set banner color based on space theme
         if (currentSpace.getColorCode() != 0) {
-            layoutBanner.setBackgroundTintList(android.content.res.ColorStateList.valueOf(currentSpace.getColorCode()));
-            layoutBanner.setBackgroundTintMode(android.graphics.PorterDuff.Mode.SRC_ATOP);
+            layoutBanner.setBackgroundTintList(ColorStateList.valueOf(currentSpace.getColorCode()));
+            layoutBanner.setBackgroundTintMode(PorterDuff.Mode.SRC_ATOP);
         }
         
         // Hide progress elements if checkbox is not enabled for this space
@@ -91,11 +107,12 @@ public class CustomSpaceInventoryFragment extends Fragment {
             @Override
             public void onItemClick(CustomSpaceItem item) {
                 // Edit item
-                AddSpaceItemFragment fragment = AddSpaceItemFragment.newInstance(currentSpace.getId(), item);
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainerView2, fragment)
-                        .addToBackStack(null)
-                        .commit();
+                Bundle args = new Bundle();
+                args.putInt("arg_space_id", currentSpace.getId());
+                args.putSerializable("arg_item", item);
+                if (getView() != null) {
+                    Navigation.findNavController(getView()).navigate(R.id.addSpaceItemFragment, args);
+                }
             }
 
             @Override
@@ -108,6 +125,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
                 item.setChecked(isChecked);
                 if (isChecked) {
                     item.setCompletionTimestamp(System.currentTimeMillis());
+                    provideHapticFeedback();
                 } else {
                     item.setCompletionTimestamp(null);
                 }
@@ -123,16 +141,14 @@ public class CustomSpaceInventoryFragment extends Fragment {
         });
         recyclerView.setAdapter(adapter);
 
-        view.findViewById(R.id.btnBack).setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        view.findViewById(R.id.btnBack).setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
 
         view.findViewById(R.id.btnMoreOptions).setOnClickListener(this::showMoreOptions);
 
         view.findViewById(R.id.fabAddItem).setOnClickListener(v -> {
-            AddSpaceItemFragment fragment = AddSpaceItemFragment.newInstance(currentSpace.getId(), null);
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainerView2, fragment)
-                    .addToBackStack(null)
-                    .commit();
+            Bundle args = new Bundle();
+            args.putInt("arg_space_id", currentSpace.getId());
+            Navigation.findNavController(v).navigate(R.id.addSpaceItemFragment, args);
         });
 
         SearchView searchView = view.findViewById(R.id.searchView);
@@ -151,8 +167,30 @@ public class CustomSpaceInventoryFragment extends Fragment {
         });
 
         loadItems();
+        setupSwipeToDelete();
 
         return view;
+    }
+
+    private void setupSwipeToDelete() {
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                int position = viewHolder.getBindingAdapterPosition();
+                if (position < allItems.size()) {
+                    CustomSpaceItem item = allItems.get(position);
+                    deleteItem(item);
+                }
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
     private void loadItems() {
@@ -190,6 +228,15 @@ public class CustomSpaceInventoryFragment extends Fragment {
                     if (allItems.isEmpty()) {
                         layoutEmptyState.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.GONE);
+                        
+                        // Polish: Set empty state illustration to match space icon
+                        ImageView ivEmpty = layoutEmptyState.findViewById(R.id.ivEmptyIllustration);
+                        if (ivEmpty != null) {
+                            ivEmpty.setImageResource(currentSpace.getIconResId());
+                            if (currentSpace.getColorCode() != 0) {
+                                ivEmpty.setImageTintList(ColorStateList.valueOf(currentSpace.getColorCode()));
+                            }
+                        }
                     } else {
                         layoutEmptyState.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.VISIBLE);
@@ -199,8 +246,26 @@ public class CustomSpaceInventoryFragment extends Fragment {
         });
     }
 
+    private void provideHapticFeedback() {
+        Vibrator v = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
+        if (v != null && v.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                v.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                v.vibrate(50);
+            }
+        }
+    }
+
     private void updateBannerProgress() {
-        if (!currentSpace.isHasCheckbox() || allItems.isEmpty()) {
+        if (!currentSpace.isHasCheckbox()) {
+            return;
+        }
+
+        if (allItems.isEmpty()) {
+            progressOverall.setProgress(0);
+            tvProgressPercent.setText("0% Completed");
+            tvBannerMsg.setText(String.format("Add some items to your %s!", currentSpace.getName()));
             return;
         }
 
@@ -223,6 +288,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
             tvBannerMsg.setText(String.format("Almost there! Keep going with your %s.", currentSpace.getName()));
         } else {
             tvBannerMsg.setText(String.format("Excellent! All %s tasks completed.", currentSpace.getName()));
+            Toast.makeText(getContext(), "🎉 All tasks completed!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -234,11 +300,9 @@ public class CustomSpaceInventoryFragment extends Fragment {
         popup.setOnMenuItemClickListener(item -> {
             String title = item.getTitle() != null ? item.getTitle().toString() : "";
             if ("Edit Space".equals(title)) {
-                CreateSpaceFragment fragment = CreateSpaceFragment.newInstance(currentSpace);
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainerView2, fragment)
-                        .addToBackStack(null)
-                        .commit();
+                Bundle args = new Bundle();
+                args.putSerializable("custom_space", currentSpace);
+                Navigation.findNavController(v).navigate(R.id.createSpaceFragment, args);
             } else if ("Delete Space".equals(title)) {
                 deleteSpace();
             }
@@ -248,7 +312,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
     }
 
     private void deleteSpace() {
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Space")
                 .setMessage("Are you sure you want to delete this entire space? All items inside will be lost.")
                 .setPositiveButton("Delete", (dialog, which) -> {
@@ -264,7 +328,9 @@ public class CustomSpaceInventoryFragment extends Fragment {
                         if (isAdded()) {
                             requireActivity().runOnUiThread(() -> {
                                 Toast.makeText(getContext(), "Space deleted", Toast.LENGTH_SHORT).show();
-                                getParentFragmentManager().popBackStack();
+                                if (getView() != null) {
+                                    Navigation.findNavController(getView()).popBackStack();
+                                }
                             });
                         }
                     });
@@ -284,7 +350,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
     }
 
     private void deleteItem(CustomSpaceItem item) {
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Item")
                 .setMessage("Are you sure you want to delete this item?")
                 .setPositiveButton("Delete", (dialog, which) -> {

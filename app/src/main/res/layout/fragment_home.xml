@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    style="bold"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_primary"
@@ -183,7 +182,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:text="@string/view_all_attention_text"
-                    android:textColor="#D32F2F"
+                    android:textColor="@color/badge_red_text"
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </RelativeLayout>
@@ -227,7 +226,7 @@
                 android:layout_margin="10dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/surface_bg">
+                app:cardBackgroundColor="@color/card_green">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -645,7 +644,7 @@
                 android:layout_marginHorizontal="4dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="#F1F8E9"
+                app:cardBackgroundColor="@color/card_green"
                 android:visibility="visible">
 
                 <LinearLayout

@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.navigation.Navigation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +77,7 @@ public class GlobalSearchFragment extends Fragment {
 
         setupAdapters();
 
-        view.findViewById(R.id.btnBack).setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        view.findViewById(R.id.btnBack).setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
 
         searchView = view.findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -178,12 +179,12 @@ public class GlobalSearchFragment extends Fragment {
         shoppingAdapter.setOnItemClickListener(new ShoppingAdapter.OnItemClickListener() {
             @Override
             public void onEditClick(ShoppingItem item) {
-                replaceFragment(new ShoppingListFragment());
+                Navigation.findNavController(getView()).navigate(R.id.shoppingListFragment);
             }
 
             @Override
             public void onDeleteClick(ShoppingItem item) {
-                replaceFragment(new ShoppingListFragment());
+                Navigation.findNavController(getView()).navigate(R.id.shoppingListFragment);
             }
 
             @Override
@@ -199,12 +200,12 @@ public class GlobalSearchFragment extends Fragment {
         todoAdapter.setOnTodoItemClickListener(new TodoAdapter.OnTodoItemClickListener() {
             @Override
             public void onEditClick(TodoItem item) {
-                replaceFragment(new TodoListFragment());
+                Navigation.findNavController(getView()).navigate(R.id.todoListFragment);
             }
 
             @Override
             public void onDeleteClick(TodoItem item) {
-                replaceFragment(new TodoListFragment());
+                Navigation.findNavController(getView()).navigate(R.id.todoListFragment);
             }
 
             @Override
@@ -330,34 +331,20 @@ public class GlobalSearchFragment extends Fragment {
     }
 
     private void navigateToEdit(FoodItem item) {
-        AddItemFragment fragment = new AddItemFragment();
         Bundle args = new Bundle();
         args.putSerializable("foodItem", item);
-        fragment.setArguments(args);
-        replaceFragment(fragment);
+        Navigation.findNavController(getView()).navigate(R.id.addItemFragment, args);
     }
 
     private void navigateToEditMed(MedicineEntity med) {
-        MedicineAddFragment fragment = new MedicineAddFragment();
         Bundle args = new Bundle();
         args.putSerializable(MedicineAddFragment.ARG_MEDICINE, med);
-        fragment.setArguments(args);
-        replaceFragment(fragment);
+        Navigation.findNavController(getView()).navigate(R.id.medicineAddFragment, args);
     }
 
     private void navigateToEditDoc(DocumentItem doc) {
-        AddDocumentFragment fragment = new AddDocumentFragment();
         Bundle args = new Bundle();
         args.putSerializable("document", doc);
-        fragment.setArguments(args);
-        replaceFragment(fragment);
-    }
-
-    private void replaceFragment(Fragment fragment) {
-        getParentFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
-                .replace(R.id.fragmentContainerView2, fragment)
-                .addToBackStack(null)
-                .commit();
+        Navigation.findNavController(getView()).navigate(R.id.addDocumentFragment, args);
     }
 }

@@ -9,8 +9,6 @@ import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
 
-import com.example.fridgewise.R;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
@@ -30,6 +28,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import androidx.core.content.ContextCompat;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -79,15 +78,9 @@ public class TodoListFragment extends Fragment {
         adapter.setOnTodoItemClickListener(new TodoAdapter.OnTodoItemClickListener() {
             @Override
             public void onEditClick(TodoItem item) {
-                AddTodoFragment editFragment = new AddTodoFragment();
                 Bundle args = new Bundle();
                 args.putSerializable(AddTodoFragment.ARG_TODO_ITEM, item);
-                editFragment.setArguments(args);
-
-                getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainerView2, editFragment)
-                    .addToBackStack(null)
-                    .commit();
+                Navigation.findNavController(view).navigate(R.id.addTodoFragment, args);
             }
 
             @Override
@@ -110,10 +103,7 @@ public class TodoListFragment extends Fragment {
         loadTasks();
 
         fabAdd.setOnClickListener(v -> {
-            getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContainerView2, new AddTodoFragment())
-                .addToBackStack(null)
-                .commit();
+            Navigation.findNavController(view).navigate(R.id.addTodoFragment);
         });
 
         btnInfo.setOnClickListener(v -> {
@@ -256,11 +246,10 @@ public class TodoListFragment extends Fragment {
     }
 
     private boolean isPastDate(String dateStr) {
-        String dataStr = getFormattedTodayDate();
-        if (dateStr == null || dataStr.isEmpty())
+        if (dateStr == null || dateStr.isEmpty())
             return false;
         try{
-            SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyy",Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy",Locale.getDefault());
             Date taskDate = sdf.parse(dateStr);
             Date today = sdf.parse(getFormattedTodayDate());
             return taskDate != null && taskDate.before(today);

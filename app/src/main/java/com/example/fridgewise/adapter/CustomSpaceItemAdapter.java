@@ -7,6 +7,7 @@ import com.example.fridgewise.util.CategoryUtils;
 
 import android.content.res.ColorStateList;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,7 +93,7 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             if (item.isChecked()) {
                 // Strike-through and Mute Title
                 itemHolder.tvName.setPaintFlags(itemHolder.tvName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                itemHolder.tvName.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.text_muted));
+                itemHolder.tvName.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.text_light));
                 
                 // Mute Notes
                 itemHolder.tvNotes.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.text_light));
@@ -108,7 +109,8 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 }
                 
                 // Mute Card Background
-                itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.bg_secondary));
+                itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.divider_color));
+                itemHolder.cardMain.setAlpha(0.7f);
             } else {
                 itemHolder.tvName.setPaintFlags(itemHolder.tvName.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
                 itemHolder.tvName.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.text_primary));
@@ -116,7 +118,8 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 
                 itemHolder.tagStatus.setVisibility(View.GONE);
                 itemHolder.tvCompletionFooter.setVisibility(View.GONE);
-                itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.surface_card));
+                itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.bg_secondary));
+                itemHolder.cardMain.setAlpha(1.0f);
             }
 
             itemHolder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -171,9 +174,11 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 itemHolder.tagReminder.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.badge_purple_bg)));
                 itemHolder.tvTagReminder.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.badge_purple_text));
             } else if (time < now) {
-                // Overdue - Red
+                // Overdue - Red & Bold
                 itemHolder.tagReminder.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.badge_red_bg)));
                 itemHolder.tvTagReminder.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.badge_red_text));
+                itemHolder.tvTagReminder.setTypeface(null, Typeface.BOLD);
+                itemHolder.tvTagReminder.setText("⚠ Overdue: " + sdf.format(new Date(time)));
             } else if (time - now < 3600000) {
                 // Due in < 1 hour - Orange
                 itemHolder.tagReminder.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.badge_orange_bg)));
@@ -182,6 +187,7 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 // Normal - Blue/Purple
                 itemHolder.tagReminder.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.doc_banner_bg)));
                 itemHolder.tvTagReminder.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.doc_primary));
+                itemHolder.tvTagReminder.setTypeface(null, Typeface.NORMAL);
             }
         } else {
             itemHolder.tagReminder.setVisibility(View.GONE);

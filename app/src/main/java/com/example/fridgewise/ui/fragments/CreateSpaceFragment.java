@@ -10,9 +10,13 @@ import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
 
 import com.example.fridgewise.R;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.textfield.TextInputLayout;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,10 +26,13 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.transition.TransitionManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import java.util.concurrent.Executors;
 
@@ -34,10 +41,12 @@ public class CreateSpaceFragment extends Fragment {
     private EditText etName;
     private TextView tvNameCount;
     private ImageView ivSelectedIcon, ivCustomPhoto, ivAdvancedChevron;
-    private LinearLayout layoutAdvanced;
+    private MaterialCardView layoutAdvanced;
     private View btnOptCheckbox, btnOptReminder, btnOptNotes, btnOptQuantity, btnOptDate, btnOptAttachments;
+    private MaterialCardView cardOptCheckbox, cardOptReminder, cardOptNotes, cardOptQuantity, cardOptDate, cardOptAttachments;
     private boolean hasCheckbox, hasReminder, hasNotes, hasQuantity, hasDate, hasAttachments;
-    private android.widget.Spinner spinnerAutoRemove;
+    private Spinner spinnerAutoRemove;
+    private TextInputLayout tilSpaceName;
     private int selectedIconRes = R.drawable.round_camera_alt_24;
     private int selectedColor = Color.parseColor("#2D6A4F"); // Default Green
     private String privacyStatus = "Private";
@@ -113,6 +122,15 @@ public class CreateSpaceFragment extends Fragment {
         btnOptDate = view.findViewById(R.id.btnOptDate);
         btnOptAttachments = view.findViewById(R.id.btnOptAttachments);
         
+        cardOptCheckbox = view.findViewById(R.id.cardOptCheckbox);
+        cardOptReminder = view.findViewById(R.id.cardOptReminder);
+        cardOptNotes = view.findViewById(R.id.cardOptNotes);
+        cardOptQuantity = view.findViewById(R.id.cardOptQuantity);
+        cardOptDate = view.findViewById(R.id.cardOptDate);
+        cardOptAttachments = view.findViewById(R.id.cardOptAttachments);
+        
+        tilSpaceName = view.findViewById(R.id.tilSpaceName);
+        
         setupCapabilityButtons();
         
         spinnerAutoRemove = view.findViewById(R.id.spinnerAutoRemove);
@@ -140,8 +158,25 @@ public class CreateSpaceFragment extends Fragment {
 
     private void updateButtonState(View view, boolean active) {
         view.setAlpha(active ? 1.0f : 0.5f);
-        view.setScaleX(active ? 1.05f : 1.0f);
-        view.setScaleY(active ? 1.05f : 1.0f);
+        view.animate().scaleX(active ? 1.05f : 1.0f).scaleY(active ? 1.05f : 1.0f).setDuration(200).start();
+        
+        // Polish: Highlight the card stroke
+        MaterialCardView card = null;
+        if (view.getId() == R.id.btnOptCheckbox) card = cardOptCheckbox;
+        else if (view.getId() == R.id.btnOptReminder) card = cardOptReminder;
+        else if (view.getId() == R.id.btnOptNotes) card = cardOptNotes;
+        else if (view.getId() == R.id.btnOptQuantity) card = cardOptQuantity;
+        else if (view.getId() == R.id.btnOptDate) card = cardOptDate;
+        else if (view.getId() == R.id.btnOptAttachments) card = cardOptAttachments;
+        
+        if (card != null) {
+            card.setStrokeWidth(active ? 4 : 1);
+            if (active && selectedColor != 0) {
+                card.setStrokeColor(ColorStateList.valueOf(selectedColor));
+            } else {
+                card.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.divider_color)));
+            }
+        }
     }
 
     private void setupCharacterCounters() {
@@ -150,7 +185,15 @@ public class CreateSpaceFragment extends Fragment {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                tvNameCount.setText(getString(R.string.char_count_30, s.length()));
+                int length = s.length();
+                tvNameCount.setText(getString(R.string.char_count_30, length));
+                if (length >= 30) {
+                    tvNameCount.setTextColor(Color.RED);
+                    tilSpaceName.setError("Limit reached");
+                } else {
+                    tvNameCount.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_light));
+                    tilSpaceName.setError(null);
+                }
             }
             @Override
             public void afterTextChanged(Editable s) {}
@@ -187,8 +230,8 @@ public class CreateSpaceFragment extends Fragment {
             lp.setMargins(0, 0, 24, 0);
             colorDot.setLayoutParams(lp);
             
-            android.graphics.drawable.GradientDrawable dot = new android.graphics.drawable.GradientDrawable();
-            dot.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+            GradientDrawable dot = new GradientDrawable();
+            dot.setShape(GradientDrawable.OVAL);
             dot.setColor(color);
             colorDot.setBackground(dot);
             
@@ -202,12 +245,13 @@ public class CreateSpaceFragment extends Fragment {
 
     private void setupAdvancedToggle(View view) {
         view.findViewById(R.id.btnAdvancedOptions).setOnClickListener(v -> {
+            TransitionManager.beginDelayedTransition((ViewGroup) view);
             if (layoutAdvanced.getVisibility() == View.VISIBLE) {
                 layoutAdvanced.setVisibility(View.GONE);
-                ivAdvancedChevron.setRotation(90);
+                ivAdvancedChevron.setRotation(0);
             } else {
                 layoutAdvanced.setVisibility(View.VISIBLE);
-                ivAdvancedChevron.setRotation(270);
+                ivAdvancedChevron.setRotation(90);
             }
         });
     }
@@ -243,9 +287,9 @@ public class CreateSpaceFragment extends Fragment {
         }
         
         TextView tvTitle = view.findViewById(R.id.tvTitle);
-        TextView tvBtnLabel = view.findViewById(R.id.tvCreateButtonLabel);
+        MaterialButton btnCreate = view.findViewById(R.id.btnCreateSpace);
         if (tvTitle != null) tvTitle.setText("Update Space");
-        if (tvBtnLabel != null) tvBtnLabel.setText("Update Space");
+        if (btnCreate != null) btnCreate.setText("Update Space");
     }
 
     private void validateAndSave() {

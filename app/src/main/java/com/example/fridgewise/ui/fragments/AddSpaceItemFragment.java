@@ -9,7 +9,7 @@ import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
 
-import com.example.fridgewise.R;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
@@ -24,6 +24,7 @@ import android.provider.OpenableColumns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.transition.TransitionManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,8 +51,9 @@ public class AddSpaceItemFragment extends Fragment {
     private CustomSpace parentSpace;
     private CustomSpaceItem existingItem;
     private EditText etName, etQuantity, etUnit, etDate, etReminder, etNotes;
-    private TextView tvFileName, tvLabelName, tvLabelQuantity, tvLabelUnit, tvLabelDate, tvLabelReminder, tvLabelNotes, tvLabelAttachments;
     private View layoutTracking, layoutAttachments, btnRemoveFile;
+    private TextView tvFileName;
+    private SwitchMaterial switchReminder;
     private String documentUri = null;
     private String documentName = null;
     private Long selectedReminderTimestamp = null;
@@ -98,13 +100,7 @@ public class AddSpaceItemFragment extends Fragment {
         etReminder = view.findViewById(R.id.etReminder);
         etNotes = view.findViewById(R.id.etNotes);
         
-        tvLabelName = view.findViewById(R.id.tvLabelName);
-        tvLabelQuantity = view.findViewById(R.id.tvLabelQuantity);
-        tvLabelUnit = view.findViewById(R.id.tvLabelUnit);
-        tvLabelDate = view.findViewById(R.id.tvLabelDate);
-        tvLabelReminder = view.findViewById(R.id.tvLabelReminder);
-        tvLabelNotes = view.findViewById(R.id.tvLabelNotes);
-        tvLabelAttachments = view.findViewById(R.id.tvLabelAttachments);
+        switchReminder = view.findViewById(R.id.switchReminder);
 
         layoutTracking = view.findViewById(R.id.layoutTracking);
         layoutAttachments = view.findViewById(R.id.layoutAttachments);
@@ -123,6 +119,8 @@ public class AddSpaceItemFragment extends Fragment {
             
             selectedReminderTimestamp = existingItem.getReminderTimestamp();
             if (selectedReminderTimestamp != null) {
+                switchReminder.setChecked(true);
+                view.findViewById(R.id.tilReminder).setVisibility(View.VISIBLE);
                 SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy - hh:mm a", Locale.getDefault());
                 etReminder.setText(sdf.format(new Date(selectedReminderTimestamp)));
             }
@@ -135,6 +133,15 @@ public class AddSpaceItemFragment extends Fragment {
             }
         }
 
+        switchReminder.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            TransitionManager.beginDelayedTransition((ViewGroup) view);
+            view.findViewById(R.id.tilReminder).setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            if (!isChecked) {
+                selectedReminderTimestamp = null;
+                etReminder.setText("");
+            }
+        });
+
         etDate.setOnClickListener(v -> showDatePicker());
         etReminder.setOnClickListener(v -> showCombinedDateTimePicker());
         
@@ -145,7 +152,7 @@ public class AddSpaceItemFragment extends Fragment {
         btnRemoveFile.setOnClickListener(v -> {
             documentUri = null;
             documentName = null;
-            tvFileName.setText("Attach PDF or Document");
+            tvFileName.setText("No file attached");
             btnRemoveFile.setVisibility(View.GONE);
         });
 
@@ -161,29 +168,40 @@ public class AddSpaceItemFragment extends Fragment {
             parentSpace = db.customSpaceDao().getSpaceById(spaceId);
             if (isAdded() && parentSpace != null) {
                 requireActivity().runOnUiThread(() -> {
-                    boolean showTracking = parentSpace.isHasQuantity() || parentSpace.isHasDate() || parentSpace.isHasReminder();
-                    layoutTracking.setVisibility(showTracking ? View.VISIBLE : View.GONE);
+                    if (getView() == null) return;
+                    
+                    // Animate visibility changes
+                    TransitionManager.beginDelayedTransition((ViewGroup) getView());
+
+                    // Visibility logic for flat rows
+                    boolean hasTracking = parentSpace.isHasQuantity() || parentSpace.isHasDate() || parentSpace.isHasReminder();
+                    layoutTracking.setVisibility(hasTracking ? View.VISIBLE : View.GONE);
+                    getView().findViewById(R.id.layoutTrackingDivider).setVisibility(hasTracking ? View.VISIBLE : View.GONE);
+                    
+                    getView().findViewById(R.id.layoutQuantityRow).setVisibility(parentSpace.isHasQuantity() ? View.VISIBLE : View.GONE);
+                    getView().findViewById(R.id.containerQuantity).setVisibility(parentSpace.isHasQuantity() ? View.VISIBLE : View.GONE);
+                    getView().findViewById(R.id.containerUnit).setVisibility(parentSpace.isHasQuantity() ? View.VISIBLE : View.GONE);
+                    
+                    getView().findViewById(R.id.tvLabelDate).setVisibility(parentSpace.isHasDate() ? View.VISIBLE : View.GONE);
+                    getView().findViewById(R.id.containerDate).setVisibility(parentSpace.isHasDate() ? View.VISIBLE : View.GONE);
+                    
+                    getView().findViewById(R.id.layoutReminderToggle).setVisibility(parentSpace.isHasReminder() ? View.VISIBLE : View.GONE);
+                    
                     layoutAttachments.setVisibility(parentSpace.isHasAttachments() ? View.VISIBLE : View.GONE);
-                    tvLabelAttachments.setVisibility(parentSpace.isHasAttachments() ? View.VISIBLE : View.GONE);
-                    
-                    etQuantity.setVisibility(parentSpace.isHasQuantity() ? View.VISIBLE : View.GONE);
-                    tvLabelQuantity.setVisibility(parentSpace.isHasQuantity() ? View.VISIBLE : View.GONE);
-                    
-                    etUnit.setVisibility(parentSpace.isHasQuantity() ? View.VISIBLE : View.GONE);
-                    tvLabelUnit.setVisibility(parentSpace.isHasQuantity() ? View.VISIBLE : View.GONE);
-                    
-                    etDate.setVisibility(parentSpace.isHasDate() ? View.VISIBLE : View.GONE);
-                    tvLabelDate.setVisibility(parentSpace.isHasDate() ? View.VISIBLE : View.GONE);
-                    
-                    etReminder.setVisibility(parentSpace.isHasReminder() ? View.VISIBLE : View.GONE);
-                    tvLabelReminder.setVisibility(parentSpace.isHasReminder() ? View.VISIBLE : View.GONE);
-                    
-                    etNotes.setVisibility(parentSpace.isHasNotes() ? View.VISIBLE : View.GONE);
-                    tvLabelNotes.setVisibility(parentSpace.isHasNotes() ? View.VISIBLE : View.GONE);
-                    
-                    // Update labels or hints if needed
-                    if (parentSpace.isHasCheckbox() && !parentSpace.isHasQuantity()) {
-                        etName.setHint("e.g. Finish assignment");
+                    getView().findViewById(R.id.layoutAttachmentsDivider).setVisibility(parentSpace.isHasAttachments() ? View.VISIBLE : View.GONE);
+
+                    // Dynamic Hints for Item Name
+                    String spaceName = parentSpace.getName().toLowerCase();
+                    if (spaceName.contains("tool")) {
+                        etName.setHint("Tool Name (e.g. Electric Drill)");
+                    } else if (spaceName.contains("grocery") || spaceName.contains("fridge")) {
+                        etName.setHint("Item Name (e.g. Organic Milk)");
+                    } else if (spaceName.contains("pet")) {
+                        etName.setHint("Pet Item (e.g. Dog Food)");
+                    } else if (spaceName.contains("doc") || spaceName.contains("file")) {
+                        etName.setHint("Document Name (e.g. Health Insurance)");
+                    } else if (parentSpace.isHasCheckbox()) {
+                        etName.setHint("Task Name");
                     }
                 });
             }
@@ -246,10 +264,14 @@ public class AddSpaceItemFragment extends Fragment {
         item.setDocumentUri(documentUri);
         item.setDocumentName(documentName);
         
+        // Safety: default to unchecked when creating/editing from form per user request
         if (existingItem != null) {
-            item.setId(existingItem.getId());
             item.setChecked(existingItem.isChecked());
             item.setCompletionTimestamp(existingItem.getCompletionTimestamp());
+            item.setId(existingItem.getId());
+        } else {
+            item.setChecked(false);
+            item.setCompletionTimestamp(null);
         }
 
         Executors.newSingleThreadExecutor().execute(() -> {

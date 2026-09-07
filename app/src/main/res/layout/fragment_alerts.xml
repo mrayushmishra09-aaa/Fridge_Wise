@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FA"
+    android:background="@color/bg_primary"
     tools:context=".AlertsFragment">
 
     <!-- Header Section -->
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Expiry Alerts"
-            android:textColor="#212529"
+            android:textColor="@color/text_primary"
             android:textSize="28sp"
             android:textStyle="bold" />
 
@@ -114,7 +114,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="No Alerts Right Now"
-            android:textColor="#212529"
+            android:textColor="@color/text_primary"
             android:textSize="20sp"
             android:textStyle="bold"
             android:alpha="0.7"/>
@@ -125,7 +125,7 @@
             android:layout_marginTop="8dp"
             android:gravity="center"
             android:text="Great job! There are no items expiring soon or urgent reminders for this filter."
-            android:textColor="#6C757D"
+            android:textColor="@color/text_secondary"
             android:textSize="14sp" />
     </LinearLayout>
 

@@ -338,7 +338,9 @@ public class AddItemFragment extends Fragment {
     }
 
     private void performProductLookup(String barcode) {
-        Toast.makeText(getContext(), "Searching for product...", Toast.LENGTH_SHORT).show();
+        if (getContext() != null) {
+            Toast.makeText(getContext(), "Searching for product...", Toast.LENGTH_SHORT).show();
+        }
         lookupManager.lookupProduct(barcode, new ProductLookupManager.ProductCallback() {
             @Override
             public void onProductFound(String name, String category) {

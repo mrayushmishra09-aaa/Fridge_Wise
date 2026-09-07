@@ -3,22 +3,22 @@
     <!-- PREMIUM DARK MODE COLORS (GitHub/Midnight Theme) -->
 
     <!-- Main Backgrounds -->
-    <color name="bg_primary">#0D1117</color> <!-- Deep Midnight Navy -->
-    <color name="bg_secondary">#161B22</color> <!-- Soft Navy Black -->
+    <color name="bg_primary">#0B0E14</color> <!-- Deepest Midnight -->
+    <color name="bg_secondary">#151921</color> <!-- Soft Navy Black -->
 
     <!-- Surface & Cards -->
-    <color name="surface_card">#161B22</color> <!-- Elevated Navy Surface -->
-    <color name="surface_elevated">#21262D</color> <!-- Lighter Navy Surface -->
-    <color name="divider_color">#30363D</color> <!-- Border Gray -->
+    <color name="surface_card">#151921</color> <!-- Elevated Surface -->
+    <color name="surface_elevated">#1C212B</color> <!-- Lighter Surface -->
+    <color name="divider_color">#2A303C</color> <!-- Softer Divider -->
 
     <!-- Input Fields -->
-    <color name="input_bg">#0D1117</color>
-    <color name="input_border">#30363D</color>
+    <color name="input_bg">#0B0E14</color>
+    <color name="input_border">#2A303C</color>
 
     <!-- Text Palette -->
-    <color name="text_primary">#F0F6FC</color> <!-- Off White -->
-    <color name="text_secondary">#8B949E</color> <!-- Muted Blue Gray -->
-    <color name="text_muted">#484F58</color> <!-- Darker Gray -->
+    <color name="text_primary">#E6EDF3</color> <!-- Softer Premium Off-White -->
+    <color name="text_secondary">#9198A1</color> <!-- More legible Secondary Text -->
+    <color name="text_muted">#636C76</color> <!-- Mid-tone Gray -->
 
     <!-- Premium Accents -->
     <color name="green_primary">#238636</color> <!-- Forest Green -->
@@ -32,26 +32,31 @@
     <color name="text_gray">#8B949E</color>
     <color name="text_light">#484F58</color>
 
-    <color name="app_bg">#0D1117</color>
-    <color name="surface_bg">#161B22</color>
-    <color name="input_field_bg">#0D1117</color>
-    <color name="card_stroke_color">#30363D</color>
+    <color name="app_bg">#0B0E14</color>
+    <color name="surface_bg">#151921</color>
+    <color name="input_field_bg">#0B0E14</color>
+    <color name="card_stroke_color">#2A303C</color>
     <color name="doc_primary">#58A6FF</color>
     <color name="doc_banner_bg">#111E2E</color>
 
     <!-- Medicine/Specific Colors -->
-    <color name="card_bg">#161B22</color>n
-    <color name="text_header">#F0F6FC</color>
-    <color name="text_body">#8B949E</color>
+    <color name="card_bg">#151921</color>
+    <color name="text_header">#E6EDF3</color>
+    <color name="text_body">#9198A1</color>
 
-    <!-- Specific Banner Overrides -->
-    <color name="card_green">#1B3320</color>
-    <color name="card_orange">#33251B</color>
-    <color name="card_red">#331B1B</color>
-    <color name="card_purple">#251B33</color>
+    <!-- Specific Banner Overrides (Deep Tonal Backgrounds) -->
+    <color name="card_green">#0C1A12</color> <!-- Tonal Deep Green -->
+    <color name="card_orange">#1A140F</color>
+    <color name="card_red">#1A0F0F</color>
+    <color name="card_purple">#140F1A</color>
+    <color name="card_blue">#0F161A</color>
 
-    <!-- Badge Backgrounds -->
-    <color name="badge_red_bg">#441B1B</color>
-    <color name="badge_orange_bg">#442A1B</color>
-    <color name="badge_purple_bg">#2D1B44</color>
+    <!-- Banner Gradients (Premium Dark Tones) -->
+    <color name="banner_bg_start">#1B142D</color> <!-- Deep Purple -->
+    <color name="banner_bg_end">#140F1A</color> <!-- Near Black Purple -->
+
+    <!-- Badge Text Colors (Pastel for Dark Mode) -->
+    <color name="badge_red_text">#FF9999</color>
+    <color name="badge_orange_text">#FFCC99</color>
+    <color name="badge_purple_text">#D1C4E9</color>
 </resources>

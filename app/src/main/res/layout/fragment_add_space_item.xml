@@ -13,7 +13,7 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Header -->
+        <!-- Simple Minimal Header -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,8 +25,9 @@
                 android:layout_height="24dp"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
+                android:contentDescription="Back"
                 android:src="@drawable/outline_arrow_back_24"
-                app:tint="@color/green_primary" />
+                app:tint="@color/text_primary" />
 
             <TextView
                 android:id="@+id/tvHeaderTitle"
@@ -39,7 +40,7 @@
                 android:textStyle="bold" />
         </RelativeLayout>
 
-        <!-- Form Card -->
+        <!-- Main Content (Flat Design) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -47,234 +48,256 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Item Name -->
+            <!-- Item Name Section -->
             <TextView
-                android:id="@+id/tvLabelName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:letterSpacing="0.1"
                 android:text="ITEM NAME"
                 android:textColor="@color/text_secondary"
                 android:textSize="11sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.1" />
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/etItemName"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="8dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="4dp"
                 android:background="@drawable/bg_edittext"
-                android:hint="e.g. Hammer"
-                android:paddingHorizontal="16dp"
-                android:textSize="15sp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_muted"
-                android:inputType="textCapWords" />
+                android:hint="e.g. Task or Item"
+                android:inputType="textCapWords"
+                android:paddingHorizontal="12dp"
+                android:textSize="14sp"
+                android:textColor="@color/text_primary" />
 
-            <!-- Quantity & Unit -->
+            <View
+                android:id="@+id/divider1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="20dp"
+                android:background="@color/divider_color" />
+
+            <!-- Quantity & Unit Row (Custom Spaces can have these) -->
+            <LinearLayout
+                android:id="@+id/layoutQuantityRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/containerQuantity"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.1"
+                        android:text="QUANTITY"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/etQuantity"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="4dp"
+                        android:background="@drawable/bg_edittext"
+                        android:hint="0"
+                        android:inputType="numberDecimal"
+                        android:paddingHorizontal="12dp"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/containerUnit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.1"
+                        android:text="UNIT"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/etUnit"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="4dp"
+                        android:background="@drawable/bg_edittext"
+                        android:hint="pcs"
+                        android:inputType="text"
+                        android:paddingHorizontal="12dp"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:id="@+id/layoutTrackingDivider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="20dp"
+                android:background="@color/divider_color" />
+
+            <!-- Date & Reminder Section -->
             <LinearLayout
                 android:id="@+id/layoutTracking"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/tvLabelQuantity"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="QUANTITY"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="11sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.1" />
-                        <EditText
-                            android:id="@+id/etQuantity"
-                            android:layout_width="match_parent"
-                            android:layout_height="52dp"
-                            android:layout_marginTop="8dp"
-                            android:background="@drawable/bg_edittext"
-                            android:hint="1"
-                            android:paddingHorizontal="16dp"
-                            android:textSize="15sp"
-                            android:textColor="@color/text_primary"
-                            android:textColorHint="@color/text_muted"
-                            android:inputType="numberDecimal" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/tvLabelUnit"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="UNIT"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="11sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.1" />
-                        <EditText
-                            android:id="@+id/etUnit"
-                            android:layout_width="match_parent"
-                            android:layout_height="52dp"
-                            android:layout_marginTop="8dp"
-                            android:background="@drawable/bg_edittext"
-                            android:hint="pcs"
-                            android:paddingHorizontal="16dp"
-                            android:textSize="15sp"
-                            android:textColor="@color/text_primary"
-                            android:textColorHint="@color/text_muted"
-                            android:inputType="text" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <!-- Date -->
                 <TextView
                     android:id="@+id/tvLabelDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="DATE"
+                    android:letterSpacing="0.1"
+                    android:text="DUE DATE"
                     android:textColor="@color/text_secondary"
                     android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.1" />
-                <EditText
-                    android:id="@+id/etDate"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_edittext"
-                    android:hint="Select date"
-                    android:clickable="true"
-                    android:focusable="false"
-                    android:paddingHorizontal="16dp"
-                    android:textSize="15sp"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_muted" />
+                    android:textStyle="bold" />
 
-                <!-- Reminder Toggle -->
                 <RelativeLayout
+                    android:id="@+id/containerDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_edittext"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingHorizontal="12dp">
+
+                    <EditText
+                        android:id="@+id/etDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:focusable="false"
+                        android:clickable="true"
+                        android:hint="Select Date"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/outline_calendar_month_24"
+                        app:tint="@color/text_secondary" />
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutReminderToggle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp">
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
                     <TextView
-                        android:id="@+id/tvLabelReminder"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="REMINDER"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.1" />
+                        android:layout_weight="1"
+                        android:text="Reminder Notification"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switchReminder"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        app:thumbTint="@color/green_primary" />
-                </RelativeLayout>
+                        app:thumbTint="@color/green_primary"
+                        app:trackTint="@color/green_pale" />
+                </LinearLayout>
 
-                <EditText
-                    android:id="@+id/etReminder"
+                <RelativeLayout
+                    android:id="@+id/tilReminder"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
+                    android:layout_height="48dp"
                     android:layout_marginTop="8dp"
                     android:background="@drawable/bg_edittext"
-                    android:hint="Set reminder time"
-                    android:paddingHorizontal="16dp"
-                    android:textSize="15sp"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_muted"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    android:paddingHorizontal="12dp">
+
+                    <EditText
+                        android:id="@+id/etReminder"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:focusable="false"
+                        android:clickable="true"
+                        android:hint="Reminder Time"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_notification"
+                        app:tint="@color/text_secondary" />
+                </RelativeLayout>
+
             </LinearLayout>
 
-            <!-- Notes -->
-            <TextView
-                android:id="@+id/tvLabelNotes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="NOTES (OPTIONAL)"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.1" />
-
-            <EditText
-                android:id="@+id/etNotes"
+            <View
+                android:id="@+id/layoutAttachmentsDivider"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_edittext"
-                android:gravity="top"
-                android:hint="Add notes here..."
-                android:padding="16dp"
-                android:textSize="15sp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_muted"
-                android:inputType="textMultiLine" />
+                android:layout_height="1dp"
+                android:layout_marginVertical="20dp"
+                android:background="@color/divider_color" />
 
-            <!-- Attachments -->
+            <!-- Attachments Section -->
             <LinearLayout
                 android:id="@+id/layoutAttachments"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvLabelAttachments"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="ATTACHMENTS"
+                    android:letterSpacing="0.1"
+                    android:text="DOCUMENTATION"
                     android:textColor="@color/text_secondary"
                     android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.1" />
+                    android:textStyle="bold" />
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="4dp"
                     android:background="@drawable/bg_edittext"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp">
+                    android:paddingHorizontal="12dp">
 
                     <TextView
                         android:id="@+id/tvFileName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:layout_alignParentStart="true"
                         android:layout_toStartOf="@+id/btnRemoveFile"
                         android:ellipsize="middle"
                         android:singleLine="true"
-                        android:text="Attach PDF or Document"
-                        android:textColor="@color/text_muted"
-                        android:textSize="15sp" />
+                        android:text="No file attached"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp" />
 
                     <ImageView
                         android:id="@+id/btnRemoveFile"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:src="@drawable/ic_close"
@@ -282,37 +305,64 @@
                         app:tint="@color/text_secondary" />
                 </RelativeLayout>
 
-                <androidx.appcompat.widget.AppCompatButton
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAttachFile"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:layout_marginTop="12dp"
-                    android:background="@drawable/button_outline_bg"
-                    android:text="Choose File"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Upload Document"
                     android:textAllCaps="false"
-                    android:textColor="@color/green_primary"
-                    android:textSize="14sp" />
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/green_primary"
+                    app:strokeWidth="1dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
             </LinearLayout>
+
+            <View
+                android:id="@+id/notesDivider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="20dp"
+                android:background="@color/divider_color" />
+
+            <!-- Notes Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.1"
+                android:text="NOTES (OPTIONAL)"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etNotes"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_edittext"
+                android:gravity="top"
+                android:hint="Add any note here..."
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:inputType="textMultiLine"
+                android:textColor="@color/text_primary" />
 
         </LinearLayout>
 
+        <!-- Save Button -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnSave"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginTop="40dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
             android:layout_marginBottom="32dp"
             android:background="@drawable/button_green_bg"
-            android:text="Save Item"
+            android:text="Save Space Item"
             android:textAllCaps="false"
             android:textColor="@color/white"
-            android:textSize="17sp"
-            android:textStyle="bold"
-            android:drawableStart="@drawable/ic_download"
-            android:drawablePadding="12dp"
-            android:paddingHorizontal="32dp"
-            android:gravity="center"
-            android:drawableTint="@color/white" />
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
     </LinearLayout>
 </ScrollView>

@@ -67,10 +67,40 @@
         tools:layout="@layout/fragment_add_item" />
 
     <fragment
+        android:id="@+id/medicineAddFragment"
+        android:name="com.example.fridgewise.ui.fragments.MedicineAddFragment"
+        android:label="Add Medicine"
+        tools:layout="@layout/fragment_medicine_add" />
+
+    <fragment
+        android:id="@+id/addTodoFragment"
+        android:name="com.example.fridgewise.ui.fragments.AddTodoFragment"
+        android:label="Add Todo"
+        tools:layout="@layout/fragment_add_todo" />
+
+    <fragment
+        android:id="@+id/addDocumentFragment"
+        android:name="com.example.fridgewise.ui.fragments.AddDocumentFragment"
+        android:label="Add Document"
+        tools:layout="@layout/fragment_add_document" />
+
+    <fragment
+        android:id="@+id/globalSearchFragment"
+        android:name="com.example.fridgewise.ui.fragments.GlobalSearchFragment"
+        android:label="Search"
+        tools:layout="@layout/fragment_global_search" />
+
+    <fragment
         android:id="@+id/createSpaceFragment"
         android:name="com.example.fridgewise.ui.fragments.CreateSpaceFragment"
         android:label="Create Space"
         tools:layout="@layout/fragment_create_space" />
+
+    <fragment
+        android:id="@+id/addSpaceItemFragment"
+        android:name="com.example.fridgewise.ui.fragments.AddSpaceItemFragment"
+        android:label="Add Space Item"
+        tools:layout="@layout/fragment_add_space_item" />
 
     <fragment
         android:id="@+id/customSpaceInventoryFragment"

@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.navigation.Navigation;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import java.text.SimpleDateFormat;
@@ -94,15 +95,12 @@ public class Med_section extends Fragment {
 
         ImageView backBtn = view.findViewById(R.id.backBtn_medsec);
         backBtn.setOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
+            Navigation.findNavController(v).popBackStack();
         });
 
         View btnAddMedicine = view.findViewById(R.id.btnAddMedicine);
         btnAddMedicine.setOnClickListener( v->{
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainerView2, new MedicineAddFragment())
-                    .addToBackStack(null)
-                    .commit();
+            Navigation.findNavController(v).navigate(R.id.medicineAddFragment);
         });
 
         View btnInfo = view.findViewById(R.id.btnInfo_med);
@@ -128,15 +126,9 @@ public class Med_section extends Fragment {
 
             @Override
             public void onEditClick(MedicineEntity medicine) {
-                MedicineAddFragment editFragment = new MedicineAddFragment();
                 Bundle args = new Bundle();
-                args.putSerializable(MedicineAddFragment.ARG_MEDICINE, medicine);
-                editFragment.setArguments(args);
-
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainerView2, editFragment)
-                        .addToBackStack(null)
-                        .commit();
+                args.putSerializable("medicine", medicine);
+                Navigation.findNavController(view).navigate(R.id.medicineAddFragment, args);
             }
 
             @Override

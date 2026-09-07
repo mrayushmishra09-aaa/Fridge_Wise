@@ -33,6 +33,7 @@ import android.transition.TransitionManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.Navigation;
 import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
@@ -142,7 +143,7 @@ public class HomeFragment extends Fragment {
             if (state == null) return;
 
             // Update Greeting & Name
-            if (tvUserMessage != null) {
+            if (tvUserMessage != null && state.greeting != null) {
                 if (!state.greeting.equals(tvUserMessage.getText().toString())) {
                     tvUserMessage.setAlpha(0f);
                     tvUserMessage.setText(state.greeting);
@@ -223,19 +224,19 @@ public class HomeFragment extends Fragment {
 
     private void setupNavigation(View view) {
         View btnAddFood = view.findViewById(R.id.btn_add_food);
-        if (btnAddFood != null) btnAddFood.setOnClickListener(v -> replaceFragment(new AddItemFragment()));
+        if (btnAddFood != null) btnAddFood.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.addItemFragment));
         
         View btnAddMed = view.findViewById(R.id.btn_add_medicine);
-        if (btnAddMed != null) btnAddMed.setOnClickListener(v -> replaceFragment(new MedicineAddFragment()));
+        if (btnAddMed != null) btnAddMed.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.medicineAddFragment));
         
         View btnAddTodo = view.findViewById(R.id.btn_add_todo);
-        if (btnAddTodo != null) btnAddTodo.setOnClickListener(v -> replaceFragment(new AddTodoFragment()));
+        if (btnAddTodo != null) btnAddTodo.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.addTodoFragment));
 
         View btnAddShopping = view.findViewById(R.id.btn_add_shopping);
-        if (btnAddShopping != null) btnAddShopping.setOnClickListener(v -> replaceFragment(new ShoppingListFragment()));
+        if (btnAddShopping != null) btnAddShopping.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.shoppingListFragment));
 
         View btnAddDoc = view.findViewById(R.id.btn_add_document);
-        if (btnAddDoc != null) btnAddDoc.setOnClickListener(v -> replaceFragment(new AddDocumentFragment()));
+        if (btnAddDoc != null) btnAddDoc.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.addDocumentFragment));
         
         LinearLayout llHeader = view.findViewById(R.id.ll_quick_add_header);
         LinearLayout llOptions = view.findViewById(R.id.ll_quick_add_options);
@@ -267,11 +268,9 @@ public class HomeFragment extends Fragment {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
                     if (query != null && !query.isEmpty()) {
-                        GlobalSearchFragment fragment = new GlobalSearchFragment();
                         Bundle args = new Bundle();
                         args.putString("search_query", query);
-                        fragment.setArguments(args);
-                        replaceFragment(fragment);
+                        Navigation.findNavController(view).navigate(R.id.globalSearchFragment, args);
                     }
                     return true;
                 }
@@ -282,12 +281,5 @@ public class HomeFragment extends Fragment {
                 }
             });
         }
-    }
-
-    private void replaceFragment(Fragment fragment) {
-        getParentFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContainerView2, fragment)
-                .addToBackStack(null)
-                .commit();
     }
 }

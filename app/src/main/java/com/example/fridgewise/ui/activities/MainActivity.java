@@ -7,9 +7,6 @@ import com.example.fridgewise.adapter.*;
 import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 
-import com.example.fridgewise.R;
-
-import com.example.fridgewise.R;
 import com.example.fridgewise.data.CleanupWorker;
 import com.example.fridgewise.ui.fragments.HomeFragment;
 
@@ -107,24 +104,13 @@ public class MainActivity extends AppCompatActivity {
         
         String target = intent.getStringExtra("target_fragment");
         
-        // Avoid reloading Home if it's already displayed and no target is specified
-        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView2);
-        if (target == null) {
-            if (currentFragment == null) {
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
-                        .replace(R.id.fragmentContainerView2, new HomeFragment())
-                        .commit();
-            }
-            return;
-        }
-
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragmentContainerView2);
         if (navHostFragment == null) return;
         NavController navController = navHostFragment.getNavController();
         BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
+
+        if (target == null) return;
 
         switch (target) {
             case "MEDICINE":
@@ -136,9 +122,11 @@ public class MainActivity extends AppCompatActivity {
                 navController.navigate(R.id.todoListFragment);
                 break;
             case "FOOD":
+                bottomNav.setSelectedItemId(R.id.nav_inventory);
                 navController.navigate(R.id.nav_inventory);
                 break;
             default:
+                bottomNav.setSelectedItemId(R.id.nav_home);
                 navController.navigate(R.id.nav_home);
                 break;
         }

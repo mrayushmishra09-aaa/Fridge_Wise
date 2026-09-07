@@ -60,6 +60,9 @@
     <string name="option_tracking">Advanced Inventory Tracking (Date/Unit)</string>
     <string name="hint_space_name">e.g. My Tools</string>
     <string name="hint_space_desc">What\'s this space for?</string>
+    <string name="unknown_space">Unknown Space</string>
+    <string name="empty_space_title">Your space is empty</string>
+    <string name="empty_space_desc">Start adding items to keep things organized. Everything you track will appear here.</string>
 
     <!-- Profile Strings -->
     <string name="edit_profile">Edit Profile</string>

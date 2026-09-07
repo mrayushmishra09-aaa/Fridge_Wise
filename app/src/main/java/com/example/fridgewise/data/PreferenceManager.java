@@ -42,8 +42,10 @@ public class PreferenceManager {
     }
 
     public void setFirstTimeLaunch(boolean isFirstTime) {
-        editor.putBoolean(KEY_IS_FIRST_TIME, isFirstTime);
-        editor.apply();
+        if (editor != null) {
+            editor.putBoolean(KEY_IS_FIRST_TIME, isFirstTime);
+            editor.apply();
+        }
     }
 
     public boolean isFirstTimeLaunch() {
@@ -51,8 +53,10 @@ public class PreferenceManager {
     }
 
     public void setUserName(String name) {
-        editor.putString(KEY_USER_NAME, name);
-        editor.apply();
+        if (editor != null) {
+            editor.putString(KEY_USER_NAME, name);
+            editor.apply();
+        }
     }
 
     public String getUserName() {
@@ -60,8 +64,10 @@ public class PreferenceManager {
     }
 
     public void setUserAge(int age) {
-        editor.putInt(KEY_USER_AGE, age);
-        editor.apply();
+        if (editor != null) {
+            editor.putInt(KEY_USER_AGE, age);
+            editor.apply();
+        }
     }
 
     public int getUserAge() {
@@ -69,8 +75,10 @@ public class PreferenceManager {
     }
 
     public void setProfileImageUri(String uri) {
-        editor.putString(KEY_PROFILE_IMAGE_URI, uri);
-        editor.apply();
+        if (editor != null) {
+            editor.putString(KEY_PROFILE_IMAGE_URI, uri);
+            editor.apply();
+        }
     }
 
     public String getProfileImageUri() {
@@ -78,8 +86,10 @@ public class PreferenceManager {
     }
 
     public void setSmartFollowUpEnabled(boolean enabled) {
-        editor.putBoolean(KEY_SMART_FOLLOWUP, enabled);
-        editor.apply();
+        if (editor != null) {
+            editor.putBoolean(KEY_SMART_FOLLOWUP, enabled);
+            editor.apply();
+        }
     }
 
     public boolean isSmartFollowUpEnabled() {
@@ -87,8 +97,10 @@ public class PreferenceManager {
     }
 
     public void setAdvanceExpiryEnabled(boolean enabled) {
-        editor.putBoolean(KEY_ADVANCE_EXPIRY, enabled);
-        editor.apply();
+        if (editor != null) {
+            editor.putBoolean(KEY_ADVANCE_EXPIRY, enabled);
+            editor.apply();
+        }
     }
 
     public boolean isAdvanceExpiryEnabled() {
@@ -96,7 +108,9 @@ public class PreferenceManager {
     }
 
     public void clearAll() {
-        editor.clear();
-        editor.apply();
+        if (editor != null) {
+            editor.clear();
+            editor.apply();
+        }
     }
 }

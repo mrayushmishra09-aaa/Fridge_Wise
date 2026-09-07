@@ -12,7 +12,7 @@ import com.example.fridgewise.ui.bottomsheet.*;
 import com.example.fridgewise.R;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -141,6 +141,7 @@ public class AddDocumentFragment extends Fragment {
 
         // --- Photo Capture Click ---
         view.findViewById(R.id.cardCapture).setOnClickListener(v -> {
+            if (getContext() == null) return;
             String[] options = {"Take Photo", "Choose from Gallery"};
             new AlertDialog.Builder(getContext())
                     .setTitle("Add Photo")
@@ -164,7 +165,9 @@ public class AddDocumentFragment extends Fragment {
             String category = actvCategory.getText().toString().trim();
 
             if (name.isEmpty() || category.isEmpty()) {
-                Toast.makeText(getContext(), "Please fill name and category", Toast.LENGTH_SHORT).show();
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Please fill name and category", Toast.LENGTH_SHORT).show();
+                }
                 return;
             }
 
@@ -198,7 +201,9 @@ public class AddDocumentFragment extends Fragment {
 
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), editingDocument == null ? "Document saved" : "Document updated", Toast.LENGTH_SHORT).show();
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(), editingDocument == null ? "Document saved" : "Document updated", Toast.LENGTH_SHORT).show();
+                        }
                         getParentFragmentManager().popBackStack();
                     });
                 }

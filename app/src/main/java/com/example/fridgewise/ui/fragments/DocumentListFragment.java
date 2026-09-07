@@ -22,6 +22,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -53,17 +54,14 @@ public class DocumentListFragment extends Fragment {
         // --- Back Button ---
         View btnBack = view.findViewById(R.id.btnBack);
         if (btnBack != null) {
-            btnBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+            btnBack.setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
         }
 
         // --- FAB to Add Screen ---
         FloatingActionButton fab = view.findViewById(R.id.fabAddDoc);
         if (fab != null) {
             fab.setOnClickListener(v -> {
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainerView2, new AddDocumentFragment())
-                        .addToBackStack(null)
-                        .commit();
+                Navigation.findNavController(v).navigate(R.id.addDocumentFragment);
             });
         }
 
@@ -76,15 +74,9 @@ public class DocumentListFragment extends Fragment {
         adapter = new DocumentAdapter(new DocumentAdapter.OnDocumentClickListener() {
             @Override
             public void onEditClick(DocumentItem document) {
-                AddDocumentFragment fragment = new AddDocumentFragment();
                 Bundle args = new Bundle();
                 args.putSerializable("document", document);
-                fragment.setArguments(args);
-
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainerView2, fragment)
-                        .addToBackStack(null)
-                        .commit();
+                Navigation.findNavController(view).navigate(R.id.addDocumentFragment, args);
             }
 
             @Override

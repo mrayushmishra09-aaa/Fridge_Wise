@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.card.MaterialCardView;
 
@@ -90,43 +91,19 @@ public class Memory extends Fragment {
         
         // 1. Medicine section click listener
         CardView cardMedicine = view.findViewById(R.id.cardMedicine);
-        cardMedicine.setOnClickListener(v ->{
-            getParentFragmentManager().beginTransaction()
-                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
-                    .replace(R.id.fragmentContainerView2, new Med_section())
-                    .addToBackStack(null)
-                    .commit();
-        });
+        cardMedicine.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.med_section));
 
         // 2. Todo section click listener
         cardTodo = view.findViewById(R.id.cardTodo);
-        cardTodo.setOnClickListener(v ->{
-            getParentFragmentManager().beginTransaction()
-                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
-                    .replace(R.id.fragmentContainerView2, new TodoListFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
+        cardTodo.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.todoListFragment));
 
         // 3. Shopping List section click listener
         CardView cardShopping = view.findViewById(R.id.cardShopping);
-        cardShopping.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction()
-                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
-                    .replace(R.id.fragmentContainerView2, new ShoppingListFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
+        cardShopping.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.shoppingListFragment));
 
         // 4. Documents section click listener
         CardView cardDocs = view.findViewById(R.id.cardDocs);
-        cardDocs.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction()
-                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
-                    .replace(R.id.fragmentContainerView2, new DocumentListFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
+        cardDocs.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.documentListFragment));
 
         // Custom Spaces Setup
         rvCustomSpaces = view.findViewById(R.id.rvCustomSpaces);
@@ -135,11 +112,9 @@ public class Memory extends Fragment {
             @Override
             public void onSpaceClick(CustomSpace space) {
                 // Open Custom Space Inventory
-                CustomSpaceInventoryFragment fragment = CustomSpaceInventoryFragment.newInstance(space);
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainerView2, fragment)
-                        .addToBackStack(null)
-                        .commit();
+                Bundle args = new Bundle();
+                args.putSerializable("space", space);
+                Navigation.findNavController(view).navigate(R.id.customSpaceInventoryFragment, args);
             }
 
             @Override
@@ -151,12 +126,7 @@ public class Memory extends Fragment {
 
         // Add Collection Button click listener
         View addCollectionBtn = view.findViewById(R.id.addCollectionBtn);
-        addCollectionBtn.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainerView2, CreateSpaceFragment.newInstance(null))
-                    .addToBackStack(null)
-                    .commit();
-        });
+        addCollectionBtn.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.createSpaceFragment));
 
         updateCounts(view);
         loadCustomSpaces();
@@ -200,10 +170,9 @@ public class Memory extends Fragment {
         popup.setOnMenuItemClickListener(item -> {
             String title = item.getTitle() != null ? item.getTitle().toString() : "";
             if ("Edit".equals(title)) {
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainerView2, CreateSpaceFragment.newInstance(space))
-                        .addToBackStack(null)
-                        .commit();
+                Bundle args = new Bundle();
+                args.putSerializable("custom_space", space);
+                Navigation.findNavController(v).navigate(R.id.createSpaceFragment, args);
             } else if ("Delete".equals(title)) {
                 deleteSpace(space);
             }
