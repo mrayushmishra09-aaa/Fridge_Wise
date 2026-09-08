@@ -59,4 +59,38 @@
     <color name="badge_red_text">#FF9999</color>
     <color name="badge_orange_text">#FFCC99</color>
     <color name="badge_purple_text">#D1C4E9</color>
+
+    <!-- Semantic Attention Colors (Dark Mode) -->
+    <color name="attention_card_bg">#24272C</color>
+    <color name="attention_card_stroke">#3A3F47</color>
+    <color name="attention_text_primary">#FFFFFF</color>
+    <color name="attention_text_secondary">#9DA3AE</color>
+    <color name="attention_action_bg">#4DFF9800</color> <!-- Orange Glow -->
+    <color name="attention_action_text">#FFB74D</color> <!-- Light Orange -->
+    <color name="attention_well_bg">#15171B</color>
+    <color name="attention_badge_orange_bg">#4DFF9800</color>
+    <color name="attention_badge_orange_text">#FFB74D</color>
+
+    <!-- Semantic To-Do Colors (Dark Mode) -->
+    <color name="todo_card_bg">#24272C</color>
+    <color name="todo_card_stroke">#3A3F47</color>
+    <color name="todo_text_primary">#FFFFFF</color>
+    <color name="todo_text_secondary">#9DA3AE</color>
+
+    <!-- Todo Priority Colors (Dark Mode) -->
+    <color name="todo_priority_high_text">#FF9999</color>
+    <color name="todo_priority_medium_text">#FFCC99</color>
+    <color name="todo_priority_low_text">#A5D6A7</color>
+
+    <!-- Semantic Document Item Colors (Dark Mode) -->
+    <color name="doc_item_card_bg">#24272C</color>
+    <color name="doc_item_card_stroke">#3A3F47</color>
+    <color name="doc_item_text_primary">#FFFFFF</color>
+    <color name="doc_item_text_secondary">#9DA3AE</color>
+    <color name="doc_item_well_bg">#15171B</color>
+
+    <!-- Semantic Button Colors (Dark Mode) -->
+    <color name="btn_add_bg">#1B3320</color> <!-- Deep Green Glow -->
+    <color name="btn_add_icon">#A5D6A7</color> <!-- Bright Mint -->
+    <color name="btn_add_stroke">#2EA043</color> <!-- Rim-light Green -->
 </resources>

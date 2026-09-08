@@ -4,6 +4,7 @@ import com.example.fridgewise.R;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -105,15 +106,27 @@ public class HomeViewModel extends AndroidViewModel {
                             AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expired", "In Fridge", "Has expired!", "View", AttentionItem.Type.FOOD);
                             ai.setPriorityScore(10);
                             ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
+                            ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.badge_red_text));
+                            ai.setStatusColor(ContextCompat.getColor(getApplication(), R.color.red_expired));
                             attentionItems.add(ai);
                         } else if (expiry.equals(today)) {
                             expiringSoonItems.add(item);
                             AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expires today", "In Fridge", "Use today!", "View", AttentionItem.Type.FOOD);
                             ai.setPriorityScore(50);
                             ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
+                            ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.attention_badge_orange_text));
+                            ai.setStatusColor(ContextCompat.getColor(getApplication(), R.color.attention_badge_orange_text));
                             attentionItems.add(ai);
                         } else if (expiry.before(soonDate)) {
                             expiringSoonItems.add(item);
+                            long diff = (expiry.getTime() - today.getTime()) / (24 * 60 * 60 * 1000);
+                            String badgeText = diff == 1 ? "Expires tomorrow" : "Expires in " + diff + " days";
+                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), badgeText, "In Fridge", "Use soon.", "View", AttentionItem.Type.FOOD);
+                            ai.setPriorityScore(30);
+                            ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
+                            ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.attention_badge_orange_text));
+                            ai.setStatusColor(ContextCompat.getColor(getApplication(), R.color.attention_badge_orange_text));
+                            attentionItems.add(ai);
                         }
                     }
                 } catch (ParseException e) { }
@@ -133,6 +146,9 @@ public class HomeViewModel extends AndroidViewModel {
                     AttentionItem ai = new AttentionItem(String.valueOf(med.getId()), med.getMedicineName(), med.getStartTime(), "Medicine", "Time for meds.", "View", AttentionItem.Type.MEDICINE);
                     ai.setPriorityScore(100);
                     ai.setImageResId(med.getIconResId());
+                    ai.setBadgeBgColor(ContextCompat.getColor(getApplication(), R.color.badge_purple_bg));
+                    ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.badge_purple_text));
+                    ai.setStatusColor(ContextCompat.getColor(getApplication(), R.color.purple_primary));
                     attentionItems.add(ai);
                 }
             }
@@ -143,6 +159,9 @@ public class HomeViewModel extends AndroidViewModel {
                     AttentionItem ai = new AttentionItem(String.valueOf(todo.getId()), todo.getTitle(), todo.getTime() != null ? todo.getTime() : "Today", "To-Do", "High priority task.", "View", AttentionItem.Type.TODO);
                     ai.setPriorityScore(80);
                     ai.setImageResId(R.drawable.ic_todo_item);
+                    ai.setBadgeBgColor(ContextCompat.getColor(getApplication(), R.color.card_blue));
+                    ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.doc_primary));
+                    ai.setStatusColor(ContextCompat.getColor(getApplication(), R.color.doc_primary));
                     attentionItems.add(ai);
                 }
             }

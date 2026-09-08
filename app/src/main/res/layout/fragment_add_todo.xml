@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FE"
+    android:background="@color/bg_primary"
     android:fillViewport="true">
 
     <LinearLayout
@@ -181,7 +181,9 @@
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
-                <View android:layout_width="8dp" android:layout_height="1dp" />
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="1dp" />
 
                 <TextView
                     android:id="@+id/btnPriorityMedium"
@@ -194,7 +196,9 @@
                     android:textColor="@color/orange_warning"
                     android:textSize="12sp" />
 
-                <View android:layout_width="8dp" android:layout_height="1dp" />
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="1dp" />
 
                 <TextView
                     android:id="@+id/btnPriorityLow"

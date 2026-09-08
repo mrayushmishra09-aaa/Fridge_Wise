@@ -35,6 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.Navigation;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
 
 public class HomeFragment extends Fragment {
 
@@ -104,6 +105,7 @@ public class HomeFragment extends Fragment {
         // Setup Attention RecyclerView
         attentionAdapter = new AttentionAdapter(getContext(), item -> {
             // Handle click
+            handleAttentionClick(item);
         });
         if (rvAttention != null) {
             rvAttention.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -218,6 +220,59 @@ public class HomeFragment extends Fragment {
         viewModel.getActionMessage().observe(getViewLifecycleOwner(), message -> {
             if (message != null && !message.isEmpty()) {
                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void handleAttentionClick(AttentionItem item) {
+        if (item == null) return;
+        
+        Context context = getContext();
+        if (context == null) return;
+        
+        AppDatabase db = AppDatabase.getInstance(context);
+        Executors.newSingleThreadExecutor().execute(() -> {
+            Bundle args = new Bundle();
+            int navAction = -1;
+            
+            try {
+                int id = Integer.parseInt(item.getId());
+                switch (item.getType()) {
+                    case FOOD:
+                        FoodItem food = db.foodItemDao().getItemById(id);
+                        if (food != null) {
+                            args.putSerializable("foodItem", food);
+                            navAction = R.id.addItemFragment;
+                        }
+                        break;
+                    case MEDICINE:
+                        MedicineEntity med = db.medicineDao().getMedicineById(id);
+                        if (med != null) {
+                            args.putSerializable(MedicineAddFragment.ARG_MEDICINE, med);
+                            navAction = R.id.medicineAddFragment;
+                        }
+                        break;
+                    case TODO:
+                        TodoItem todo = db.todoDao().getTodoById(id);
+                        if (todo != null) {
+                            args.putSerializable(AddTodoFragment.ARG_TODO_ITEM, todo);
+                            navAction = R.id.addTodoFragment;
+                        }
+                        break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if (navAction != -1 && isAdded()) {
+                final int finalNavAction = navAction;
+                requireActivity().runOnUiThread(() -> {
+                    try {
+                        Navigation.findNavController(requireView()).navigate(finalNavAction, args);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
             }
         });
     }

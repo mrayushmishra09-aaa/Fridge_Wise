@@ -81,13 +81,13 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         // Change priority color based on level
         if ("High".equalsIgnoreCase(item.getPriority())) {
             holder.tvPriority.setBackgroundResource(R.drawable.bg_priority_high);
-            holder.tvPriority.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.red_expired));
+            holder.tvPriority.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.todo_priority_high_text));
         } else if ("Medium".equalsIgnoreCase(item.getPriority())) {
             holder.tvPriority.setBackgroundResource(R.drawable.bg_priority_medium);
-            holder.tvPriority.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.orange_warning));
+            holder.tvPriority.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.todo_priority_medium_text));
         } else {
             holder.tvPriority.setBackgroundResource(R.drawable.bg_priority_low);
-            holder.tvPriority.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.green_fresh));
+            holder.tvPriority.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.todo_priority_low_text));
         }
 
         holder.btnMore.setOnClickListener(v -> {

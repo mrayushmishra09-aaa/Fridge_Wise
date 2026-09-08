@@ -78,4 +78,51 @@
     <color name="onboarding_tip_bg">#EDF5F1</color>
     <color name="onboarding_tip_text">#2D6A4F</color>
     <color name="onboarding_dot_inactive">#D1D9D5</color>
+
+    <!-- Premium Dark Theme -->
+    <color name="premium_dark_bg">#1C1E22</color>
+    <color name="premium_dark_card">#24272C</color>
+    <color name="premium_dark_stroke">#3A3F47</color>
+    <color name="premium_dark_text_primary">#FFFFFF</color>
+    <color name="premium_dark_text_secondary">#9DA3AE</color>
+    <color name="premium_orange_glow">#4DFF9800</color>
+    <color name="premium_orange_border">#99FF9800</color>
+    <color name="premium_orange_text">#FFB74D</color>
+    <color name="premium_red_glow">#4DF44336</color>
+    <color name="premium_red_border">#99F44336</color>
+    <color name="premium_red_text">#EF5350</color>
+
+    <!-- Semantic Attention Colors (Light Mode) -->
+    <color name="attention_card_bg">#FFFFFF</color>
+    <color name="attention_card_stroke">#F0F0F0</color>
+    <color name="attention_text_primary">#1A1A1A</color>
+    <color name="attention_text_secondary">#757575</color>
+    <color name="attention_action_bg">#F1F8E9</color> <!-- Soft Mint -->
+    <color name="attention_action_text">#2E7D32</color> <!-- Dark Green -->
+    <color name="attention_well_bg">#F9FBFA</color>
+    <color name="attention_badge_orange_bg">#FFF3E0</color>
+    <color name="attention_badge_orange_text">#E65100</color>
+
+    <!-- Semantic To-Do Colors (Light Mode) -->
+    <color name="todo_card_bg">#FFFFFF</color>
+    <color name="todo_card_stroke">#F0F0F0</color>
+    <color name="todo_text_primary">#1A1A1A</color>
+    <color name="todo_text_secondary">#757575</color>
+
+    <!-- Todo Priority Colors (Light Mode) -->
+    <color name="todo_priority_high_text">#F44336</color>
+    <color name="todo_priority_medium_text">#FF9800</color>
+    <color name="todo_priority_low_text">#4CAF50</color>
+
+    <!-- Semantic Document Item Colors (Light Mode) -->
+    <color name="doc_item_card_bg">#FFFFFF</color>
+    <color name="doc_item_card_stroke">#F0F0F0</color>
+    <color name="doc_item_text_primary">#1A1A1A</color>
+    <color name="doc_item_text_secondary">#757575</color>
+    <color name="doc_item_well_bg">#F5F5F5</color>
+
+    <!-- Semantic Button Colors (Light Mode) -->
+    <color name="btn_add_bg">#F1F8E9</color> <!-- Soft Mint -->
+    <color name="btn_add_icon">#2E7D32</color> <!-- Forest Green -->
+    <color name="btn_add_stroke">#C8E6C9</color> <!-- Soft Green Shadow -->
 </resources>

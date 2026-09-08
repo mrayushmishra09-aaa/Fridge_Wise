@@ -57,18 +57,34 @@ public class AttentionAdapter extends ListAdapter<AttentionItem, AttentionAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         AttentionItem item = getItem(position);
         holder.tvName.setText(item.getName());
-        holder.tvBadge.setText(item.getBadgeText());
+        
+        if (item.getBadgeText() != null && !item.getBadgeText().isEmpty()) {
+            holder.tvBadge.setText(item.getBadgeText());
+            holder.tvBadge.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvBadge.setVisibility(View.GONE);
+        }
+        
         holder.tvLocation.setText(item.getLocation());
         holder.tvHint.setText(item.getHint());
         holder.tvAction.setText(item.getActionText());
 
         // Apply Colors
-        holder.tvBadge.setBackgroundTintList(ColorStateList.valueOf(item.getBadgeBgColor()));
-        holder.tvBadge.setTextColor(item.getBadgeTextColor());
-        holder.ivStatusDot.setImageTintList(ColorStateList.valueOf(item.getStatusColor()));
-        holder.btnAction.setBackgroundTintList(ColorStateList.valueOf(item.getBadgeBgColor()));
-        holder.tvAction.setTextColor(item.getBadgeTextColor());
-        holder.ivActionChevron.setImageTintList(ColorStateList.valueOf(item.getBadgeTextColor()));
+        int redColor = ContextCompat.getColor(context, R.color.badge_red_text);
+
+        if (item.getBadgeTextColor() == redColor) {
+            holder.tvBadge.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_attention_badge_red));
+        } else {
+            holder.tvBadge.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_attention_badge_orange));
+        }
+
+        if (item.getBadgeTextColor() != 0) {
+            holder.tvBadge.setTextColor(item.getBadgeTextColor());
+        }
+        
+        if (item.getStatusColor() != 0) {
+            holder.ivStatusDot.setImageTintList(ColorStateList.valueOf(item.getStatusColor()));
+        }
 
         // Image
         if (item.getImageResId() != 0) {

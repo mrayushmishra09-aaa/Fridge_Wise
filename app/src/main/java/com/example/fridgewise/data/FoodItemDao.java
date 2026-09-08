@@ -21,4 +21,7 @@ public interface FoodItemDao {
 
     @Query("SELECT * FROM food_items ORDER BY expiryTimestamp ASC")
     List<FoodItem> getAllItems();
+
+    @Query("SELECT * FROM food_items WHERE id = :id")
+    FoodItem getItemById(int id);
 }

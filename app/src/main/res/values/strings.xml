@@ -113,6 +113,7 @@
     <string name="no_results_found">No results found for your search</string>
     <string name="no_documents_yet">No documents yet</string>
     <string name="tap_add_doc_hint">Tap + to save your first prescription or receipt</string>
+    <string name="back">Back</string>
 
     <!-- category section -->
     <string-array name="category_array">
