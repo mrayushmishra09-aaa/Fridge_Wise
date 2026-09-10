@@ -47,9 +47,23 @@
             android:name=".ui.activities.OnboardingActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activities.DocumentViewerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.FridgeWise" />
 
         <receiver android:name=".util.NotificationReceiver" android:exported="false" />
         <receiver android:name=".util.ReminderReceiver" android:exported="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.fridgewise.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

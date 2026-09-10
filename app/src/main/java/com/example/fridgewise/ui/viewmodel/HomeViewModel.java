@@ -103,7 +103,7 @@ public class HomeViewModel extends AndroidViewModel {
                     if (expiry != null) {
                         expiry = resetTime(expiry);
                         if (expiry.before(today)) {
-                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expired", "In Fridge", "Has expired!", "View", AttentionItem.Type.FOOD);
+                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expired", item.getCategory(), "Has expired!", "View", AttentionItem.Type.FOOD);
                             ai.setPriorityScore(10);
                             ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
                             ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.badge_red_text));
@@ -111,7 +111,7 @@ public class HomeViewModel extends AndroidViewModel {
                             attentionItems.add(ai);
                         } else if (expiry.equals(today)) {
                             expiringSoonItems.add(item);
-                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expires today", "In Fridge", "Use today!", "View", AttentionItem.Type.FOOD);
+                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expires today", item.getCategory(), "Use today!", "View", AttentionItem.Type.FOOD);
                             ai.setPriorityScore(50);
                             ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
                             ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.attention_badge_orange_text));
@@ -121,7 +121,7 @@ public class HomeViewModel extends AndroidViewModel {
                             expiringSoonItems.add(item);
                             long diff = (expiry.getTime() - today.getTime()) / (24 * 60 * 60 * 1000);
                             String badgeText = diff == 1 ? "Expires tomorrow" : "Expires in " + diff + " days";
-                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), badgeText, "In Fridge", "Use soon.", "View", AttentionItem.Type.FOOD);
+                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), badgeText, item.getCategory(), "Use soon.", "View", AttentionItem.Type.FOOD);
                             ai.setPriorityScore(30);
                             ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
                             ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.attention_badge_orange_text));

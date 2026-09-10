@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
     android:layout_marginBottom="24dp"
+    app:cardBackgroundColor="@color/surface_card"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
     app:strokeWidth="0dp">
@@ -20,7 +21,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="48dp"
             android:layout_height="48dp"
-            app:cardBackgroundColor="#E8F5E9"
+            app:cardBackgroundColor="@color/card_green"
             app:cardCornerRadius="24dp"
             app:cardElevation="0dp">
             <ImageView
@@ -28,7 +29,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="center"
                 android:src="@drawable/outline_delete_24"
-                app:tint="#4CAF50" />
+                app:tint="@color/green_light" />
         </com.google.android.material.card.MaterialCardView>
 
         <LinearLayout
@@ -42,7 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Auto Remove"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -52,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Completed items will be automatically moved here and deleted after 24 hours (you can change this in settings)."
-                android:textColor="@color/text_gray"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>

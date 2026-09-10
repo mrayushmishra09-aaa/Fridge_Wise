@@ -50,6 +50,7 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
         MedicineEntity medicine = medicineList.get(position);
         holder.tvTitle.setText(medicine.getMedicineName());
         holder.tvSubtitle.setText(medicine.getDosage() + " " + medicine.getUnit() + " · " + medicine.getFrequency());
+        holder.tvType.setText(medicine.getMedicineType() != null ? medicine.getMedicineType() : "Medicine");
         holder.tvTime.setText(medicine.getStartTime());
         holder.ivIcon.setImageResource(medicine.getIconResId());
         
@@ -76,7 +77,7 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
             
             // Normal state
             holder.itemView.setAlpha(1.0f);
-            holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() & (~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG));
+            holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
         }
 
         // Low stock warning
@@ -140,7 +141,7 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
 
     static class MedicineViewHolder extends RecyclerView.ViewHolder {
         ImageView ivIcon;
-        TextView tvTitle, tvSubtitle, tvTime, tvStatusChip;
+        TextView tvTitle, tvSubtitle, tvType, tvTime, tvStatusChip;
         SwitchMaterial switchMedicine;
         MaterialButton btnTakeDose;
         ImageButton btnMore;
@@ -150,6 +151,7 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
             ivIcon = itemView.findViewById(R.id.ivMedicineIcon);
             tvTitle = itemView.findViewById(R.id.tvMedicineTitle);
             tvSubtitle = itemView.findViewById(R.id.tvMedicineSubtitle);
+            tvType = itemView.findViewById(R.id.tvMedicineType);
             tvTime = itemView.findViewById(R.id.tvMedicineTime);
             tvStatusChip = itemView.findViewById(R.id.tvStatusChip);
             switchMedicine = itemView.findViewById(R.id.switchMedicine);

@@ -93,4 +93,18 @@
     <color name="btn_add_bg">#1B3320</color> <!-- Deep Green Glow -->
     <color name="btn_add_icon">#A5D6A7</color> <!-- Bright Mint -->
     <color name="btn_add_stroke">#2EA043</color> <!-- Rim-light Green -->
+
+    <!-- Glow Colors -->
+    <color name="glow_warm_start">#4DFF9800</color> <!-- More visible Warm Glow in Dark -->
+    <color name="glow_warm_end">#00FF9800</color>
+    <color name="glow_purple_start">#597C4DFF</color> <!-- Purple Glow for Dark Mode -->
+    <color name="glow_purple_end">#007C4DFF</color>
+    <!-- Glassmorphism Palette -->
+    <color name="glass_surface">#B31C212B</color> <!-- 70% Opacity Deep Surface -->
+    <color name="glass_outline">#1AFFFFFF</color> <!-- 10% White for edges -->
+    <color name="glass_sheen">#0DFFFFFF</color>   <!-- 5% White for reflection -->
+
+    <!-- Bulb Glow (Mint/Cool White) -->
+    <color name="glow_bulb_mint_start">#33A5D6A7</color> <!-- Soft Mint Glow -->
+    <color name="glow_bulb_mint_end">#00A5D6A7</color>
 </resources>

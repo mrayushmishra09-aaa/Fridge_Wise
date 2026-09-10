@@ -125,4 +125,18 @@
     <color name="btn_add_bg">#F1F8E9</color> <!-- Soft Mint -->
     <color name="btn_add_icon">#2E7D32</color> <!-- Forest Green -->
     <color name="btn_add_stroke">#C8E6C9</color> <!-- Soft Green Shadow -->
+
+    <!-- Glow Colors -->
+    <color name="glow_warm_start">#33FF9800</color> <!-- Transparent Orange -->
+    <color name="glow_warm_end">#00FF9800</color>   <!-- Fully Transparent -->
+    <color name="glow_purple_start">#007C4DFF</color> <!-- Transparent for Light Mode -->
+    <color name="glow_purple_end">#007C4DFF</color>   <!-- Transparent for Light Mode -->
+    <!-- Glassmorphism Palette -->
+    <color name="glass_surface">#CCFFFFFF</color> <!-- 80% White Surface -->
+    <color name="glass_outline">#33000000</color> <!-- 20% Black edges -->
+    <color name="glass_sheen">#1AFFFFFF</color>
+
+    <!-- Bulb Glow (Mint/Cool White) -->
+    <color name="glow_bulb_mint_start">#1AA5D6A7</color>
+    <color name="glow_bulb_mint_end">#00A5D6A7</color>
 </resources>

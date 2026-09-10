@@ -258,7 +258,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/outline_chevron_right_24"
-                            app:tint="@color/text_gray" />
+                            app:tint="@color/green_primary" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -457,7 +457,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.2"
-                        app:tint="@color/white" />
+                        app:tint="@color/green_light" />
 
                     <ImageView
                         android:layout_width="8dp"
@@ -470,7 +470,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.7"
-                        app:tint="@color/white" />
+                        app:tint="@color/green_light" />
 
                     <ImageView
                         android:layout_width="10dp"
@@ -483,7 +483,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.8"
-                        app:tint="@color/white" />
+                        app:tint="@color/green_light" />
 
                     <!-- Header Row -->
                     <LinearLayout
@@ -534,13 +534,16 @@
                     <!-- Main Content -->
                     <ImageView
                         android:id="@+id/iv_insight_illustration"
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:layout_marginTop="20dp"
+                        android:layout_width="94dp"
+                        android:layout_height="94dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/glow_bulb_mint"
+                        android:padding="16dp"
                         android:scaleType="centerInside"
                         android:src="@drawable/insight_img"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/ll_insight_tag" />
+                        app:layout_constraintTop_toBottomOf="@id/ll_insight_tag"
+                        />
 
                     <TextView
                         android:id="@+id/tv_insight_title"

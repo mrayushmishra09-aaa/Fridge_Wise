@@ -89,8 +89,15 @@ public class AttentionAdapter extends ListAdapter<AttentionItem, AttentionAdapte
         // Image
         if (item.getImageResId() != 0) {
             holder.ivImage.setImageResource(item.getImageResId());
+            // Tint vector icons for dark mode visibility
+            if (item.getImageResId() == R.drawable.ic_todo_item) {
+                holder.ivImage.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.text_primary)));
+            } else {
+                holder.ivImage.setImageTintList(null);
+            }
         } else {
             holder.ivImage.setImageResource(R.drawable.logo_img);
+            holder.ivImage.setImageTintList(null);
         }
 
         holder.btnAction.setOnClickListener(v -> {

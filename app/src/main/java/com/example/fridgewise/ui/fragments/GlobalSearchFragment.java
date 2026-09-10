@@ -170,6 +170,14 @@ public class GlobalSearchFragment extends Fragment {
             @Override
             public void onDownloadClick(DocumentItem document) {
             }
+
+            @Override
+            public void onSelectionModeChanged(boolean isSelectionMode) {
+            }
+
+            @Override
+            public void onSelectionCountChanged(int count) {
+            }
         });
         rvDoc.setLayoutManager(new LinearLayoutManager(getContext()));
         rvDoc.setAdapter(docAdapter);

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FE">
+    android:background="@color/app_bg">
 
     <!-- Header & Search -->
     <LinearLayout
@@ -40,6 +40,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="54dp"
+            app:cardBackgroundColor="@color/surface_card"
             app:cardCornerRadius="14dp"
             app:cardElevation="2dp">
 
@@ -184,7 +185,7 @@
                 <ImageView
                     android:layout_width="120dp"
                     android:layout_height="120dp"
-                    android:src="@drawable/image_05"
+                    android:src="@drawable/global_searchimg"
                     android:alpha="0.4" />
 
                 <TextView

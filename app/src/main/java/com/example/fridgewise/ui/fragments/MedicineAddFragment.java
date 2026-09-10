@@ -184,6 +184,12 @@ public class MedicineAddFragment extends Fragment {
         ArrayAdapter<String> freqAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, frequencies);
         frequencySpinner.setAdapter(freqAdapter);
 
+        // --- Dropdown click behavior to show options immediately ---
+        typeSpinner.setOnClickListener(v -> typeSpinner.showDropDown());
+        unitSpinner.setOnClickListener(v -> unitSpinner.showDropDown());
+        dosageSpinner.setOnClickListener(v -> dosageSpinner.showDropDown());
+        frequencySpinner.setOnClickListener(v -> frequencySpinner.showDropDown());
+
         // Pre-fill if editing
         if (existingMedicine != null) {
             tvHeaderTitle.setText("Edit Medicine");

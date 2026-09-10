@@ -54,17 +54,45 @@
             app:layout_constraintStart_toStartOf="@+id/tvMedicineTitle"
             app:layout_constraintTop_toBottomOf="@+id/tvMedicineTitle" />
 
+        <LinearLayout
+            android:id="@+id/llCategoryRow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toStartOf="@+id/btnMore"
+            app:layout_constraintStart_toStartOf="@+id/tvMedicineTitle"
+            app:layout_constraintTop_toBottomOf="@+id/tvMedicineSubtitle">
+
+            <ImageView
+                android:id="@+id/ivCategoryDot"
+                android:layout_width="7dp"
+                android:layout_height="7dp"
+                android:src="@drawable/baseline_circle_24"
+                app:tint="@color/purple_primary" />
+
+            <TextView
+                android:id="@+id/tvMedicineType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="Medicine"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/tvMedicineTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:text="08:00 AM"
             android:textColor="@color/text_primary"
             android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/tvMedicineTitle"
-            app:layout_constraintTop_toBottomOf="@+id/tvMedicineSubtitle" />
+            app:layout_constraintTop_toBottomOf="@+id/llCategoryRow" />
 
         <TextView
             android:id="@+id/tvStatusChip"

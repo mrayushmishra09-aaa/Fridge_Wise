@@ -8,7 +8,6 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 
 import com.example.fridgewise.ui.fragments.IntroFragment;
-import com.example.fridgewise.ui.fragments.welcomeFragment;
 
 import android.content.Intent;
 import android.os.Bundle;

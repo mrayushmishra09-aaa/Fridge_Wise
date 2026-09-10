@@ -110,9 +110,11 @@
 
                     <ImageView
                         android:id="@+id/bannerImg"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:scaleType="fitCenter"
+                        android:layout_width="119dp"
+                        android:layout_height="99dp"
+                        android:background="@drawable/glow_banner_radial"
+                        android:padding="15dp"
+                        android:scaleType="centerCrop"
                         android:src="@drawable/bellbrain_img_memorysection"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"

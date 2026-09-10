@@ -114,6 +114,10 @@
     <string name="no_documents_yet">No documents yet</string>
     <string name="tap_add_doc_hint">Tap + to save your first prescription or receipt</string>
     <string name="back">Back</string>
+    <string name="full_doc_image_desc">Full document image</string>
+    <string name="go_back_desc">Go back</string>
+    <string name="doc_name_placeholder">Document Name</string>
+    <string name="doc_tag_placeholder">Document #01</string>
 
     <!-- category section -->
     <string-array name="category_array">

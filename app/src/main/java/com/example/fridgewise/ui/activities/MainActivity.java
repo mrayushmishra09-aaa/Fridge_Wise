@@ -7,7 +7,6 @@ import com.example.fridgewise.adapter.*;
 import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 
-import com.example.fridgewise.data.CleanupWorker;
 import com.example.fridgewise.ui.fragments.HomeFragment;
 
 import android.Manifest;
