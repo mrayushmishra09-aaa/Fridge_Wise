@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,6 +44,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
 
     private static final String ARG_SPACE = "space";
     private CustomSpace currentSpace;
+    private CustomSpaceViewModel viewModel;
     private RecyclerView recyclerView;
     private CustomSpaceItemAdapter adapter;
     private List<CustomSpaceItem> allItems = new ArrayList<>();
@@ -64,6 +66,10 @@ public class CustomSpaceInventoryFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             currentSpace = (CustomSpace) getArguments().getSerializable(ARG_SPACE);
+        }
+        viewModel = new ViewModelProvider(this).get(CustomSpaceViewModel.class);
+        if (currentSpace != null) {
+            viewModel.setSpaceId(currentSpace.getId());
         }
     }
 
@@ -106,7 +112,6 @@ public class CustomSpaceInventoryFragment extends Fragment {
         adapter = new CustomSpaceItemAdapter(new CustomSpaceItemAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(CustomSpaceItem item) {
-                // Edit item
                 Bundle args = new Bundle();
                 args.putInt("arg_space_id", currentSpace.getId());
                 args.putSerializable("arg_item", item);
@@ -129,20 +134,27 @@ public class CustomSpaceInventoryFragment extends Fragment {
                 } else {
                     item.setCompletionTimestamp(null);
                 }
-                Executors.newSingleThreadExecutor().execute(() -> {
-                    AppDatabase.getInstance(requireContext()).customSpaceDao().updateItem(item);
-                    // Refresh UI and Banner
-                    requireActivity().runOnUiThread(() -> {
-                        adapter.notifyDataSetChanged();
-                        updateBannerProgress();
-                    });
-                });
+                viewModel.updateItem(item);
             }
         });
         recyclerView.setAdapter(adapter);
 
-        view.findViewById(R.id.btnBack).setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
+        viewModel.getItems().observe(getViewLifecycleOwner(), items -> {
+            allItems = items;
+            adapter.setItems(items, currentSpace);
+            updateBannerProgress();
+            toggleEmptyState();
+        });
 
+        viewModel.getCurrentSpace().observe(getViewLifecycleOwner(), space -> {
+            if (space != null) {
+                currentSpace = space;
+                tvTitle.setText(currentSpace.getName());
+                viewModel.autoRemoveExpiredItems(currentSpace.getAutoRemoveDuration());
+            }
+        });
+
+        view.findViewById(R.id.btnBack).setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
         view.findViewById(R.id.btnMoreOptions).setOnClickListener(this::showMoreOptions);
 
         view.findViewById(R.id.fabAddItem).setOnClickListener(v -> {
@@ -166,10 +178,27 @@ public class CustomSpaceInventoryFragment extends Fragment {
             }
         });
 
-        loadItems();
         setupSwipeToDelete();
 
         return view;
+    }
+
+    private void toggleEmptyState() {
+        if (allItems.isEmpty()) {
+            layoutEmptyState.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+            
+            ImageView ivEmpty = layoutEmptyState.findViewById(R.id.ivEmptyIllustration);
+            if (ivEmpty != null) {
+                ivEmpty.setImageResource(currentSpace.getIconResId());
+                if (currentSpace.getColorCode() != 0) {
+                    ivEmpty.setImageTintList(ColorStateList.valueOf(currentSpace.getColorCode()));
+                }
+            }
+        } else {
+            layoutEmptyState.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setupSwipeToDelete() {
@@ -191,59 +220,6 @@ public class CustomSpaceInventoryFragment extends Fragment {
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
-    }
-
-    private void loadItems() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            AppDatabase db = AppDatabase.getInstance(requireContext());
-            List<CustomSpaceItem> items = db.customSpaceDao().getItemsForSpace(currentSpace.getId());
-            
-            // Handle auto-removal logic
-            long now = System.currentTimeMillis();
-            List<CustomSpaceItem> validItems = new ArrayList<>();
-            int duration = currentSpace.getAutoRemoveDuration();
-            
-            if (duration > 0) {
-                long durationMillis = duration * 24L * 60L * 60L * 1000L;
-                for (CustomSpaceItem item : items) {
-                    if (item.isChecked() && item.getCompletionTimestamp() != null) {
-                        if (now - item.getCompletionTimestamp() > durationMillis) {
-                            db.customSpaceDao().deleteItem(item);
-                            continue;
-                        }
-                    }
-                    validItems.add(item);
-                }
-                allItems = validItems;
-            } else {
-                allItems = items;
-            }
-
-            if (isAdded()) {
-                requireActivity().runOnUiThread(() -> {
-                    adapter.setItems(allItems, currentSpace);
-                    updateBannerProgress();
-                    
-                    // Toggle Empty State
-                    if (allItems.isEmpty()) {
-                        layoutEmptyState.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
-                        
-                        // Polish: Set empty state illustration to match space icon
-                        ImageView ivEmpty = layoutEmptyState.findViewById(R.id.ivEmptyIllustration);
-                        if (ivEmpty != null) {
-                            ivEmpty.setImageResource(currentSpace.getIconResId());
-                            if (currentSpace.getColorCode() != 0) {
-                                ivEmpty.setImageTintList(ColorStateList.valueOf(currentSpace.getColorCode()));
-                            }
-                        }
-                    } else {
-                        layoutEmptyState.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE);
-                    }
-                });
-            }
-        });
     }
 
     private void provideHapticFeedback() {
@@ -316,24 +292,11 @@ public class CustomSpaceInventoryFragment extends Fragment {
                 .setTitle("Delete Space")
                 .setMessage("Are you sure you want to delete this entire space? All items inside will be lost.")
                 .setPositiveButton("Delete", (dialog, which) -> {
-                    Executors.newSingleThreadExecutor().execute(() -> {
-                        AppDatabase db = AppDatabase.getInstance(requireContext());
-                        // Delete space (CASCADE will handle items if DB configured, but we do it manually to be safe)
-                        List<CustomSpaceItem> items = db.customSpaceDao().getItemsForSpace(currentSpace.getId());
-                        for (CustomSpaceItem item : items) {
-                            db.customSpaceDao().deleteItem(item);
-                        }
-                        db.customSpaceDao().deleteSpace(currentSpace);
-
-                        if (isAdded()) {
-                            requireActivity().runOnUiThread(() -> {
-                                Toast.makeText(getContext(), "Space deleted", Toast.LENGTH_SHORT).show();
-                                if (getView() != null) {
-                                    Navigation.findNavController(getView()).popBackStack();
-                                }
-                            });
-                        }
-                    });
+                    viewModel.deleteSpace(currentSpace);
+                    Toast.makeText(getContext(), "Space deleted", Toast.LENGTH_SHORT).show();
+                    if (getView() != null) {
+                        Navigation.findNavController(getView()).popBackStack();
+                    }
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -354,10 +317,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
                 .setTitle("Delete Item")
                 .setMessage("Are you sure you want to delete this item?")
                 .setPositiveButton("Delete", (dialog, which) -> {
-                    Executors.newSingleThreadExecutor().execute(() -> {
-                        AppDatabase.getInstance(requireContext()).customSpaceDao().deleteItem(item);
-                        loadItems();
-                    });
+                    viewModel.deleteItem(item);
                 })
                 .setNegativeButton("Cancel", null)
                 .show();

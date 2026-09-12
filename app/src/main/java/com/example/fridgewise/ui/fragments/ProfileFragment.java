@@ -7,7 +7,9 @@ import com.example.fridgewise.adapter.*;
 import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
-import com.example.fridgewise.ui.bottomsheet.*;
+import com.example.fridgewise.ui.bottomsheet.EditProfileBottomSheet;
+import com.example.fridgewise.ui.bottomsheet.NotificationSettingsBottomSheet;
+import com.example.fridgewise.ui.bottomsheet.AppearanceBottomSheet;
 
 import com.example.fridgewise.R;
 
@@ -41,10 +43,12 @@ public class ProfileFragment extends Fragment {
 
     private ProfileViewModel viewModel;
     private TextView tvUsername;
-    private TextView tvUserAge;
+    private TextView tvUserEmail;
+    private TextView tvUserDOB;
     private ImageView ivUserProfile;
     private View profileCameraIcon;
-    private TextView tvAddPhotoLabel;
+    private View btnEditProfile;
+    private View btnDeleteAccount;
 
     private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
             registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
@@ -79,38 +83,35 @@ public class ProfileFragment extends Fragment {
 
         // Initialize views
         tvUsername = view.findViewById(R.id.pfp_username_show);
-        tvUserAge = view.findViewById(R.id.pfp_user_email_show); // Reusing this for age
+        tvUserEmail = view.findViewById(R.id.pfp_user_email_show);
+        tvUserDOB = view.findViewById(R.id.pfp_user_dob_show);
         ivUserProfile = view.findViewById(R.id.ivUserProfile);
         profileCameraIcon = view.findViewById(R.id.pfp_img_add);
-        tvAddPhotoLabel = view.findViewById(R.id.pfp_txt01);
         
         View btnLogout = view.findViewById(R.id.pfp_logout_txt);
-        View btnEditProfile = view.findViewById(R.id.btnEditProfile);
+        btnEditProfile = view.findViewById(R.id.btnEditProfile);
+        btnDeleteAccount = view.findViewById(R.id.btn_delete_account);
         View cardProfileImage = view.findViewById(R.id.cardProfileImage);
 
         // Observe ViewModel
         viewModel.getUserName().observe(getViewLifecycleOwner(), name -> tvUsername.setText(name));
-        viewModel.getUserAge().observe(getViewLifecycleOwner(), age -> 
-            tvUserAge.setText(age > 0 ? age + " years old" : "FridgeWise User"));
+        viewModel.getUserEmail().observe(getViewLifecycleOwner(), email -> tvUserEmail.setText(email));
+        viewModel.getUserDOB().observe(getViewLifecycleOwner(), dob -> tvUserDOB.setText("Date of Birth: " + dob));
         
         viewModel.getProfileImageUri().observe(getViewLifecycleOwner(), uriString -> {
-            if (uriString != null) {
+            if (uriString != null && !uriString.isEmpty()) {
                 try {
                     Uri uri = Uri.parse(uriString);
                     ivUserProfile.setImageURI(uri);
                     ivUserProfile.setVisibility(View.VISIBLE);
-                    profileCameraIcon.setVisibility(View.GONE);
-                    tvAddPhotoLabel.setVisibility(View.GONE);
                 } catch (Exception e) {
                     ivUserProfile.setVisibility(View.GONE);
-                    profileCameraIcon.setVisibility(View.VISIBLE);
-                    tvAddPhotoLabel.setVisibility(View.VISIBLE);
                 }
             } else {
                 ivUserProfile.setVisibility(View.GONE);
-                profileCameraIcon.setVisibility(View.VISIBLE);
-                tvAddPhotoLabel.setVisibility(View.VISIBLE);
             }
+            // Camera icon stays visible as a professional "Edit" trigger
+            profileCameraIcon.setVisibility(View.VISIBLE);
         });
 
         // Handle clicks
@@ -119,78 +120,76 @@ public class ProfileFragment extends Fragment {
                 .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                 .build()));
 
-        btnEditProfile.setOnClickListener(v -> showEditProfileDialog());
+        btnEditProfile.setOnClickListener(v -> showEditProfileBottomSheet());
+        view.findViewById(R.id.row_personal_details).setOnClickListener(v -> showEditProfileBottomSheet());
+        
         btnLogout.setOnClickListener(v -> showLogoutConfirmation());
+        
+        btnDeleteAccount.setOnClickListener(v -> showDeleteAccountConfirmation());
 
         view.findViewById(R.id.btnNotifications).setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Notification Settings coming soon", Toast.LENGTH_SHORT).show());
+            new NotificationSettingsBottomSheet().show(getParentFragmentManager(), "notif_settings"));
 
-        view.findViewById(R.id.btnHelp).setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Help & Support coming soon", Toast.LENGTH_SHORT).show());
+        view.findViewById(R.id.btn_appearance).setOnClickListener(v -> 
+            new AppearanceBottomSheet().show(getParentFragmentManager(), "appearance_settings"));
 
-        view.findViewById(R.id.btnAbout).setOnClickListener(v -> 
-            Toast.makeText(getContext(), "FridgeWise v1.0", Toast.LENGTH_SHORT).show());
+        view.findViewById(R.id.btnHelp).setOnClickListener(v -> openHelpEmail());
 
-        // Preferences Switches
-        SwitchCompat switchFollowUp = view.findViewById(R.id.switchSmartFollowUp);
-        SwitchCompat switchExpiry = view.findViewById(R.id.switchAdvanceExpiry);
-
-        PreferenceManager pref = new PreferenceManager(requireContext());
-        switchFollowUp.setChecked(pref.isSmartFollowUpEnabled());
-        switchExpiry.setChecked(pref.isAdvanceExpiryEnabled());
-
-        switchFollowUp.setOnCheckedChangeListener((buttonView, isChecked) -> 
-            pref.setSmartFollowUpEnabled(isChecked));
-        
-        switchExpiry.setOnCheckedChangeListener((buttonView, isChecked) -> 
-            pref.setAdvanceExpiryEnabled(isChecked));
+        view.findViewById(R.id.btnAbout).setOnClickListener(v -> showAboutDialog());
     }
 
-    private void showEditProfileDialog() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
-        builder.setTitle("Edit Profile");
+    private void showAboutDialog() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("About FridgeWise")
+                .setMessage("FridgeWise v1.2.0\n\nYour professional kitchen companion. Smartly tracking food, medicine, and shopping tasks.\n\n© 2024 FridgeWise Team")
+                .setPositiveButton("Close", null)
+                .setIcon(R.drawable.ic_info)
+                .show();
+    }
 
-        LinearLayout layout = new LinearLayout(requireContext());
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(48, 24, 48, 24);
+    private void openHelpEmail() {
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:support@fridgewise.com"));
+        intent.putExtra(Intent.EXTRA_SUBJECT, "FridgeWise Feedback - " + tvUsername.getText());
+        try {
+            startActivity(Intent.createChooser(intent, "Send Feedback via..."));
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "No email app found", Toast.LENGTH_SHORT).show();
+        }
+    }
 
-        final EditText etName = new EditText(requireContext());
-        etName.setHint("Name");
-        etName.setText(viewModel.getUserName().getValue());
-        layout.addView(etName);
+    private void showEditProfileBottomSheet() {
+        new EditProfileBottomSheet().show(getParentFragmentManager(), "edit_profile");
+    }
 
-        final EditText etAge = new EditText(requireContext());
-        etAge.setHint("Age");
-        etAge.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        etAge.setText(String.valueOf(viewModel.getUserAge().getValue()));
-        layout.addView(etAge);
+    private void showDeleteAccountConfirmation() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Delete Account?")
+                .setMessage("This action is permanent and cannot be undone. All your fridge data and memories will be lost forever.")
+                .setPositiveButton("Delete Forever", (dialog, which) -> {
+                    viewModel.logout();
+                    Toast.makeText(getContext(), "Account Deleted Successfully", Toast.LENGTH_SHORT).show();
+                    navigateToMain();
+                })
+                .setNegativeButton("Keep My Account", null)
+                .setIcon(R.drawable.outline_delete_24)
+                .show();
+    }
 
-        builder.setView(layout);
-
-        builder.setPositiveButton("Save", (dialog, which) -> {
-            String newName = etName.getText().toString().trim();
-            String ageStr = etAge.getText().toString().trim();
-            
-            if (!newName.isEmpty() && !ageStr.isEmpty()) {
-                viewModel.updateProfile(newName, Integer.parseInt(ageStr));
-                Toast.makeText(getContext(), "Profile Updated!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
+    private void navigateToMain() {
+        Intent intent = new Intent(getActivity(), MainActivity2.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        getActivity().finish();
     }
 
     private void showLogoutConfirmation() {
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Logout")
-                .setMessage("Are you sure you want to log out? All your local data will be reset.")
+                .setMessage("Are you sure you want to log out?")
                 .setPositiveButton("Logout", (dialog, which) -> {
                     viewModel.logout();
-                    Intent intent = new Intent(getActivity(), MainActivity2.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    getActivity().finish();
+                    navigateToMain();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -198,14 +197,18 @@ public class ProfileFragment extends Fragment {
 
     private void handleProfileImagePicked(Uri uri) {
         try {
-            // Take persistable permission to keep access after reboot
-            requireContext().getContentResolver().takePersistableUriPermission(uri, 
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            // Save image to internal storage to ensure it persists even if deleted from gallery
+            String internalPath = FileUtil.saveProfileImage(requireContext(), uri);
             
-            viewModel.updateProfileImage(uri.toString());
-            Toast.makeText(getContext(), "Profile photo updated!", Toast.LENGTH_SHORT).show();
+            if (internalPath != null) {
+                viewModel.updateProfileImage(internalPath);
+                Toast.makeText(getContext(), "Profile photo updated!", Toast.LENGTH_SHORT).show();
+            } else {
+                // Fallback to original URI if saving fails
+                viewModel.updateProfileImage(uri.toString());
+                Toast.makeText(getContext(), "Profile photo updated!", Toast.LENGTH_SHORT).show();
+            }
         } catch (Exception e) {
-            // If persistable permission fails, just save the URI
             viewModel.updateProfileImage(uri.toString());
             Toast.makeText(getContext(), "Profile photo updated!", Toast.LENGTH_SHORT).show();
         }

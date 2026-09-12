@@ -1,8 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- PREMIUM DARK MODE COLORS (GitHub/Midnight Theme) -->
+    <!-- Premium Profile Design Colors -->
+    <color name="profile_bg">#0B1218</color>
+    <color name="profile_card_bg">#151D24</color>
+    <color name="profile_card_stroke">#2A353F</color>
+    <color name="profile_text_primary">#FFFFFF</color>
+    <color name="profile_text_secondary">#9DA3AE</color>
+    <color name="profile_accent_green">#4ADE80</color>
+    <color name="profile_accent_teal">#2DD4BF</color>
+    <color name="profile_accent_blue">#60A5FA</color>
+    <color name="profile_accent_purple">#A78BFA</color>
+    <color name="profile_accent_orange">#FB923C</color>
+    <color name="profile_badge_bg">#1A2E2A</color>
 
-    <!-- Main Backgrounds -->
+    <!-- User Card Gradient -->
+    <color name="profile_gradient_start">#1E3A3A</color>
+    <color name="profile_gradient_end">#0F171A</color>
+
+    <!-- Icon Circle Backgrounds (with opacity) -->
+    <color name="circle_bg_green">#264ADE80</color>
+    <color name="circle_bg_blue">#2660A5FA</color>
+    <color name="circle_bg_purple">#26A78BFA</color>
+    <color name="circle_bg_orange">#26FB923C</color>
+    <color name="circle_bg_red">#26F44336</color>
+
+    <!-- PREMIUM DARK MODE COLORS (GitHub/Midnight Theme) -->
     <color name="bg_primary">#0B0E14</color> <!-- Deepest Midnight -->
     <color name="bg_secondary">#151921</color> <!-- Soft Navy Black -->
 

@@ -56,7 +56,7 @@ public class RegistrationFragment extends Fragment {
 
     public boolean validateAndSave() {
         String name = etName.getText().toString().trim();
-        String ageStr = etAge.getText().toString().trim();
+        String dob = etAge.getText().toString().trim();
 
         if (TextUtils.isEmpty(name)) {
             etName.setError("Name is required");
@@ -64,25 +64,11 @@ public class RegistrationFragment extends Fragment {
             return false;
         }
 
-        int age = 0;
-        if (!TextUtils.isEmpty(ageStr)) {
-            try {
-                age = Integer.parseInt(ageStr);
-                if (age <= 0 || age > 120) {
-                    etAge.setError("Please enter a valid age");
-                    etAge.requestFocus();
-                    return false;
-                }
-            } catch (NumberFormatException e) {
-                etAge.setError("Invalid number");
-                etAge.requestFocus();
-                return false;
-            }
-        }
-
         PreferenceManager prefManager = new PreferenceManager(requireContext());
         prefManager.setUserName(name);
-        prefManager.setUserAge(age);
+        if (!dob.isEmpty()) {
+            prefManager.setUserDOB(dob);
+        }
         
         return true;
     }

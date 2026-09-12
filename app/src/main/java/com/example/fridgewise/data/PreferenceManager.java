@@ -11,8 +11,13 @@ public class PreferenceManager {
     private static final String PREF_NAME = "FridgeWisePrefs_Secure";
     private static final String KEY_IS_FIRST_TIME = "isFirstTimeLaunch";
     private static final String KEY_USER_NAME = "userName";
-    private static final String KEY_USER_AGE = "userAge";
+    private static final String KEY_USER_EMAIL = "userEmail";
+    private static final String KEY_USER_DOB = "userDOB";
+    private static final String KEY_USER_PASSWORD = "userPassword";
     private static final String KEY_PROFILE_IMAGE_URI = "profileImageUri";
+    private static final String KEY_APP_THEME = "appTheme"; // 0: System, 1: Light, 2: Dark
+    private static final String KEY_NOTIF_EXPIRY = "notifExpiry";
+    private static final String KEY_NOTIF_GROCERY = "notifGrocery";
     private static final String KEY_SMART_FOLLOWUP = "smartFollowUp";
     private static final String KEY_ADVANCE_EXPIRY = "advanceExpiry";
 
@@ -63,15 +68,37 @@ public class PreferenceManager {
         return pref.getString(KEY_USER_NAME, "User");
     }
 
-    public void setUserAge(int age) {
+    public void setUserEmail(String email) {
         if (editor != null) {
-            editor.putInt(KEY_USER_AGE, age);
+            editor.putString(KEY_USER_EMAIL, email);
             editor.apply();
         }
     }
 
-    public int getUserAge() {
-        return pref.getInt(KEY_USER_AGE, 0);
+    public String getUserEmail() {
+        return pref.getString(KEY_USER_EMAIL, "user@email.com");
+    }
+
+    public void setUserDOB(String dob) {
+        if (editor != null) {
+            editor.putString(KEY_USER_DOB, dob);
+            editor.apply();
+        }
+    }
+
+    public String getUserDOB() {
+        return pref.getString(KEY_USER_DOB, "Not Set");
+    }
+
+    public void setUserPassword(String password) {
+        if (editor != null) {
+            editor.putString(KEY_USER_PASSWORD, password);
+            editor.apply();
+        }
+    }
+
+    public String getUserPassword() {
+        return pref.getString(KEY_USER_PASSWORD, "********");
     }
 
     public void setProfileImageUri(String uri) {
@@ -105,6 +132,39 @@ public class PreferenceManager {
 
     public boolean isAdvanceExpiryEnabled() {
         return pref.getBoolean(KEY_ADVANCE_EXPIRY, true);
+    }
+
+    public void setAppTheme(int theme) {
+        if (editor != null) {
+            editor.putInt(KEY_APP_THEME, theme);
+            editor.apply();
+        }
+    }
+
+    public int getAppTheme() {
+        return pref.getInt(KEY_APP_THEME, 0); // Default to System
+    }
+
+    public void setNotifExpiryEnabled(boolean enabled) {
+        if (editor != null) {
+            editor.putBoolean(KEY_NOTIF_EXPIRY, enabled);
+            editor.apply();
+        }
+    }
+
+    public boolean isNotifExpiryEnabled() {
+        return pref.getBoolean(KEY_NOTIF_EXPIRY, true);
+    }
+
+    public void setNotifGroceryEnabled(boolean enabled) {
+        if (editor != null) {
+            editor.putBoolean(KEY_NOTIF_GROCERY, enabled);
+            editor.apply();
+        }
+    }
+
+    public boolean isNotifGroceryEnabled() {
+        return pref.getBoolean(KEY_NOTIF_GROCERY, true);
     }
 
     public void clearAll() {

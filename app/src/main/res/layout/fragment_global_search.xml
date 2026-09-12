@@ -172,6 +172,27 @@
                 android:paddingHorizontal="10dp"
                 android:visibility="gone" />
 
+            <!-- Custom Space Results Section -->
+            <TextView
+                android:id="@+id/tvSpaceHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:text="Custom Space Items"
+                android:textColor="@color/green_primary"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSpaceResults"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:paddingHorizontal="10dp"
+                android:visibility="gone" />
+
             <!-- Empty State -->
             <LinearLayout
                 android:id="@+id/llEmptyState"

@@ -11,7 +11,7 @@
         android:id="@+id/viewHandle"
         android:layout_width="40dp"
         android:layout_height="4dp"
-        android:background="@color/text_light"
+        android:background="@color/divider_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -21,7 +21,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginTop="24dp"
-        app:cardBackgroundColor="#E1D7FF"
+        app:cardBackgroundColor="@color/card_purple"
         app:cardCornerRadius="12dp"
         app:cardElevation="0dp"
         app:strokeWidth="0dp"
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         android:text="Master Your Tasks"
-        android:textColor="@color/black"
+        android:textColor="@color/text_primary"
         android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/iconContainer"
@@ -58,7 +58,7 @@
         app:layout_constraintBottom_toBottomOf="@id/tvAboutTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/tvAboutTitle"
-        app:tint="@color/black" />
+        app:tint="@color/text_primary" />
 
     <TextView
         android:id="@+id/tvAboutDesc"
@@ -108,7 +108,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="Plan your weekly meal schedules"
-                android:textColor="@color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp" />
         </LinearLayout>
 
@@ -129,7 +129,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="Get reminders for shopping and prep"
-                android:textColor="@color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp" />
         </LinearLayout>
 
@@ -150,7 +150,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="Organize by priority and urgency"
-                android:textColor="@color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp" />
         </LinearLayout>
 
@@ -171,7 +171,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="Track your daily kitchen productivity"
-                android:textColor="@color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp" />
         </LinearLayout>
 
@@ -182,7 +182,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        app:cardBackgroundColor="#F8F4FF"
+        app:cardBackgroundColor="@color/card_purple"
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:strokeWidth="0dp"
@@ -206,7 +206,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="Categorize your tasks to stay focused on what matters most today."
-                android:textColor="@color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

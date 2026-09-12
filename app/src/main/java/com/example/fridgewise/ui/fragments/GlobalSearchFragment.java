@@ -32,15 +32,16 @@ import java.util.stream.Collectors;
 
 public class GlobalSearchFragment extends Fragment {
 
-    private RecyclerView rvFood, rvMed, rvDoc, rvShopping, rvTodo;
+    private RecyclerView rvFood, rvMed, rvDoc, rvShopping, rvTodo, rvSpace;
     private FoodAdapter foodAdapter;
     private MedicineAdapter medAdapter;
     private DocumentAdapter docAdapter;
     private ShoppingAdapter shoppingAdapter;
     private TodoAdapter todoAdapter;
+    private CustomSpaceItemAdapter spaceAdapter;
     private SearchView searchView;
     
-    private TextView tvFoodHeader, tvMedHeader, tvDocHeader, tvShoppingHeader, tvTodoHeader, tvEmptyMessage;
+    private TextView tvFoodHeader, tvMedHeader, tvDocHeader, tvShoppingHeader, tvTodoHeader, tvSpaceHeader, tvEmptyMessage;
     private View llEmptyState;
     
     private List<FoodItem> allFood = new ArrayList<>();
@@ -48,6 +49,8 @@ public class GlobalSearchFragment extends Fragment {
     private List<DocumentItem> allDocs = new ArrayList<>();
     private List<ShoppingItem> allShopping = new ArrayList<>();
     private List<TodoItem> allTodos = new ArrayList<>();
+    private List<CustomSpaceItem> allSpaceItems = new ArrayList<>();
+    private List<CustomSpace> allSpaces = new ArrayList<>();
 
     @Nullable
     @Override
@@ -65,6 +68,7 @@ public class GlobalSearchFragment extends Fragment {
         tvDocHeader = view.findViewById(R.id.tvDocHeader);
         tvShoppingHeader = view.findViewById(R.id.tvShoppingHeader);
         tvTodoHeader = view.findViewById(R.id.tvTodoHeader);
+        tvSpaceHeader = view.findViewById(R.id.tvSpaceHeader);
         tvEmptyMessage = view.findViewById(R.id.tvEmptyMessage);
         llEmptyState = view.findViewById(R.id.llEmptyState);
 
@@ -74,6 +78,7 @@ public class GlobalSearchFragment extends Fragment {
         rvDoc = view.findViewById(R.id.rvDocResults);
         rvShopping = view.findViewById(R.id.rvShoppingResults);
         rvTodo = view.findViewById(R.id.rvTodoResults);
+        rvSpace = view.findViewById(R.id.rvSpaceResults);
 
         setupAdapters();
 
@@ -223,6 +228,27 @@ public class GlobalSearchFragment extends Fragment {
         });
         rvTodo.setLayoutManager(new LinearLayoutManager(getContext()));
         rvTodo.setAdapter(todoAdapter);
+
+        // Custom Space Adapter
+        spaceAdapter = new CustomSpaceItemAdapter(new CustomSpaceItemAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(CustomSpaceItem item) {
+                navigateToEditSpaceItem(item);
+            }
+
+            @Override
+            public void onDeleteClick(CustomSpaceItem item) {
+                deleteSpaceItem(item);
+            }
+
+            @Override
+            public void onCheckChanged(CustomSpaceItem item, boolean isChecked) {
+                item.setChecked(isChecked);
+                updateSpaceItem(item);
+            }
+        });
+        rvSpace.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvSpace.setAdapter(spaceAdapter);
     }
 
     private void loadAllData() {
@@ -233,6 +259,9 @@ public class GlobalSearchFragment extends Fragment {
             allDocs = db.documentDao().getAllDocuments();
             allShopping = db.shoppingDao().getAllItems();
             allTodos = db.todoDao().getAllTodos();
+            allSpaceItems = db.customSpaceDao().getAllCustomSpaceItemsSync();
+            // We don't use observe here, just a sync load for search
+            // allSpaces = db.customSpaceDao().getAllSpacesSync(); // Need to add this to DAO
 
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
@@ -274,11 +303,15 @@ public class GlobalSearchFragment extends Fragment {
                 .filter(i -> i.getTitle().toLowerCase().contains(q) || i.getNote().toLowerCase().contains(q))
                 .collect(Collectors.toList());
 
-        updateUI(filteredFood, filteredMeds, filteredDocs, filteredShopping, filteredTodos);
+        List<CustomSpaceItem> filteredSpace = allSpaceItems.stream()
+                .filter(i -> i.getName().toLowerCase().contains(q) || (i.getNotes() != null && i.getNotes().toLowerCase().contains(q)))
+                .collect(Collectors.toList());
+
+        updateUI(filteredFood, filteredMeds, filteredDocs, filteredShopping, filteredTodos, filteredSpace);
     }
 
-    private void updateUI(List<FoodItem> food, List<MedicineEntity> meds, List<DocumentItem> docs, List<ShoppingItem> shopping, List<TodoItem> todos) {
-        boolean hasResults = !food.isEmpty() || !meds.isEmpty() || !docs.isEmpty() || !shopping.isEmpty() || !todos.isEmpty();
+    private void updateUI(List<FoodItem> food, List<MedicineEntity> meds, List<DocumentItem> docs, List<ShoppingItem> shopping, List<TodoItem> todos, List<CustomSpaceItem> spaces) {
+        boolean hasResults = !food.isEmpty() || !meds.isEmpty() || !docs.isEmpty() || !shopping.isEmpty() || !todos.isEmpty() || !spaces.isEmpty();
 
         tvFoodHeader.setVisibility(food.isEmpty() ? View.GONE : View.VISIBLE);
         rvFood.setVisibility(food.isEmpty() ? View.GONE : View.VISIBLE);
@@ -300,6 +333,10 @@ public class GlobalSearchFragment extends Fragment {
         rvTodo.setVisibility(todos.isEmpty() ? View.GONE : View.VISIBLE);
         todoAdapter.updateList(todos);
 
+        tvSpaceHeader.setVisibility(spaces.isEmpty() ? View.GONE : View.VISIBLE);
+        rvSpace.setVisibility(spaces.isEmpty() ? View.GONE : View.VISIBLE);
+        spaceAdapter.setItems(spaces, null); // Pass null for parentSpace to use generic style
+
         llEmptyState.setVisibility(hasResults ? View.GONE : View.VISIBLE);
         if (!hasResults) {
             tvEmptyMessage.setText(R.string.no_results_found);
@@ -317,6 +354,8 @@ public class GlobalSearchFragment extends Fragment {
         rvShopping.setVisibility(View.GONE);
         tvTodoHeader.setVisibility(View.GONE);
         rvTodo.setVisibility(View.GONE);
+        tvSpaceHeader.setVisibility(View.GONE);
+        rvSpace.setVisibility(View.GONE);
     }
 
     private void updateMedicine(MedicineEntity medicine) {
@@ -338,6 +377,19 @@ public class GlobalSearchFragment extends Fragment {
         });
     }
 
+    private void updateSpaceItem(CustomSpaceItem item) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            AppDatabase.getInstance(requireContext()).customSpaceDao().updateItem(item);
+        });
+    }
+
+    private void deleteSpaceItem(CustomSpaceItem item) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            AppDatabase.getInstance(requireContext()).customSpaceDao().deleteItem(item);
+            loadAllData();
+        });
+    }
+
     private void navigateToEdit(FoodItem item) {
         Bundle args = new Bundle();
         args.putSerializable("foodItem", item);
@@ -354,5 +406,12 @@ public class GlobalSearchFragment extends Fragment {
         Bundle args = new Bundle();
         args.putSerializable("document", doc);
         Navigation.findNavController(getView()).navigate(R.id.addDocumentFragment, args);
+    }
+
+    private void navigateToEditSpaceItem(CustomSpaceItem item) {
+        Bundle args = new Bundle();
+        args.putInt("arg_space_id", item.getSpaceId());
+        args.putSerializable("arg_item", item);
+        Navigation.findNavController(getView()).navigate(R.id.addSpaceItemFragment, args);
     }
 }

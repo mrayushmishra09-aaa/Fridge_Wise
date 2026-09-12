@@ -10,8 +10,10 @@
 
     <style name="Theme.FridgeWise" parent="Base.Theme.FridgeWise" />
 
-    <style name="FloatingBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
+    <style name="FloatingBottomSheetDialog" parent="Theme.Material3.DayNight.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/FloatingBottomSheet</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="FloatingBottomSheet" parent="Widget.Design.BottomSheet.Modal">

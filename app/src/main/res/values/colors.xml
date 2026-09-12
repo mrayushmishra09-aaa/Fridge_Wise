@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Primary Colors -->
+    <!-- Premium Profile Design Colors -->
+    <color name="profile_bg">#F8F9FE</color>
+    <color name="profile_card_bg">#FFFFFF</color>
+    <color name="profile_card_stroke">#F0F0F0</color>
+    <color name="profile_text_primary">#1A1A1A</color>
+    <color name="profile_text_secondary">#757575</color>
+    <color name="profile_accent_green">#2D6A4F</color>
+    <color name="profile_accent_teal">#2DD4BF</color>
+    <color name="profile_accent_blue">#1565C0</color>
+    <color name="profile_accent_purple">#7C4DFF</color>
+    <color name="profile_accent_orange">#E65100</color>
+    <color name="profile_badge_bg">#EDF5F1</color>
+
+    <!-- User Card Gradient -->
+    <color name="profile_gradient_start">#F0FFF4</color>
+    <color name="profile_gradient_end">#FFFFFF</color>
+
+    <!-- Icon Circle Backgrounds (with opacity) -->
+    <color name="circle_bg_green">#264ADE80</color>
+    <color name="circle_bg_blue">#2660A5FA</color>
+    <color name="circle_bg_purple">#26A78BFA</color>
+    <color name="circle_bg_orange">#26FB923C</color>
+    <color name="circle_bg_teal">#262DD4BF</color>
+    <color name="circle_bg_red">#26F44336</color>
+
     <color name="green_primary">#2E7D32</color>
     <color name="green_light">#4CAF50</color>
     <color name="green_pale">#E8F5E9</color>

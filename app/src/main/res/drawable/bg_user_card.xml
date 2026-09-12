@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Main Background with Gradient -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <gradient
+                android:startColor="@color/profile_gradient_start"
+                android:endColor="@color/profile_gradient_end"
+                android:angle="135" />
+        </shape>
+    </item>
+
+    <!-- Thin Glass Stroke -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/profile_card_stroke" />
+        </shape>
+    </item>
+</layer-list>
