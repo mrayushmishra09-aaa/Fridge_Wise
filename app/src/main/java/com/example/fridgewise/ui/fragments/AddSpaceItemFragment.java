@@ -165,7 +165,7 @@ public class AddSpaceItemFragment extends Fragment {
     private void loadSpaceSettings() {
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
-            parentSpace = db.customSpaceDao().getSpaceById(spaceId);
+            parentSpace = db.customSpaceDao().getSpaceByIdSync(spaceId);
             if (isAdded() && parentSpace != null) {
                 requireActivity().runOnUiThread(() -> {
                     if (getView() == null) return;

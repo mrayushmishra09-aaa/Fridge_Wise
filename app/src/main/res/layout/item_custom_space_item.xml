@@ -48,14 +48,26 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:ellipsize="end"
-            android:maxLines="2"
+            android:maxLines="4"
             android:text="Some additional notes here..."
             android:textColor="@color/text_secondary"
             android:textSize="13sp"
             android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="@id/tvItemName"
+            app:layout_constraintEnd_toStartOf="@+id/btnViewFullNote"
             app:layout_constraintStart_toStartOf="@id/tvItemName"
             app:layout_constraintTop_toBottomOf="@id/tvItemName" />
+
+        <ImageView
+            android:id="@+id/btnViewFullNote"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_eye"
+            android:visibility="gone"
+            android:layout_marginStart="4dp"
+            app:tint="@color/text_secondary"
+            app:layout_constraintBottom_toBottomOf="@+id/tvItemNotes"
+            app:layout_constraintEnd_toEndOf="@id/tvItemName"
+            app:layout_constraintTop_toTopOf="@+id/tvItemNotes" />
 
         <!-- Information Tags Flow -->
         <com.google.android.flexbox.FlexboxLayout

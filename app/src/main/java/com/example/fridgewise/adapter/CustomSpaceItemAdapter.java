@@ -4,13 +4,17 @@ import com.example.fridgewise.R;
 import com.example.fridgewise.model.CustomSpace;
 import com.example.fridgewise.model.CustomSpaceItem;
 import com.example.fridgewise.util.CategoryUtils;
+import com.google.android.material.card.MaterialCardView;
 
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -19,8 +23,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -30,11 +36,15 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     private List<CustomSpaceItem> items = new ArrayList<>();
     private final OnItemClickListener listener;
     private CustomSpace parentSpace;
+    private boolean isSelectionMode = false;
+    private Set<Integer> selectedIds = new HashSet<>();
 
     public interface OnItemClickListener {
         void onItemClick(CustomSpaceItem item);
+        void onLongClick(CustomSpaceItem item);
         void onDeleteClick(CustomSpaceItem item);
         void onCheckChanged(CustomSpaceItem item, boolean isChecked);
+        void onEyeClick(CustomSpaceItem item);
     }
 
     public CustomSpaceItemAdapter(OnItemClickListener listener) {
@@ -44,6 +54,12 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public void setItems(List<CustomSpaceItem> items, CustomSpace parentSpace) {
         this.items = items;
         this.parentSpace = parentSpace;
+        notifyDataSetChanged();
+    }
+
+    public void setSelectionState(boolean isSelectionMode, Set<Integer> selectedIds) {
+        this.isSelectionMode = isSelectionMode;
+        this.selectedIds = selectedIds;
         notifyDataSetChanged();
     }
 
@@ -80,72 +96,103 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         ItemViewHolder itemHolder = (ItemViewHolder) holder;
         CustomSpaceItem item = items.get(position);
         itemHolder.tvName.setText(item.getName());
-        
-        if (parentSpace == null) return;
 
-        // 1. Checkbox / Checklist capability
-        if (parentSpace.isHasCheckbox()) {
-            itemHolder.checkBox.setVisibility(View.VISIBLE);
-            itemHolder.checkBox.setOnCheckedChangeListener(null);
-            itemHolder.checkBox.setChecked(item.isChecked());
+        // Selection Mode Visuals
+        if (isSelectionMode) {
+            itemHolder.selectionCheckBox.setVisibility(View.VISIBLE);
+            itemHolder.selectionCheckBox.setChecked(selectedIds.contains(item.getId()));
+            itemHolder.btnDelete.setVisibility(View.GONE);
+            itemHolder.checkBox.setVisibility(View.GONE);
             
-            // Visual feedback for completion (Matching the Image Design)
-            if (item.isChecked()) {
-                // Strike-through and Mute Title
-                itemHolder.tvName.setPaintFlags(itemHolder.tvName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                itemHolder.tvName.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.text_light));
-                
-                // Mute Notes
-                itemHolder.tvNotes.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.text_light));
-                
-                // Show Completed Tag & Footer
-                itemHolder.tagStatus.setVisibility(View.VISIBLE);
-                itemHolder.tvCompletionFooter.setVisibility(View.VISIBLE);
-                
-                if (item.getCompletionTimestamp() != null) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault());
-                    String time = sdf.format(new Date(item.getCompletionTimestamp()));
-                    itemHolder.tvCompletionFooter.setText("Completed on " + time);
-                }
-                
-                // Mute Card Background
-                itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.divider_color));
-                itemHolder.cardMain.setAlpha(0.7f);
+            if (selectedIds.contains(item.getId())) {
+                itemHolder.cardMain.setStrokeColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.green_primary));
+                itemHolder.cardMain.setStrokeWidth(4);
+                itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.green_pale));
             } else {
-                itemHolder.tvName.setPaintFlags(itemHolder.tvName.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-                itemHolder.tvName.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.text_primary));
-                itemHolder.tvNotes.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.text_secondary));
+                itemHolder.cardMain.setStrokeColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.divider_color));
+                itemHolder.cardMain.setStrokeWidth(1);
+                itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.bg_secondary));
+            }
+        } else {
+            itemHolder.selectionCheckBox.setVisibility(View.GONE);
+            itemHolder.btnDelete.setVisibility(View.VISIBLE);
+            itemHolder.cardMain.setStrokeColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.divider_color));
+            itemHolder.cardMain.setStrokeWidth(1);
+            itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.bg_secondary));
+
+            // 1. Checkbox / Checklist capability
+            if (parentSpace != null && parentSpace.isHasCheckbox()) {
+                itemHolder.checkBox.setVisibility(View.VISIBLE);
+                itemHolder.checkBox.setOnCheckedChangeListener(null);
+                itemHolder.checkBox.setChecked(item.isChecked());
                 
+                // Visual feedback for completion (Matching the Image Design)
+                if (item.isChecked()) {
+                    // Strike-through and Mute Title
+                    itemHolder.tvName.setPaintFlags(itemHolder.tvName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    itemHolder.tvName.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.text_light));
+                    
+                    // Mute Notes
+                    itemHolder.tvNotes.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.text_light));
+                    
+                    // Show Completed Tag & Footer
+                    itemHolder.tagStatus.setVisibility(View.VISIBLE);
+                    itemHolder.tvCompletionFooter.setVisibility(View.VISIBLE);
+                    
+                    if (item.getCompletionTimestamp() != null) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault());
+                        String time = sdf.format(new Date(item.getCompletionTimestamp()));
+                        itemHolder.tvCompletionFooter.setText("Completed on " + time);
+                    }
+                    
+                    // Mute Card Background
+                    itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.divider_color));
+                    itemHolder.cardMain.setAlpha(0.7f);
+                } else {
+                    itemHolder.tvName.setPaintFlags(itemHolder.tvName.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                    itemHolder.tvName.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.text_primary));
+                    itemHolder.tvNotes.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.text_secondary));
+                    
+                    itemHolder.tagStatus.setVisibility(View.GONE);
+                    itemHolder.tvCompletionFooter.setVisibility(View.GONE);
+                    itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.bg_secondary));
+                    itemHolder.cardMain.setAlpha(1.0f);
+                }
+
+                itemHolder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    listener.onCheckChanged(item, isChecked);
+                });
+            } else {
+                itemHolder.checkBox.setVisibility(View.GONE);
                 itemHolder.tagStatus.setVisibility(View.GONE);
                 itemHolder.tvCompletionFooter.setVisibility(View.GONE);
-                itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.bg_secondary));
-                itemHolder.cardMain.setAlpha(1.0f);
+                itemHolder.tvName.setPaintFlags(itemHolder.tvName.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                itemHolder.tvName.setTextColor(Color.BLACK);
+                itemHolder.cardMain.setCardBackgroundColor(Color.WHITE);
             }
-
-            itemHolder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                listener.onCheckChanged(item, isChecked);
-            });
-        } else {
-            itemHolder.checkBox.setVisibility(View.GONE);
-            itemHolder.tagStatus.setVisibility(View.GONE);
-            itemHolder.tvCompletionFooter.setVisibility(View.GONE);
-            itemHolder.tvName.setPaintFlags(itemHolder.tvName.getPaintFlags() & (~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG));
-            itemHolder.tvName.setTextColor(android.graphics.Color.BLACK);
-            itemHolder.cardMain.setCardBackgroundColor(android.graphics.Color.WHITE);
         }
-
-        // 2. Notes capability
-        if (parentSpace.isHasNotes() && item.getNotes() != null && !item.getNotes().isEmpty()) {
+        
+        if (parentSpace == null && !isSelectionMode) return;
+        // Logic for notes expansion eye icon
+        if (item.getNotes() != null && !item.getNotes().isEmpty()) {
             itemHolder.tvNotes.setVisibility(View.VISIBLE);
             itemHolder.tvNotes.setText(item.getNotes());
             itemHolder.tagNotesIcon.setVisibility(View.VISIBLE);
+            
+            // Show eye icon if text is long
+            if (item.getNotes().length() > 100) { // Threshold for expansion
+                itemHolder.btnEye.setVisibility(View.VISIBLE);
+            } else {
+                itemHolder.btnEye.setVisibility(View.GONE);
+            }
         } else {
             itemHolder.tvNotes.setVisibility(View.GONE);
             itemHolder.tagNotesIcon.setVisibility(View.GONE);
+            itemHolder.btnEye.setVisibility(View.GONE);
         }
 
         // 4. Quantity Tag
-        if (parentSpace.isHasQuantity() && item.getQuantity() > 0) {
+        if (parentSpace != null && parentSpace.isHasQuantity() && item.getQuantity() > 0) {
             itemHolder.tagQuantity.setVisibility(View.VISIBLE);
             itemHolder.tvTagQuantity.setText(item.getQuantity() + " " + (item.getUnit() != null ? item.getUnit() : ""));
         } else {
@@ -212,7 +259,12 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         itemHolder.tagsLayout.setVisibility(anyTagVisible ? View.VISIBLE : View.GONE);
 
         itemHolder.itemView.setOnClickListener(v -> listener.onItemClick(item));
+        itemHolder.itemView.setOnLongClickListener(v -> {
+            listener.onLongClick(item);
+            return true;
+        });
         itemHolder.btnDelete.setOnClickListener(v -> listener.onDeleteClick(item));
+        itemHolder.btnEye.setOnClickListener(v -> listener.onEyeClick(item));
     }
 
     @Override
@@ -234,20 +286,22 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvNotes, tvTagQuantity, tvTagDate, tvTagReminder, tvTagStatus, tvTagAttachment, tvCompletionFooter;
-        android.widget.CheckBox checkBox;
+        CheckBox checkBox, selectionCheckBox;
         View tagsLayout;
-        com.google.android.material.card.MaterialCardView cardMain;
-        View tagQuantity, tagDate, tagReminder, tagStatus, tagNotesIcon, tagAttachment;
-        android.widget.ImageView btnDelete;
+        MaterialCardView cardMain;
+        View tagQuantity, tagDate, tagReminder, tagStatus, tagNotesIcon, tagAttachment, btnEye;
+        ImageView btnDelete;
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
-            cardMain = (com.google.android.material.card.MaterialCardView) itemView.findViewById(R.id.cardItem);
+            cardMain = (MaterialCardView) itemView.findViewById(R.id.cardItem);
             tvName = itemView.findViewById(R.id.tvItemName);
             tvNotes = itemView.findViewById(R.id.tvItemNotes);
             tvCompletionFooter = itemView.findViewById(R.id.tvCompletionFooter);
             checkBox = itemView.findViewById(R.id.itemCheckBox);
+            selectionCheckBox = itemView.findViewById(R.id.itemCheckBox); // Temporary reuse or add new
             btnDelete = itemView.findViewById(R.id.btnDelete);
+            btnEye = itemView.findViewById(R.id.btnViewFullNote);
             
             tagsLayout = itemView.findViewById(R.id.tagsLayout);
             

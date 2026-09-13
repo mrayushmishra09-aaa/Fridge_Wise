@@ -154,4 +154,10 @@
         <item>After 24 hours</item>
         <item>After 7 days</item>
     </string-array>
+    <string name="items_selected">%1$d selected</string>
+    <string name="all_selected">All selected</string>
+    <string name="delete_items_title">Delete %1$d items?</string>
+    <string name="bulk_delete_message">This action is permanent and cannot be undone.</string>
+    <string name="bulk_delete_confirm">Delete Forever</string>
+    <string name="note_copied">Note copied to clipboard</string>
 </resources>

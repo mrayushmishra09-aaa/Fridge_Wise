@@ -246,6 +246,18 @@ public class GlobalSearchFragment extends Fragment {
                 item.setChecked(isChecked);
                 updateSpaceItem(item);
             }
+
+            @Override
+            public void onLongClick(CustomSpaceItem item) {
+                // Not implemented in search
+            }
+
+            @Override
+            public void onEyeClick(CustomSpaceItem item) {
+                NoteDetailBottomSheet sheet =
+                    NoteDetailBottomSheet.newInstance(item.getName(), item.getNotes());
+                sheet.show(getChildFragmentManager(), "note_detail");
+            }
         });
         rvSpace.setLayoutManager(new LinearLayoutManager(getContext()));
         rvSpace.setAdapter(spaceAdapter);

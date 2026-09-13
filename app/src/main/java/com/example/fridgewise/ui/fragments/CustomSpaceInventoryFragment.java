@@ -20,6 +20,7 @@ import android.os.VibrationEffect;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
@@ -49,9 +50,10 @@ public class CustomSpaceInventoryFragment extends Fragment {
     private CustomSpaceItemAdapter adapter;
     private List<CustomSpaceItem> allItems = new ArrayList<>();
     
-    private TextView tvBannerMsg, tvProgressPercent;
+    private TextView tvBannerMsg, tvProgressPercent, tvSelectionCount;
     private LinearProgressIndicator progressOverall;
-    private View layoutBanner, layoutEmptyState;
+    private CheckBox cbSelectAll;
+    private View layoutBanner, layoutEmptyState, layoutStandardHeader, layoutSelectionHeader;
 
     public static CustomSpaceInventoryFragment newInstance(CustomSpace space) {
         CustomSpaceInventoryFragment fragment = new CustomSpaceInventoryFragment();
@@ -83,6 +85,10 @@ public class CustomSpaceInventoryFragment extends Fragment {
         progressOverall = view.findViewById(R.id.progressOverall);
         layoutBanner = view.findViewById(R.id.layoutBanner);
         layoutEmptyState = view.findViewById(R.id.layoutEmptyState);
+        layoutStandardHeader = view.findViewById(R.id.layoutStandardHeader);
+        layoutSelectionHeader = view.findViewById(R.id.layoutSelectionHeader);
+        tvSelectionCount = view.findViewById(R.id.tvSelectionCount);
+        cbSelectAll = view.findViewById(R.id.cbSelectAll);
         TextView tvTitle = view.findViewById(R.id.tvSpaceTitle);
 
         if (currentSpace == null) {
@@ -112,11 +118,23 @@ public class CustomSpaceInventoryFragment extends Fragment {
         adapter = new CustomSpaceItemAdapter(new CustomSpaceItemAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(CustomSpaceItem item) {
-                Bundle args = new Bundle();
-                args.putInt("arg_space_id", currentSpace.getId());
-                args.putSerializable("arg_item", item);
-                if (getView() != null) {
-                    Navigation.findNavController(getView()).navigate(R.id.addSpaceItemFragment, args);
+                if (Boolean.TRUE.equals(viewModel.getIsSelectionMode().getValue())) {
+                    viewModel.toggleSelection(item.getId());
+                } else {
+                    Bundle args = new Bundle();
+                    args.putInt("arg_space_id", currentSpace.getId());
+                    args.putSerializable("arg_item", item);
+                    if (getView() != null) {
+                        Navigation.findNavController(getView()).navigate(R.id.addSpaceItemFragment, args);
+                    }
+                }
+            }
+
+            @Override
+            public void onLongClick(CustomSpaceItem item) {
+                if (!Boolean.TRUE.equals(viewModel.getIsSelectionMode().getValue())) {
+                    provideHapticFeedback();
+                    viewModel.enterSelectionMode(item.getId());
                 }
             }
 
@@ -136,6 +154,12 @@ public class CustomSpaceInventoryFragment extends Fragment {
                 }
                 viewModel.updateItem(item);
             }
+
+            @Override
+            public void onEyeClick(CustomSpaceItem item) {
+                NoteDetailBottomSheet sheet = NoteDetailBottomSheet.newInstance(item.getName(), item.getNotes());
+                sheet.show(getChildFragmentManager(), "note_detail");
+            }
         });
         recyclerView.setAdapter(adapter);
 
@@ -144,6 +168,35 @@ public class CustomSpaceInventoryFragment extends Fragment {
             adapter.setItems(items, currentSpace);
             updateBannerProgress();
             toggleEmptyState();
+        });
+
+        viewModel.getIsSelectionMode().observe(getViewLifecycleOwner(), isSelectionMode -> {
+            layoutStandardHeader.setVisibility(isSelectionMode ? View.GONE : View.VISIBLE);
+            layoutSelectionHeader.setVisibility(isSelectionMode ? View.VISIBLE : View.GONE);
+            adapter.setSelectionState(isSelectionMode, viewModel.getSelectedIds().getValue());
+            if (!isSelectionMode) {
+                cbSelectAll.setChecked(false);
+            }
+        });
+
+        viewModel.getSelectedIds().observe(getViewLifecycleOwner(), selectedIds -> {
+            int count = selectedIds.size();
+            if (count > 0 && count == allItems.size()) {
+                tvSelectionCount.setText(R.string.all_selected);
+                cbSelectAll.setChecked(true);
+            } else {
+                tvSelectionCount.setText(getString(R.string.items_selected, count));
+                cbSelectAll.setChecked(false);
+            }
+            adapter.setSelectionState(Boolean.TRUE.equals(viewModel.getIsSelectionMode().getValue()), selectedIds);
+        });
+
+        cbSelectAll.setOnClickListener(v -> {
+            if (cbSelectAll.isChecked()) {
+                viewModel.selectAll(allItems);
+            } else {
+                viewModel.deselectAll();
+            }
         });
 
         viewModel.getCurrentSpace().observe(getViewLifecycleOwner(), space -> {
@@ -155,6 +208,8 @@ public class CustomSpaceInventoryFragment extends Fragment {
         });
 
         view.findViewById(R.id.btnBack).setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
+        view.findViewById(R.id.btnCloseSelection).setOnClickListener(v -> viewModel.exitSelectionMode());
+        view.findViewById(R.id.btnDeleteSelected).setOnClickListener(v -> showBulkDeleteConfirmation());
         view.findViewById(R.id.btnMoreOptions).setOnClickListener(this::showMoreOptions);
 
         view.findViewById(R.id.fabAddItem).setOnClickListener(v -> {
@@ -202,7 +257,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
     }
 
     private void setupSwipeToDelete() {
-        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
@@ -216,10 +271,30 @@ public class CustomSpaceInventoryFragment extends Fragment {
                     deleteItem(item);
                 }
             }
+
+            @Override
+            public int getSwipeDirs(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                if (Boolean.TRUE.equals(viewModel.getIsSelectionMode().getValue())) return 0;
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
         };
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+
+    private void showBulkDeleteConfirmation() {
+        int count = viewModel.getSelectedIds().getValue() != null ? viewModel.getSelectedIds().getValue().size() : 0;
+        new AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.delete_items_title, count))
+                .setMessage(R.string.bulk_delete_message)
+                .setPositiveButton(R.string.bulk_delete_confirm, (dialog, which) -> {
+                    viewModel.deleteSelectedItems();
+                    Toast.makeText(getContext(), count + " items deleted", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .setIcon(R.drawable.outline_delete_24)
+                .show();
     }
 
     private void provideHapticFeedback() {

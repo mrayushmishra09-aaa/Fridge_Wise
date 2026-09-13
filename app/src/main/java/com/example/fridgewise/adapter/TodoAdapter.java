@@ -45,6 +45,10 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         notifyDataSetChanged();
     }
 
+    public List<TodoItem> getTodoItems() {
+        return todoItems;
+    }
+
     private int getPriorityValue(String priority) {
         if ("High".equalsIgnoreCase(priority)) return 3;
         if ("Medium".equalsIgnoreCase(priority)) return 2;

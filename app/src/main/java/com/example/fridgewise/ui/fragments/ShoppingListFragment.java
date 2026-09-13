@@ -12,6 +12,7 @@ import com.example.fridgewise.ui.bottomsheet.*;
 import com.example.fridgewise.R;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -106,12 +108,12 @@ public class ShoppingListFragment extends Fragment {
             sb.append("\n");
         }
 
-        android.content.Intent sendIntent = new android.content.Intent();
-        sendIntent.setAction(android.content.Intent.ACTION_SEND);
-        sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, sb.toString());
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, sb.toString());
         sendIntent.setType("text/plain");
 
-        android.content.Intent shareIntent = android.content.Intent.createChooser(sendIntent, "Share Shopping List via");
+        Intent shareIntent = Intent.createChooser(sendIntent, "Share Shopping List via");
         startActivity(shareIntent);
     }
 
@@ -135,6 +137,25 @@ public class ShoppingListFragment extends Fragment {
         });
         rvShoppingList.setLayoutManager(new LinearLayoutManager(getContext()));
         rvShoppingList.setAdapter(adapter);
+
+        setupSwipeToDelete();
+    }
+
+    private void setupSwipeToDelete() {
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getBindingAdapterPosition();
+                if (position < shoppingItems.size()) {
+                    deleteItem(shoppingItems.get(position));
+                }
+            }
+        }).attachToRecyclerView(rvShoppingList);
     }
 
     private void loadItems() {

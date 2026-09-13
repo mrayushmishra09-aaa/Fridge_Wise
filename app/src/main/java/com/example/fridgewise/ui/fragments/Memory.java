@@ -16,6 +16,7 @@ import android.os.Bundle;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -146,9 +147,9 @@ public class Memory extends Fragment {
     private void loadCustomSpaces() {
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
-            List<CustomSpace> spaces = db.customSpaceDao().getAllSpaces();
+            List<CustomSpace> spaces = db.customSpaceDao().getAllSpacesSync();
             // Fetch counts for each space
-            android.util.SparseIntArray counts = new android.util.SparseIntArray();
+            SparseIntArray counts = new SparseIntArray();
             for (CustomSpace space : spaces) {
                 int count = db.customSpaceDao().getItemCountForSpace(space.getId());
                 counts.put(space.getId(), count);
@@ -185,7 +186,7 @@ public class Memory extends Fragment {
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
             // Delete all items in the space first
-            List<CustomSpaceItem> items = db.customSpaceDao().getItemsForSpace(space.getId());
+            List<CustomSpaceItem> items = db.customSpaceDao().getItemsForSpaceSync(space.getId());
             for (CustomSpaceItem item : items) {
                 db.customSpaceDao().deleteItem(item);
             }

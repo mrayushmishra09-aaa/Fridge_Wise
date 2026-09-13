@@ -24,6 +24,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -99,6 +101,8 @@ public class TodoListFragment extends Fragment {
             }
         });
         rvTasks.setAdapter(adapter);
+
+        setupSwipeToDelete();
 
         loadTasks();
 
@@ -311,5 +315,24 @@ public class TodoListFragment extends Fragment {
         new Thread(() -> {
             AppDatabase.getInstance(context).todoDao().update(item);
         }).start();
+    }
+
+    private void setupSwipeToDelete() {
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getBindingAdapterPosition();
+                // We need to get the item from the adapter because it's filtered
+                if (adapter != null && position < adapter.getItemCount()) {
+                    TodoItem itemToDelete = adapter.getTodoItems().get(position);
+                    deleteTask(itemToDelete);
+                }
+            }
+        }).attachToRecyclerView(rvTasks);
     }
 }
