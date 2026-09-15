@@ -299,15 +299,12 @@ public class MedicineAddFragment extends Fragment {
             Date date = sdf.parse(dateTimeStr);
             if (date != null) {
                 long timeInMillis = date.getTime();
-                // If the time has already passed today, we don't schedule or we could schedule for tomorrow
-                // For simplicity, we just schedule for the given time.
-                NotificationHelper.scheduleNotification(context, timeInMillis, 
-                        "Medicine Reminder: " + med.getMedicineName(),
+                ReminderCoordinator coordinator = new ReminderCoordinator(context);
+                coordinator.schedule("MEDICINE", med.getId(), 
+                        "Medicine Reminder",
                         "Time to take your " + med.getDosage() + " " + med.getUnit(),
-                        med.getId() + 10000,
+                        timeInMillis,
                         med.getIconResId(),
-                        "MEDICINE",
-                        null,
                         "group_meds");
             }
         } catch (ParseException e) {

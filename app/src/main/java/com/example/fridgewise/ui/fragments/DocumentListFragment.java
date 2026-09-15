@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Intent;
@@ -46,8 +47,10 @@ public class DocumentListFragment extends Fragment {
     private DocumentAdapter adapter;
     private TextView tvDocCount, tvSelectionCount;
     private View llEmptyState, selectionToolbar, headerLayout, bottomSelectionBar;
+    private CheckBox cbSelectAll;
     private RecyclerView rvDocuments;
     private FloatingActionButton fab;
+    private List<DocumentItem> currentDocuments = new ArrayList<>();
 
     @Nullable
     @Override
@@ -70,11 +73,23 @@ public class DocumentListFragment extends Fragment {
         headerLayout = view.findViewById(R.id.headerLayout);
         tvSelectionCount = view.findViewById(R.id.tvSelectionCount);
         bottomSelectionBar = view.findViewById(R.id.bottomSelectionBar);
+        cbSelectAll = view.findViewById(R.id.cbSelectAll);
 
         // --- Selection Toolbar Actions ---
         view.findViewById(R.id.btnCloseSelection).setOnClickListener(v -> exitSelectionMode());
         view.findViewById(R.id.btnBulkDelete).setOnClickListener(v -> bulkDelete());
+        view.findViewById(R.id.btnBulkDeleteTop).setOnClickListener(v -> bulkDelete());
         view.findViewById(R.id.btnBulkShare).setOnClickListener(v -> bulkShare());
+
+        if (cbSelectAll != null) {
+            cbSelectAll.setOnClickListener(v -> {
+                if (cbSelectAll.isChecked()) {
+                    adapter.selectAll();
+                } else {
+                    adapter.clearSelection();
+                }
+            });
+        }
 
         // Setup the RecyclerView
         adapter = new DocumentAdapter(new DocumentAdapter.OnDocumentClickListener() {
@@ -103,7 +118,15 @@ public class DocumentListFragment extends Fragment {
 
             @Override
             public void onSelectionCountChanged(int count) {
-                if (tvSelectionCount != null) tvSelectionCount.setText(count + " selected");
+                if (tvSelectionCount != null) {
+                    if (count > 0 && count == currentDocuments.size()) {
+                        tvSelectionCount.setText("All selected");
+                        if (cbSelectAll != null) cbSelectAll.setChecked(true);
+                    } else {
+                        tvSelectionCount.setText(count + " selected");
+                        if (cbSelectAll != null) cbSelectAll.setChecked(false);
+                    }
+                }
             }
         });
 
@@ -121,6 +144,7 @@ public class DocumentListFragment extends Fragment {
             List<DocumentItem> documents = AppDatabase.getInstance(requireContext()).documentDao().getAllDocuments();
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
+                    currentDocuments = documents;
                     if (adapter != null) adapter.setDocs(documents);
                     if (tvDocCount != null) tvDocCount.setText(documents.size() + " Documents saved");
                     if (llEmptyState != null && rvDocuments != null) {
@@ -157,6 +181,7 @@ public class DocumentListFragment extends Fragment {
         if (selectionToolbar != null) selectionToolbar.setVisibility(View.GONE);
         if (headerLayout != null) headerLayout.setVisibility(View.VISIBLE);
         if (fab != null) fab.show();
+        if (cbSelectAll != null) cbSelectAll.setChecked(false);
         
         if (bottomSelectionBar != null) {
             bottomSelectionBar.animate()

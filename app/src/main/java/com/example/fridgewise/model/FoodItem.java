@@ -22,6 +22,7 @@ public class FoodItem implements Serializable {
     private long expiryTimestamp;
     private String imageUri;
     private String notes;
+    private String barcode;
 
     public FoodItem() {
     }
@@ -65,4 +66,7 @@ public class FoodItem implements Serializable {
 
     public String getImageUri() { return imageUri; }
     public void setImageUri(String imageUri) { this.imageUri = imageUri; }
+
+    public String getBarcode() { return barcode; }
+    public void setBarcode(String barcode) { this.barcode = barcode; }
 }

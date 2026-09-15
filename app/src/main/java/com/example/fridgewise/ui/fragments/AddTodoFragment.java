@@ -230,13 +230,12 @@ public class AddTodoFragment extends Fragment {
             SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy HH:mm", Locale.getDefault());
             Date date = sdf.parse(dateTimeStr);
             if (date != null) {
-                NotificationHelper.scheduleNotification(requireContext(), date.getTime(),
-                        "Task Reminder: " + task.getTitle(),
-                        "Priority: " + task.getPriority() + (task.getNote().isEmpty() ? "" : " - " + task.getNote()),
-                        task.getId() + 20000,
-                        R.drawable.ic_todo_item,
-                        "TODO",
-                        null,
+                ReminderCoordinator coordinator = new ReminderCoordinator(requireContext());
+                coordinator.schedule("TODO", task.getId(),
+                        "Task Reminder",
+                        task.getTitle(),
+                        date.getTime(),
+                        CategoryUtils.getPriorityIcon(task.getPriority()),
                         "group_todo");
             }
         } catch (ParseException e) {

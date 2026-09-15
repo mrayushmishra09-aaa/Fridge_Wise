@@ -318,35 +318,42 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
             </LinearLayout>
 
-            <View
-                android:id="@+id/notesDivider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginVertical="20dp"
-                android:background="@color/divider_color" />
-
             <!-- Notes Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:letterSpacing="0.1"
-                android:text="NOTES (OPTIONAL)"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/etNotes"
+            <LinearLayout
+                android:id="@+id/layoutNotes"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/bg_edittext"
-                android:gravity="top"
-                android:hint="Add any note here..."
-                android:padding="12dp"
-                android:textSize="14sp"
-                android:inputType="textMultiLine"
-                android:textColor="@color/text_primary" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <View
+                    android:id="@+id/notesDivider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="20dp"
+                    android:background="@color/divider_color" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.1"
+                    android:text="NOTES (OPTIONAL)"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/etNotes"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_edittext"
+                    android:gravity="top"
+                    android:hint="Add any note here..."
+                    android:padding="12dp"
+                    android:textSize="14sp"
+                    android:inputType="textMultiLine"
+                    android:textColor="@color/text_primary" />
+            </LinearLayout>
 
         </LinearLayout>
 

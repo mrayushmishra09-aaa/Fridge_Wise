@@ -78,17 +78,11 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
             holder.ivThumbnail.setScaleType(ImageView.ScaleType.CENTER);
         }
 
-        // --- Selection Logic ---
+        // --- Selection Logic (Tint Based) ---
         boolean isSelected = selectedIds.contains(currentDoc.getId());
         
-        // Show/Hide Checkbox on left
-        holder.llCheckboxContainer.setVisibility(isSelectionMode ? View.VISIBLE : View.GONE);
-        holder.ivCheckMark.setVisibility(isSelected ? View.VISIBLE : View.GONE);
-        holder.checkboxBase.setBackgroundResource(isSelected ? R.drawable.bg_checkbox_selected : R.drawable.bg_checkbox_unselected);
-
-        // Selection Glow Background
         if (isSelected) {
-            holder.docCard.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.card_green)); // Subtle tint
+            holder.docCard.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.card_green));
             holder.docCard.setStrokeColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.green_primary));
             holder.docCard.setStrokeWidth(4);
         } else {
@@ -152,9 +146,22 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
         notifyDataSetChanged();
     }
 
+    public void selectAll() {
+        for (DocumentItem item : documentItemList) {
+            selectedIds.add(item.getId());
+        }
+        isSelectionMode = true;
+        if (listener != null) {
+            listener.onSelectionCountChanged(selectedIds.size());
+            listener.onSelectionModeChanged(true);
+        }
+        notifyDataSetChanged();
+    }
+
     public void clearSelection() {
         selectedIds.clear();
         isSelectionMode = false;
+        if (listener != null) listener.onSelectionCountChanged(0);
         notifyDataSetChanged();
     }
 
@@ -179,8 +186,7 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
 
     static class DocViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvCategory;
-        ImageView ivThumbnail, ivCheckMark, btnMore, btnDownload;
-        View llCheckboxContainer, checkboxBase;
+        ImageView ivThumbnail, btnMore, btnDownload;
         MaterialCardView docCard;
 
         public DocViewHolder(@NonNull View itemView) {
@@ -188,11 +194,8 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
             tvName = itemView.findViewById(R.id.tvDocName);
             tvCategory = itemView.findViewById(R.id.tvDocCategory);
             ivThumbnail = itemView.findViewById(R.id.ivDocThumbnail);
-            ivCheckMark = itemView.findViewById(R.id.ivCheckMark);
             btnMore = itemView.findViewById(R.id.btnMore);
             btnDownload = itemView.findViewById(R.id.btnDownload);
-            llCheckboxContainer = itemView.findViewById(R.id.llCheckboxContainer);
-            checkboxBase = itemView.findViewById(R.id.checkboxBase);
             docCard = itemView.findViewById(R.id.docCard);
         }
     }

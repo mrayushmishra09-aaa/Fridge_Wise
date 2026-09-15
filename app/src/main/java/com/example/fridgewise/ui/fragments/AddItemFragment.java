@@ -48,10 +48,12 @@ public class AddItemFragment extends Fragment {
     private FoodItem editingItem = null; // Track if we are editing
     private ProductLookupManager lookupManager;
     private ActivityResultLauncher<Intent> scannerLauncher;
+    private String currentBarcode = null;
     
     private EditText itemNameEditText;
     private AutoCompleteTextView categoryDropdown;
     private Spinner quantitySpinner;
+    private EditText notesEditText;
 
     public AddItemFragment() {
         // Required empty public constructor
@@ -86,7 +88,7 @@ public class AddItemFragment extends Fragment {
         btnInfo = view.findViewById(R.id.btnInfo);
         itemNameEditText = view.findViewById(R.id.itemNameEditText);
         EditText quantityEditText = view.findViewById(R.id.quantityEditText);
-        EditText notesEditText = view.findViewById(R.id.notesEditText);
+        notesEditText = view.findViewById(R.id.notesEditText);
         categoryDropdown = view.findViewById(R.id.categoryDropdown);
         quantitySpinner = view.findViewById(R.id.spinner_units);
         TextView purchaseDateText = view.findViewById(R.id.purchaseDateText);
@@ -193,6 +195,7 @@ public class AddItemFragment extends Fragment {
                     // INSERT new item
                     FoodItem newItem = new FoodItem(itemName, quantity, unit, category, purchaseDate, expiryDate);
                     newItem.setNotes(notes);
+                    newItem.setBarcode(currentBarcode);
                     newItem.setExpiryTimestamp(parseDateToTimestamp(expiryDate));
                     long id = database.foodItemDao().insert(newItem);
                     newItem.setId((int) id);
@@ -273,18 +276,12 @@ public class AddItemFragment extends Fragment {
                 cal.set(Calendar.SECOND, 0);
 
                 if (cal.getTimeInMillis() > System.currentTimeMillis()) {
-                    Bundle extras = new Bundle();
-                    extras.putString("item_name", item.getName());
-                    extras.putString("item_unit", item.getUnit());
-                    extras.putString("item_qty", String.valueOf(item.getQuantity()));
-
-                    NotificationHelper.scheduleNotification(context, cal.getTimeInMillis(),
-                            "Food Expiry: " + item.getName(),
-                            "Your " + item.getName() + " expires today. Don't forget to use it!",
-                            item.getId() + 30000,
+                    ReminderCoordinator coordinator = new ReminderCoordinator(context);
+                    coordinator.schedule("FOOD", item.getId(),
+                            "Food Expiry",
+                            item.getName() + " expires today. Don't forget to use it!",
+                            cal.getTimeInMillis(),
                             CategoryUtils.getCategoryIcon(item.getCategory()),
-                            "FOOD",
-                            extras,
                             "group_food");
                 }
             }
@@ -338,6 +335,7 @@ public class AddItemFragment extends Fragment {
     }
 
     private void performProductLookup(String barcode) {
+        this.currentBarcode = barcode;
         if (getContext() != null) {
             Toast.makeText(getContext(), "Searching for product...", Toast.LENGTH_SHORT).show();
         }
@@ -349,6 +347,15 @@ public class AddItemFragment extends Fragment {
                     String appCategory = mapApiCategoryToApp(category);
                     categoryDropdown.setText(appCategory, false);
                     updateCategoryIcon(appCategory);
+                    
+                    // Automatically add barcode to notes
+                    String currentNotes = notesEditText.getText().toString().trim();
+                    String barcodeNote = "Barcode: " + barcode;
+                    if (currentNotes.isEmpty()) {
+                        notesEditText.setText(barcodeNote);
+                    } else if (!currentNotes.contains(barcodeNote)) {
+                        notesEditText.setText(currentNotes + "\n" + barcodeNote);
+                    }
                     
                     // Trigger unit auto-selection
                     ArrayAdapter<CharSequence> unitAdapter = (ArrayAdapter<CharSequence>) quantitySpinner.getAdapter();

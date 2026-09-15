@@ -8,6 +8,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +26,7 @@ public class NotificationHelper {
     public static final String ACTION_TAKE_DOSE = "com.example.fridgewise.ACTION_TAKE_DOSE";
     public static final String ACTION_ADD_TO_SHOPPING = "com.example.fridgewise.ACTION_ADD_TO_SHOPPING";
     public static final String ACTION_MARK_TODO_DONE = "com.example.fridgewise.ACTION_MARK_TODO_DONE";
+    public static final String ACTION_DISMISSED = "com.example.fridgewise.ACTION_DISMISSED";
 
     public static void createNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -58,13 +61,24 @@ public class NotificationHelper {
         
         String channelId = ("MEDICINE".equals(actionType) || "TODO".equals(actionType)) ? CHANNEL_REMINDERS : CHANNEL_GENERAL;
 
+        // Create Dismiss Intent
+        Intent dismissIntent = new Intent(context, NotificationReceiver.class);
+        dismissIntent.setAction(ACTION_DISMISSED);
+        dismissIntent.putExtra("id", notificationId);
+        dismissIntent.putExtra("actionType", actionType);
+        // We'd need item_id_actual here too for better tracking, let's assume it can be derived or passed.
+        
+        PendingIntent deletePendingIntent = PendingIntent.getBroadcast(context, notificationId, dismissIntent, 
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.drawable.notify_img)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(message)) // Support long notes
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
+                .setDeleteIntent(deletePendingIntent)
                 .setContentIntent(contentIntent);
 
         if (groupKey != null) {
@@ -81,7 +95,7 @@ public class NotificationHelper {
         // If a specific category icon is provided, show it as the large icon
         if (iconResId != 0) {
             try {
-                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeResource(context.getResources(), iconResId);
+                Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), iconResId);
                 if (bitmap != null) {
                     builder.setLargeIcon(bitmap);
                 }

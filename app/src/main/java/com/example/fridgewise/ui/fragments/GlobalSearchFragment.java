@@ -131,6 +131,14 @@ public class GlobalSearchFragment extends Fragment {
                 FoodInfoBottomSheet sheet = FoodInfoBottomSheet.newInstance(foodItem);
                 sheet.show(getChildFragmentManager(), "food_info");
             }
+
+            @Override
+            public void onSelectionModeChanged(boolean isSelectionMode) {
+            }
+
+            @Override
+            public void onSelectionCountChanged(int count) {
+            }
         });
         rvFood.setLayoutManager(new LinearLayoutManager(getContext()));
         rvFood.setAdapter(foodAdapter);
@@ -204,6 +212,14 @@ public class GlobalSearchFragment extends Fragment {
             public void onStatusChange(ShoppingItem item, boolean isCompleted) {
                 updateShopping(item);
             }
+
+            @Override
+            public void onSelectionModeChanged(boolean isSelectionMode) {
+            }
+
+            @Override
+            public void onSelectionCountChanged(int count) {
+            }
         });
         rvShopping.setLayoutManager(new LinearLayoutManager(getContext()));
         rvShopping.setAdapter(shoppingAdapter);
@@ -224,6 +240,14 @@ public class GlobalSearchFragment extends Fragment {
             @Override
             public void onStatusChange(TodoItem item, boolean isCompleted) {
                 updateTodo(item, isCompleted);
+            }
+
+            @Override
+            public void onSelectionModeChanged(boolean isSelectionMode) {
+            }
+
+            @Override
+            public void onSelectionCountChanged(int count) {
             }
         });
         rvTodo.setLayoutManager(new LinearLayoutManager(getContext()));

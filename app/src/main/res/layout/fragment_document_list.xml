@@ -51,19 +51,41 @@
                 android:id="@+id/btnCloseSelection"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
                 android:src="@drawable/ic_close"
                 app:tint="@color/text_primary" />
+
+            <CheckBox
+                android:id="@+id/cbSelectAll"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:layout_toEndOf="@id/btnCloseSelection"
+                android:button="@drawable/ic_check_tick"
+                android:buttonTint="@color/green_primary" />
 
             <TextView
                 android:id="@+id/tvSelectionCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_toEndOf="@id/btnCloseSelection"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="12dp"
+                android:layout_toEndOf="@id/cbSelectAll"
                 android:text="0 selected"
                 android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/btnBulkDeleteTop"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/outline_delete_24"
+                app:tint="@color/red_expired" />
         </RelativeLayout>
     </FrameLayout>
 

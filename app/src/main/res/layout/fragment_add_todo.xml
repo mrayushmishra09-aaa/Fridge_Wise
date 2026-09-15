@@ -177,7 +177,7 @@
                     android:background="@drawable/bg_priority_high_selector"
                     android:gravity="center"
                     android:text="High"
-                    android:textColor="@color/red_expired"
+                    android:textColor="@color/todo_priority_high_text"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -193,7 +193,7 @@
                     android:background="@drawable/bg_priority_medium_selector"
                     android:gravity="center"
                     android:text="Medium"
-                    android:textColor="@color/orange_warning"
+                    android:textColor="@color/todo_priority_medium_text"
                     android:textSize="12sp" />
 
                 <View
@@ -208,7 +208,7 @@
                     android:background="@drawable/bg_priority_low_selector"
                     android:gravity="center"
                     android:text="Low"
-                    android:textColor="@color/green_fresh"
+                    android:textColor="@color/todo_priority_low_text"
                     android:textSize="12sp" />
             </LinearLayout>
 

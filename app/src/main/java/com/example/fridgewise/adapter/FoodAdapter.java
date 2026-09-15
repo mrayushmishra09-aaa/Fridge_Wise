@@ -14,8 +14,17 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import android.widget.PopupMenu;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+
+import androidx.core.content.ContextCompat;
+import android.os.Vibrator;
+import android.os.VibrationEffect;
+import android.content.Context;
+import android.os.Build;
+import com.google.android.material.card.MaterialCardView;
 
 public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder> {
 
@@ -23,10 +32,14 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
         void onEditClick(FoodItem foodItem);
         void onDeleteClick(FoodItem foodItem);
         void onInfoClick(FoodItem foodItem);
+        void onSelectionModeChanged(boolean isSelectionMode);
+        void onSelectionCountChanged(int count);
     }
 
     private List<FoodItem> foodList = new ArrayList<>();
     private onItemClickListener listener;
+    private final Set<Integer> selectedIds = new HashSet<>();
+    private boolean isSelectionMode = false;
 
     public FoodAdapter(onItemClickListener listener){
         this.listener = listener;
@@ -63,12 +76,51 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
         // Category-based image linking
         setCategoryImage(holder.imgItem, currentItem.getCategory());
 
+        // Show/hide barcode verified icon
+        if (currentItem.getBarcode() != null && !currentItem.getBarcode().isEmpty()) {
+            holder.icBarcodeVerified.setVisibility(View.VISIBLE);
+        } else {
+            holder.icBarcodeVerified.setVisibility(View.GONE);
+        }
+
+        // --- Selection Logic (Tint Based) ---
+        boolean isSelected = selectedIds.contains(currentItem.getId());
+        
+        if (isSelected) {
+            holder.foodCard.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.card_green));
+            holder.foodCard.setStrokeColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.green_primary));
+            holder.foodCard.setStrokeWidth(4);
+        } else {
+            holder.foodCard.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.surface_card));
+            holder.foodCard.setStrokeColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.divider_color));
+            holder.foodCard.setStrokeWidth(1);
+        }
+
         holder.btnInfo.setOnClickListener(v -> {
-            if (listener != null) listener.onInfoClick(currentItem);
+            if (isSelectionMode) {
+                toggleSelection(currentItem.getId());
+            } else {
+                if (listener != null) listener.onInfoClick(currentItem);
+            }
         });
 
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null) listener.onEditClick(currentItem);
+            if (isSelectionMode) {
+                toggleSelection(currentItem.getId());
+            } else {
+                if (listener != null) listener.onEditClick(currentItem);
+            }
+        });
+
+        holder.itemView.setOnLongClickListener(v -> {
+            if (!isSelectionMode) {
+                isSelectionMode = true;
+                vibrate(v.getContext());
+                toggleSelection(currentItem.getId());
+                if (listener != null) listener.onSelectionModeChanged(true);
+                return true;
+            }
+            return false;
         });
 
         // Three-dot menu logic
@@ -104,6 +156,54 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
         }
     }
 
+    private void toggleSelection(int id) {
+        if (selectedIds.contains(id)) selectedIds.remove(id);
+        else selectedIds.add(id);
+        
+        if (selectedIds.isEmpty()) {
+            isSelectionMode = false;
+            if (listener != null) listener.onSelectionModeChanged(false);
+        }
+        
+        if (listener != null) listener.onSelectionCountChanged(selectedIds.size());
+        notifyDataSetChanged();
+    }
+
+    public void selectAll() {
+        for (FoodItem item : foodList) {
+            selectedIds.add(item.getId());
+        }
+        isSelectionMode = true;
+        if (listener != null) {
+            listener.onSelectionCountChanged(selectedIds.size());
+            listener.onSelectionModeChanged(true);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void clearSelection() {
+        selectedIds.clear();
+        isSelectionMode = false;
+        if (listener != null) listener.onSelectionCountChanged(0);
+        notifyDataSetChanged();
+    }
+
+    public List<FoodItem> getSelectedItems() {
+        List<FoodItem> selected = new ArrayList<>();
+        for (FoodItem item : foodList) {
+            if (selectedIds.contains(item.getId())) selected.add(item);
+        }
+        return selected;
+    }
+
+    private void vibrate(Context context) {
+        Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
+            else vibrator.vibrate(50);
+        }
+    }
+
     @Override
     public int getItemCount() {
         return foodList.size();
@@ -111,7 +211,8 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
 
     static class FoodViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvCategory, tvExpiry, tvQuantity;
-        ImageView imgItem, btnMore, btnInfo;
+        ImageView imgItem, btnMore, btnInfo, icBarcodeVerified;
+        MaterialCardView foodCard;
 
         public FoodViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -122,6 +223,8 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
             imgItem = itemView.findViewById(R.id.itemImage);
             btnMore = itemView.findViewById(R.id.btnMore);
             btnInfo = itemView.findViewById(R.id.btnInfo);
+            icBarcodeVerified = itemView.findViewById(R.id.ic_barcode_verified);
+            foodCard = itemView.findViewById(R.id.foodCard);
         }
     }
 

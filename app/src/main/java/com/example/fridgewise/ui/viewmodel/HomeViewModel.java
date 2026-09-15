@@ -155,15 +155,29 @@ public class HomeViewModel extends AndroidViewModel {
 
             List<TodoItem> todos = db.todoDao().getPendingTodos();
             for (TodoItem todo : todos) {
+                int score = 0;
+                String description = "";
                 if ("High".equalsIgnoreCase(todo.getPriority())) {
-                    AttentionItem ai = new AttentionItem(String.valueOf(todo.getId()), todo.getTitle(), todo.getTime() != null ? todo.getTime() : "Today", "To-Do", "High priority task.", "View", AttentionItem.Type.TODO);
-                    ai.setPriorityScore(80);
-                    ai.setImageResId(R.drawable.ic_todo_item);
-                    ai.setBadgeBgColor(ContextCompat.getColor(getApplication(), R.color.card_blue));
-                    ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.doc_primary));
-                    ai.setStatusColor(ContextCompat.getColor(getApplication(), R.color.doc_primary));
-                    attentionItems.add(ai);
+                    score = 80;
+                    description = "High priority task.";
+                } else if ("Medium".equalsIgnoreCase(todo.getPriority())) {
+                    score = 60;
+                    description = "Medium priority task.";
+                } else if ("Low".equalsIgnoreCase(todo.getPriority())) {
+                    score = 40;
+                    description = "Low priority task.";
+                } else {
+                    score = 20;
+                    description = "Task reminder.";
                 }
+
+                AttentionItem ai = new AttentionItem(String.valueOf(todo.getId()), todo.getTitle(), todo.getTime() != null ? todo.getTime() : "Today", "To-Do", description, "View", AttentionItem.Type.TODO);
+                ai.setPriorityScore(score);
+                ai.setImageResId(CategoryUtils.getPriorityIcon(todo.getPriority()));
+                ai.setBadgeBgColor(ContextCompat.getColor(getApplication(), R.color.card_blue));
+                ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.doc_primary));
+                ai.setStatusColor(ContextCompat.getColor(getApplication(), R.color.doc_primary));
+                attentionItems.add(ai);
             }
 
             int shoppingCount = db.shoppingDao().getAllItems().size();

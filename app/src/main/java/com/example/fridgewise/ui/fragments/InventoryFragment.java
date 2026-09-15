@@ -16,6 +16,7 @@ import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,8 +25,10 @@ import androidx.navigation.Navigation;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -39,8 +42,11 @@ public class InventoryFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private FoodAdapter adapter;
-    private View llEmptyState;
+    private View llEmptyState, selectionToolbar, headerLayout;
+    private TextView tvSelectionCount;
+    private CheckBox cbSelectAll;
     private List<FoodItem> allFoodItems = new ArrayList<>();
+    private List<FoodItem> currentFilteredItems = new ArrayList<>();
     private String currentCategory = "All";
     private String currentSearchQuery = "";
     private final Executor executor = Executors.newSingleThreadExecutor();
@@ -66,6 +72,21 @@ public class InventoryFragment extends Fragment {
         // Initialize RecyclerView
         recyclerView = view.findViewById(R.id.recycler_inventory);
         llEmptyState = view.findViewById(R.id.ll_inventory_empty_state);
+        selectionToolbar = view.findViewById(R.id.selectionToolbar);
+        headerLayout = view.findViewById(R.id.layoutStandardHeader);
+        tvSelectionCount = view.findViewById(R.id.tvSelectionCount);
+        cbSelectAll = view.findViewById(R.id.cbSelectAll);
+
+        view.findViewById(R.id.btnCloseSelection).setOnClickListener(v -> exitSelectionMode());
+        view.findViewById(R.id.btnBulkDelete).setOnClickListener(v -> bulkDelete());
+
+        if (cbSelectAll != null) {
+            cbSelectAll.setOnClickListener(v -> {
+                if (cbSelectAll.isChecked()) adapter.selectAll();
+                else adapter.clearSelection();
+            });
+        }
+
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         adapter = new FoodAdapter(new FoodAdapter.onItemClickListener() {
@@ -85,6 +106,25 @@ public class InventoryFragment extends Fragment {
             public void onInfoClick(FoodItem foodItem) {
                 FoodInfoBottomSheet sheet = FoodInfoBottomSheet.newInstance(foodItem);
                 sheet.show(getChildFragmentManager(), "food_info");
+            }
+
+            @Override
+            public void onSelectionModeChanged(boolean isSelectionMode) {
+                if (isSelectionMode) enterSelectionMode();
+                else exitSelectionMode();
+            }
+
+            @Override
+            public void onSelectionCountChanged(int count) {
+                if (tvSelectionCount != null) {
+                    if (count > 0 && count == currentFilteredItems.size()) {
+                        tvSelectionCount.setText("All selected");
+                        if (cbSelectAll != null) cbSelectAll.setChecked(true);
+                    } else {
+                        tvSelectionCount.setText(count + " selected");
+                        if (cbSelectAll != null) cbSelectAll.setChecked(false);
+                    }
+                }
             }
         });
         recyclerView.setAdapter(adapter);
@@ -192,6 +232,7 @@ public class InventoryFragment extends Fragment {
             Activity activity = getActivity();
             if (activity != null && isAdded()) {
                 activity.runOnUiThread(() -> {
+                    currentFilteredItems = filteredList;
                     if (adapter != null) {
                         adapter.setFoodList(filteredList);
                     }
@@ -235,5 +276,43 @@ public class InventoryFragment extends Fragment {
                 deleteItem(itemToDelete);
             }
         }).attachToRecyclerView(recyclerView);
+    }
+
+    private void enterSelectionMode() {
+        if (selectionToolbar != null) selectionToolbar.setVisibility(View.VISIBLE);
+        if (headerLayout != null) headerLayout.setVisibility(View.GONE);
+    }
+
+    private void exitSelectionMode() {
+        if (selectionToolbar != null) selectionToolbar.setVisibility(View.GONE);
+        if (headerLayout != null) headerLayout.setVisibility(View.VISIBLE);
+        if (adapter != null) adapter.clearSelection();
+        if (cbSelectAll != null) cbSelectAll.setChecked(false);
+    }
+
+    private void bulkDelete() {
+        List<FoodItem> selectedItems = adapter.getSelectedItems();
+        if (selectedItems.isEmpty()) return;
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delete " + selectedItems.size() + " items?")
+                .setMessage("This action cannot be undone.")
+                .setPositiveButton("Delete Forever", (dialog, which) -> {
+                    executor.execute(() -> {
+                        AppDatabase db = AppDatabase.getInstance(requireContext());
+                        for (FoodItem item : selectedItems) {
+                            db.foodItemDao().delete(item);
+                        }
+                        if (isAdded()) {
+                            requireActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), "Items deleted", Toast.LENGTH_SHORT).show();
+                                exitSelectionMode();
+                                loadItems();
+                            });
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }

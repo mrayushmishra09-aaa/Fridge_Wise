@@ -17,12 +17,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -47,10 +50,13 @@ public class TodoListFragment extends Fragment {
     private RecyclerView rvTasks;
     private TodoAdapter adapter;
     private List<TodoItem> allTasks = new ArrayList<>();
+    private List<TodoItem> currentFilteredTasks = new ArrayList<>();
     private String currentTab = "Today";
-    private TextView tvToday, tvUpcoming, tvCompleted, tvProgressStatus, tvBannerTitle, tvBannerSubtitle, tvTaskShowingNum;
-    private View tabIndicator, llEmptyState;
+    private TextView tvToday, tvUpcoming, tvCompleted, tvProgressStatus, tvBannerTitle, tvBannerSubtitle, tvTaskShowingNum, tvSelectionCount;
+    private View tabIndicator, llEmptyState, selectionToolbar, headerLayout;
+    private CheckBox cbSelectAll;
     private LinearProgressIndicator progressIndicator;
+    private FloatingActionButton fabAdd;
 
     @Nullable
     @Override
@@ -58,7 +64,7 @@ public class TodoListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_todo_list, container, false);
 
         rvTasks = view.findViewById(R.id.rvTasks);
-        FloatingActionButton fabAdd = view.findViewById(R.id.fabAdd);
+        fabAdd = view.findViewById(R.id.fabAdd);
         View btnInfo = view.findViewById(R.id.btnInfo);
         ImageButton btnBacktodo = view.findViewById(R.id.btnBacktodo);
 
@@ -72,6 +78,20 @@ public class TodoListFragment extends Fragment {
         tvTaskShowingNum = view.findViewById(R.id.taskshowing_num);
         tabIndicator = view.findViewById(R.id.tabIndicator);
         llEmptyState = view.findViewById(R.id.ll_todo_empty_state);
+        selectionToolbar = view.findViewById(R.id.selectionToolbar);
+        headerLayout = view.findViewById(R.id.layoutStandardHeader);
+        tvSelectionCount = view.findViewById(R.id.tvSelectionCount);
+        cbSelectAll = view.findViewById(R.id.cbSelectAll);
+
+        view.findViewById(R.id.btnCloseSelection).setOnClickListener(v -> exitSelectionMode());
+        view.findViewById(R.id.btnBulkDelete).setOnClickListener(v -> bulkDelete());
+
+        if (cbSelectAll != null) {
+            cbSelectAll.setOnClickListener(v -> {
+                if (cbSelectAll.isChecked()) adapter.selectAll();
+                else adapter.clearSelection();
+            });
+        }
 
         setupTabs();
 
@@ -97,6 +117,25 @@ public class TodoListFragment extends Fragment {
                 // Refresh list if we are in Today/Upcoming tab and it was checked
                 if (isCompleted && !"Completed".equals(currentTab)) {
                     filterAndDisplayTasks();
+                }
+            }
+
+            @Override
+            public void onSelectionModeChanged(boolean isSelectionMode) {
+                if (isSelectionMode) enterSelectionMode();
+                else exitSelectionMode();
+            }
+
+            @Override
+            public void onSelectionCountChanged(int count) {
+                if (tvSelectionCount != null) {
+                    if (count > 0 && count == currentFilteredTasks.size()) {
+                        tvSelectionCount.setText("All selected");
+                        if (cbSelectAll != null) cbSelectAll.setChecked(true);
+                    } else {
+                        tvSelectionCount.setText(count + " selected");
+                        if (cbSelectAll != null) cbSelectAll.setChecked(false);
+                    }
                 }
             }
         });
@@ -230,6 +269,7 @@ public class TodoListFragment extends Fragment {
                 if (!item.isCompleted() && isFutureDate(item.getDate())) filteredList.add(item);
             }
         }
+        currentFilteredTasks = filteredList;
         adapter.updateList(filteredList);
 
         if (llEmptyState != null) {
@@ -334,5 +374,44 @@ public class TodoListFragment extends Fragment {
                 }
             }
         }).attachToRecyclerView(rvTasks);
+    }
+
+    private void enterSelectionMode() {
+        if (selectionToolbar != null) selectionToolbar.setVisibility(View.VISIBLE);
+        if (headerLayout != null) headerLayout.setVisibility(View.GONE);
+        if (fabAdd != null) fabAdd.hide();
+    }
+
+    private void exitSelectionMode() {
+        if (selectionToolbar != null) selectionToolbar.setVisibility(View.GONE);
+        if (headerLayout != null) headerLayout.setVisibility(View.VISIBLE);
+        if (adapter != null) adapter.clearSelection();
+        if (cbSelectAll != null) cbSelectAll.setChecked(false);
+        if (fabAdd != null) fabAdd.show();
+    }
+
+    private void bulkDelete() {
+        List<TodoItem> selectedItems = adapter.getSelectedItems();
+        if (selectedItems.isEmpty()) return;
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delete " + selectedItems.size() + " items?")
+                .setMessage("This action cannot be undone.")
+                .setPositiveButton("Delete Forever", (dialog, which) -> {
+                    new Thread(() -> {
+                        for (TodoItem item : selectedItems) {
+                            AppDatabase.getInstance(requireContext()).todoDao().delete(item);
+                        }
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), "Tasks deleted", Toast.LENGTH_SHORT).show();
+                                exitSelectionMode();
+                                loadTasks();
+                            });
+                        }
+                    }).start();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }

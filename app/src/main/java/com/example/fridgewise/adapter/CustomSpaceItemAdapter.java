@@ -99,22 +99,19 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
         // Selection Mode Visuals
         if (isSelectionMode) {
-            itemHolder.selectionCheckBox.setVisibility(View.VISIBLE);
-            itemHolder.selectionCheckBox.setChecked(selectedIds.contains(item.getId()));
             itemHolder.btnDelete.setVisibility(View.GONE);
             itemHolder.checkBox.setVisibility(View.GONE);
             
             if (selectedIds.contains(item.getId())) {
+                itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.card_green));
                 itemHolder.cardMain.setStrokeColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.green_primary));
                 itemHolder.cardMain.setStrokeWidth(4);
-                itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.green_pale));
             } else {
+                itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.bg_secondary));
                 itemHolder.cardMain.setStrokeColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.divider_color));
                 itemHolder.cardMain.setStrokeWidth(1);
-                itemHolder.cardMain.setCardBackgroundColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.bg_secondary));
             }
         } else {
-            itemHolder.selectionCheckBox.setVisibility(View.GONE);
             itemHolder.btnDelete.setVisibility(View.VISIBLE);
             itemHolder.cardMain.setStrokeColor(ContextCompat.getColor(itemHolder.itemView.getContext(), R.color.divider_color));
             itemHolder.cardMain.setStrokeWidth(1);
@@ -286,7 +283,7 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvNotes, tvTagQuantity, tvTagDate, tvTagReminder, tvTagStatus, tvTagAttachment, tvCompletionFooter;
-        CheckBox checkBox, selectionCheckBox;
+        CheckBox checkBox;
         View tagsLayout;
         MaterialCardView cardMain;
         View tagQuantity, tagDate, tagReminder, tagStatus, tagNotesIcon, tagAttachment, btnEye;
@@ -299,7 +296,6 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             tvNotes = itemView.findViewById(R.id.tvItemNotes);
             tvCompletionFooter = itemView.findViewById(R.id.tvCompletionFooter);
             checkBox = itemView.findViewById(R.id.itemCheckBox);
-            selectionCheckBox = itemView.findViewById(R.id.itemCheckBox); // Temporary reuse or add new
             btnDelete = itemView.findViewById(R.id.btnDelete);
             btnEye = itemView.findViewById(R.id.btnViewFullNote);
             

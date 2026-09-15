@@ -11,12 +11,9 @@ import com.example.fridgewise.ui.bottomsheet.*;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
-import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.transition.TransitionManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Build;
@@ -174,21 +172,32 @@ public class AddSpaceItemFragment extends Fragment {
                     TransitionManager.beginDelayedTransition((ViewGroup) getView());
 
                     // Visibility logic for flat rows
-                    boolean hasTracking = parentSpace.isHasQuantity() || parentSpace.isHasDate() || parentSpace.isHasReminder();
+                    boolean hasQuantity = parentSpace.isHasQuantity();
+                    getView().findViewById(R.id.divider1).setVisibility(hasQuantity ? View.VISIBLE : View.GONE);
+                    getView().findViewById(R.id.layoutQuantityRow).setVisibility(hasQuantity ? View.VISIBLE : View.GONE);
+                    
+                    boolean hasTracking = parentSpace.isHasDate() || parentSpace.isHasReminder();
                     layoutTracking.setVisibility(hasTracking ? View.VISIBLE : View.GONE);
                     getView().findViewById(R.id.layoutTrackingDivider).setVisibility(hasTracking ? View.VISIBLE : View.GONE);
-                    
-                    getView().findViewById(R.id.layoutQuantityRow).setVisibility(parentSpace.isHasQuantity() ? View.VISIBLE : View.GONE);
-                    getView().findViewById(R.id.containerQuantity).setVisibility(parentSpace.isHasQuantity() ? View.VISIBLE : View.GONE);
-                    getView().findViewById(R.id.containerUnit).setVisibility(parentSpace.isHasQuantity() ? View.VISIBLE : View.GONE);
                     
                     getView().findViewById(R.id.tvLabelDate).setVisibility(parentSpace.isHasDate() ? View.VISIBLE : View.GONE);
                     getView().findViewById(R.id.containerDate).setVisibility(parentSpace.isHasDate() ? View.VISIBLE : View.GONE);
                     
-                    getView().findViewById(R.id.layoutReminderToggle).setVisibility(parentSpace.isHasReminder() ? View.VISIBLE : View.GONE);
+                    View reminderToggle = getView().findViewById(R.id.layoutReminderToggle);
+                    reminderToggle.setVisibility(parentSpace.isHasReminder() ? View.VISIBLE : View.GONE);
+                    
+                    // Adjust margin for reminder if date is missing to prevent gaps
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) reminderToggle.getLayoutParams();
+                    params.topMargin = parentSpace.isHasDate() ? (int) (20 * getResources().getDisplayMetrics().density) : 0;
+                    reminderToggle.setLayoutParams(params);
                     
                     layoutAttachments.setVisibility(parentSpace.isHasAttachments() ? View.VISIBLE : View.GONE);
                     getView().findViewById(R.id.layoutAttachmentsDivider).setVisibility(parentSpace.isHasAttachments() ? View.VISIBLE : View.GONE);
+
+                    View layoutNotes = getView().findViewById(R.id.layoutNotes);
+                    if (layoutNotes != null) {
+                        layoutNotes.setVisibility(parentSpace.isHasNotes() ? View.VISIBLE : View.GONE);
+                    }
 
                     // Dynamic Hints for Item Name
                     String spaceName = parentSpace.getName().toLowerCase();
@@ -297,28 +306,13 @@ public class AddSpaceItemFragment extends Fragment {
     }
 
     private void scheduleReminder(long itemId, String itemName, long timeInMillis) {
-        AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(requireContext(), ReminderReceiver.class);
-        intent.putExtra("item_name", itemName);
-        intent.putExtra("space_name", parentSpace != null ? parentSpace.getName() : "Custom Space");
-        intent.putExtra("item_id", (int) itemId);
-
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                requireContext(),
-                (int) itemId,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
-            } else {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
-            }
-        } catch (SecurityException e) {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
-        }
+        ReminderCoordinator coordinator = new ReminderCoordinator(requireContext());
+        coordinator.schedule("SPACE", (int) itemId,
+                "Space Reminder",
+                itemName,
+                timeInMillis,
+                R.drawable.ic_sparkle,
+                "group_space");
     }
 
     private String getFileName(Uri uri) {

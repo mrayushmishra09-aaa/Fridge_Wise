@@ -13,10 +13,11 @@ import com.example.fridgewise.model.CustomSpaceItem;
 import com.example.fridgewise.model.DocumentItem;
 import com.example.fridgewise.model.FoodItem;
 import com.example.fridgewise.model.MedicineEntity;
+import com.example.fridgewise.model.NotificationInteraction;
 import com.example.fridgewise.model.ShoppingItem;
 import com.example.fridgewise.model.TodoItem;
 
-@Database(entities = {FoodItem.class, TodoItem.class, MedicineEntity.class, ShoppingItem.class, DocumentItem.class, CustomSpace.class, CustomSpaceItem.class, ActivityRecord.class}, version = 18, exportSchema = false)
+@Database(entities = {FoodItem.class, TodoItem.class, MedicineEntity.class, ShoppingItem.class, DocumentItem.class, CustomSpace.class, CustomSpaceItem.class, ActivityRecord.class, NotificationInteraction.class}, version = 20, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract FoodItemDao foodItemDao();
@@ -26,6 +27,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract DocumentDao documentDao();
     public abstract CustomSpaceDao customSpaceDao();
     public abstract ActivityDao activityDao();
+    public abstract NotificationInteractionDao notificationInteractionDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -35,7 +37,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "fridge_database")
-                            .addMigrations(MIGRATION_17_18)
+                            .addMigrations(MIGRATION_17_18, MIGRATION_18_19)
                             .fallbackToDestructiveMigration()
                             .build();
                 }
@@ -48,6 +50,13 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE food_items ADD COLUMN expiryTimestamp INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    static final Migration MIGRATION_18_19 = new Migration(18, 19) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE food_items ADD COLUMN barcode TEXT");
         }
     };
 }

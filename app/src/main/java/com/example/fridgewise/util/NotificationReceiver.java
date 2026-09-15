@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.work.Data;
@@ -31,27 +32,54 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class NotificationReceiver extends BroadcastReceiver {
+    private static long lastNotificationTime = 0;
+    private static final long BUNDLING_WINDOW = 2000; // 2 seconds
+
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         int id = intent.getIntExtra("id", 0);
+        String actionType = intent.getStringExtra("actionType");
+        int actualItemId = intent.getIntExtra("item_id_actual", 0);
+
+        ReminderCoordinator coordinator = new ReminderCoordinator(context);
 
         if (NotificationHelper.ACTION_TAKE_DOSE.equals(action)) {
+            coordinator.logInteraction(actionType, actualItemId, "CLICKED_TAKE_DOSE");
             handleTakeDose(context, id);
             return;
         } else if (NotificationHelper.ACTION_ADD_TO_SHOPPING.equals(action)) {
+            coordinator.logInteraction(actionType, actualItemId, "CLICKED_ADD_SHOPPING");
             handleAddToShopping(context, intent);
             return;
         } else if (NotificationHelper.ACTION_MARK_TODO_DONE.equals(action)) {
+            coordinator.logInteraction(actionType, actualItemId, "CLICKED_DONE");
             handleMarkTodoDone(context, id);
             return;
+        } else if (NotificationHelper.ACTION_DISMISSED.equals(action)) {
+            coordinator.logInteraction(actionType, actualItemId, "DISMISSED");
+            Log.d("NotificationReceiver", "Notification swiped away: " + id);
+            return;
         }
+
+        // Standard delivery
+        coordinator.logInteraction(actionType, actualItemId, "DELIVERED");
+
+        long now = System.currentTimeMillis();
+        boolean shouldBundle = (now - lastNotificationTime) < BUNDLING_WINDOW;
+        lastNotificationTime = now;
 
         String title = intent.getStringExtra("title");
         String message = intent.getStringExtra("message");
         int iconResId = intent.getIntExtra("iconResId", 0);
-        String actionType = intent.getStringExtra("actionType");
         String groupKey = intent.getStringExtra("groupKey");
+
+        if (shouldBundle) {
+            title = "A few things are waiting for you 💭";
+            message = "You have multiple reminders to check.";
+            // We use a fixed ID for bundled notifications to overwrite
+            id = 99999; 
+        }
 
         // Schedule Smart Follow-up if enabled
         PreferenceManager pref = new PreferenceManager(context);

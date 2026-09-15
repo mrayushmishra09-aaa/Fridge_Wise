@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -39,9 +40,11 @@ public class ShoppingListFragment extends Fragment {
     private RecyclerView rvShoppingList;
     private ShoppingAdapter adapter;
     private List<ShoppingItem> shoppingItems = new ArrayList<>();
-    private TextView tvItemCount;
+    private TextView tvItemCount, tvSelectionCount;
     private EditText etQuickAdd;
     private ImageButton btnQuickAdd, btnBack, btnShare;
+    private View selectionToolbar, headerLayout;
+    private CheckBox cbSelectAll;
     private FloatingActionButton fabAdd;
     private AppDatabase db;
     private View llEmptyState;
@@ -61,6 +64,20 @@ public class ShoppingListFragment extends Fragment {
         btnShare = view.findViewById(R.id.btnShare);
         fabAdd = view.findViewById(R.id.fabAddShopping);
         llEmptyState = view.findViewById(R.id.ll_shopping_empty_state);
+        selectionToolbar = view.findViewById(R.id.selectionToolbar);
+        headerLayout = view.findViewById(R.id.layoutStandardHeader);
+        tvSelectionCount = view.findViewById(R.id.tvSelectionCount);
+        cbSelectAll = view.findViewById(R.id.cbSelectAll);
+
+        view.findViewById(R.id.btnCloseSelection).setOnClickListener(v -> exitSelectionMode());
+        view.findViewById(R.id.btnBulkDelete).setOnClickListener(v -> bulkDelete());
+
+        if (cbSelectAll != null) {
+            cbSelectAll.setOnClickListener(v -> {
+                if (cbSelectAll.isChecked()) adapter.selectAll();
+                else adapter.clearSelection();
+            });
+        }
 
         setupRecyclerView();
         loadItems();
@@ -134,6 +151,25 @@ public class ShoppingListFragment extends Fragment {
             public void onStatusChange(ShoppingItem item, boolean isCompleted) {
                 updateItem(item);
             }
+
+            @Override
+            public void onSelectionModeChanged(boolean isSelectionMode) {
+                if (isSelectionMode) enterSelectionMode();
+                else exitSelectionMode();
+            }
+
+            @Override
+            public void onSelectionCountChanged(int count) {
+                if (tvSelectionCount != null) {
+                    if (count > 0 && count == shoppingItems.size()) {
+                        tvSelectionCount.setText("All selected");
+                        if (cbSelectAll != null) cbSelectAll.setChecked(true);
+                    } else {
+                        tvSelectionCount.setText(count + " selected");
+                        if (cbSelectAll != null) cbSelectAll.setChecked(false);
+                    }
+                }
+            }
         });
         rvShoppingList.setLayoutManager(new LinearLayoutManager(getContext()));
         rvShoppingList.setAdapter(adapter);
@@ -156,6 +192,45 @@ public class ShoppingListFragment extends Fragment {
                 }
             }
         }).attachToRecyclerView(rvShoppingList);
+    }
+
+    private void enterSelectionMode() {
+        if (selectionToolbar != null) selectionToolbar.setVisibility(View.VISIBLE);
+        if (headerLayout != null) headerLayout.setVisibility(View.GONE);
+        if (fabAdd != null) fabAdd.hide();
+    }
+
+    private void exitSelectionMode() {
+        if (selectionToolbar != null) selectionToolbar.setVisibility(View.GONE);
+        if (headerLayout != null) headerLayout.setVisibility(View.VISIBLE);
+        if (adapter != null) adapter.clearSelection();
+        if (cbSelectAll != null) cbSelectAll.setChecked(false);
+        if (fabAdd != null) fabAdd.show();
+    }
+
+    private void bulkDelete() {
+        List<ShoppingItem> selectedItems = adapter.getSelectedItems();
+        if (selectedItems.isEmpty()) return;
+
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Delete " + selectedItems.size() + " items?")
+                .setMessage("This action cannot be undone.")
+                .setPositiveButton("Delete Forever", (dialog, which) -> {
+                    new Thread(() -> {
+                        for (ShoppingItem item : selectedItems) {
+                            db.shoppingDao().delete(item);
+                        }
+                        if (isAdded()) {
+                            requireActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), "Items deleted", Toast.LENGTH_SHORT).show();
+                                exitSelectionMode();
+                                loadItems();
+                            });
+                        }
+                    }).start();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void loadItems() {

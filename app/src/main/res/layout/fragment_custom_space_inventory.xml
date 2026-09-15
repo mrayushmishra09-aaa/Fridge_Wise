@@ -75,6 +75,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
                     android:layout_toEndOf="@id/btnCloseSelection"
+                    android:button="@drawable/ic_check_tick"
                     android:buttonTint="@color/green_primary" />
 
                 <TextView

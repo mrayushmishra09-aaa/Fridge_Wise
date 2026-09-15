@@ -30,6 +30,21 @@ public class CategoryUtils {
                 return R.drawable.logo_img;
         }
     }
+
+    public static int getPriorityIcon(String priority) {
+        if (priority == null) return R.drawable.ic_todo_item;
+
+        switch (priority.toLowerCase()) {
+            case "high":
+                return R.drawable.high_prio_img;
+            case "medium":
+                return R.drawable.medium_prio_img;
+            case "low":
+                return R.drawable.low_prio_img;
+            default:
+                return R.drawable.ic_todo_item;
+        }
+    }
     
     public static int getAddItemPlaceholderIcon(String category) {
         if (category == null || category.isEmpty()) return R.drawable.round_camera_alt_24;
