@@ -20,7 +20,7 @@ import com.google.android.material.button.MaterialButton;
 public class EditProfileBottomSheet extends BottomSheetDialogFragment {
 
     private ProfileViewModel viewModel;
-    private EditText etEmail, etPassword;
+    private EditText etUsername, etDOB, etEmail, etPassword;
 
     @Nullable
     @Override
@@ -33,27 +33,42 @@ public class EditProfileBottomSheet extends BottomSheetDialogFragment {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
+        etUsername = view.findViewById(R.id.etEditUsername);
+        etDOB = view.findViewById(R.id.etEditDOB);
         etEmail = view.findViewById(R.id.etEditEmail);
         etPassword = view.findViewById(R.id.etEditPassword);
         MaterialButton btnDone = view.findViewById(R.id.btnSaveProfile);
 
         // Pre-fill
+        etUsername.setText(viewModel.getUserName().getValue());
+        etDOB.setText(viewModel.getUserDOB().getValue());
         etEmail.setText(viewModel.getUserEmail().getValue());
         etPassword.setText(viewModel.getUserPassword().getValue());
 
         btnDone.setOnClickListener(v -> {
+            String username = etUsername.getText().toString().trim();
+            String dob = etDOB.getText().toString().trim();
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
 
-            if (validateFields(email, password)) {
+            if (validateFields(username, dob, email, password)) {
+                viewModel.updateProfile(username, email, dob);
                 viewModel.updateCredentials(email, password);
-                Toast.makeText(getContext(), "Credentials updated!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show();
                 dismiss();
             }
         });
     }
 
-    private boolean validateFields(String email, String password) {
+    private boolean validateFields(String username, String dob, String email, String password) {
+        if (username.isEmpty()) {
+            Toast.makeText(getContext(), "Please enter a username", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (dob.isEmpty()) {
+            Toast.makeText(getContext(), "Please enter your date of birth", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Toast.makeText(getContext(), "Please enter a valid email", Toast.LENGTH_SHORT).show();
             return false;

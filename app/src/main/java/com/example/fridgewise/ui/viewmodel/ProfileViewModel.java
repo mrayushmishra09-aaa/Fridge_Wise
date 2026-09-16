@@ -20,6 +20,7 @@ public class ProfileViewModel extends AndroidViewModel {
     private final MutableLiveData<String> userDOB = new MutableLiveData<>();
     private final MutableLiveData<String> userPassword = new MutableLiveData<>();
     private final MutableLiveData<String> profileImageUri = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> logoutCompleted = new MutableLiveData<>(false);
 
     public ProfileViewModel(@NonNull Application application) {
         super(application);
@@ -76,11 +77,17 @@ public class ProfileViewModel extends AndroidViewModel {
         profileImageUri.setValue(uri);
     }
 
+    public LiveData<Boolean> getLogoutCompleted() {
+        return logoutCompleted;
+    }
+
     public void logout() {
+        logoutCompleted.setValue(false);
         prefManager.clearAll();
         // Perform a full database wipe on a background thread
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase.getInstance(getApplication()).clearAllTables();
+            logoutCompleted.postValue(true);
         });
     }
 }

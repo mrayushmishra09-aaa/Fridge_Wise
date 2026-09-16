@@ -4,6 +4,7 @@ import com.example.fridgewise.R;
 import com.example.fridgewise.data.*;
 import com.example.fridgewise.model.*;
 import com.example.fridgewise.adapter.*;
+import com.example.fridgewise.ui.bottomsheet.MemoryPreferencesBottomSheet;
 import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
@@ -98,6 +99,12 @@ public class ProfileFragment extends Fragment {
         viewModel.getUserEmail().observe(getViewLifecycleOwner(), email -> tvUserEmail.setText(email));
         viewModel.getUserDOB().observe(getViewLifecycleOwner(), dob -> tvUserDOB.setText("Date of Birth: " + dob));
         
+        viewModel.getLogoutCompleted().observe(getViewLifecycleOwner(), completed -> {
+            if (completed) {
+                navigateToMain();
+            }
+        });
+        
         viewModel.getProfileImageUri().observe(getViewLifecycleOwner(), uriString -> {
             if (uriString != null && !uriString.isEmpty()) {
                 try {
@@ -133,6 +140,9 @@ public class ProfileFragment extends Fragment {
         view.findViewById(R.id.btn_appearance).setOnClickListener(v -> 
             new AppearanceBottomSheet().show(getParentFragmentManager(), "appearance_settings"));
 
+        view.findViewById(R.id.btn_memory_pref).setOnClickListener(v -> 
+            new MemoryPreferencesBottomSheet().show(getParentFragmentManager(), "memory_preferences"));
+
         view.findViewById(R.id.btnHelp).setOnClickListener(v -> openHelpEmail());
 
         view.findViewById(R.id.btnAbout).setOnClickListener(v -> showAboutDialog());
@@ -167,9 +177,8 @@ public class ProfileFragment extends Fragment {
                 .setTitle("Delete Account?")
                 .setMessage("This action is permanent and cannot be undone. All your fridge data and memories will be lost forever.")
                 .setPositiveButton("Delete Forever", (dialog, which) -> {
-                    viewModel.logout();
                     Toast.makeText(getContext(), "Account Deleted Successfully", Toast.LENGTH_SHORT).show();
-                    navigateToMain();
+                    viewModel.logout();
                 })
                 .setNegativeButton("Keep My Account", null)
                 .setIcon(R.drawable.outline_delete_24)
@@ -189,7 +198,6 @@ public class ProfileFragment extends Fragment {
                 .setMessage("Are you sure you want to log out?")
                 .setPositiveButton("Logout", (dialog, which) -> {
                     viewModel.logout();
-                    navigateToMain();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();

@@ -17,7 +17,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Account Credentials"
+        android:text="Profile Information"
         android:textColor="@color/profile_text_primary"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Update your security information"
+        android:text="Update your personal and security details"
         android:textColor="@color/profile_text_secondary"
         android:textSize="14sp" />
 
@@ -34,6 +34,50 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:text="USERNAME"
+        android:textColor="@color/profile_text_secondary"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.1" />
+
+    <EditText
+        android:id="@+id/etEditUsername"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_input_field"
+        android:hint="Enter your name"
+        android:inputType="textPersonName"
+        android:paddingHorizontal="16dp"
+        android:textColor="@color/profile_text_primary"
+        android:textSize="15sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="DATE OF BIRTH"
+        android:textColor="@color/profile_text_secondary"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.1" />
+
+    <EditText
+        android:id="@+id/etEditDOB"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_input_field"
+        android:hint="Enter your birth date"
+        android:inputType="date"
+        android:paddingHorizontal="16dp"
+        android:textColor="@color/profile_text_primary"
+        android:textSize="15sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="EMAIL ADDRESS"
         android:textColor="@color/profile_text_secondary"
         android:textSize="10sp"

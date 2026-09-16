@@ -63,8 +63,8 @@
             android:id="@+id/switchExpiryNotif"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:thumbTint="@color/profile_accent_green"
-            app:trackTint="@color/profile_badge_bg" />
+            app:thumbTint="@color/toggle_thumb_color"
+            app:trackTint="@color/toggle_track_color" />
     </LinearLayout>
 
     <View
@@ -105,8 +105,8 @@
             android:id="@+id/switchGroceryNotif"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:thumbTint="@color/profile_accent_green"
-            app:trackTint="@color/profile_badge_bg" />
+            app:thumbTint="@color/toggle_thumb_color"
+            app:trackTint="@color/toggle_track_color" />
     </LinearLayout>
 
     <View
@@ -147,8 +147,8 @@
             android:id="@+id/switchInsightsNotif"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:thumbTint="@color/profile_accent_green"
-            app:trackTint="@color/profile_badge_bg" />
+            app:thumbTint="@color/toggle_thumb_color"
+            app:trackTint="@color/toggle_track_color" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton

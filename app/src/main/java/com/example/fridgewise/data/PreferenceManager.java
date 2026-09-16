@@ -20,6 +20,8 @@ public class PreferenceManager {
     private static final String KEY_NOTIF_GROCERY = "notifGrocery";
     private static final String KEY_SMART_FOLLOWUP = "smartFollowUp";
     private static final String KEY_ADVANCE_EXPIRY = "advanceExpiry";
+    private static final String KEY_AUTO_DELETE_EXPIRED = "autoDeleteExpired";
+    private static final String KEY_AUTO_CLEAR_COMPLETED = "autoClearCompleted";
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -165,6 +167,28 @@ public class PreferenceManager {
 
     public boolean isNotifGroceryEnabled() {
         return pref.getBoolean(KEY_NOTIF_GROCERY, true);
+    }
+
+    public void setAutoDeleteExpired(boolean enabled) {
+        if (editor != null) {
+            editor.putBoolean(KEY_AUTO_DELETE_EXPIRED, enabled);
+            editor.apply();
+        }
+    }
+
+    public boolean isAutoDeleteExpired() {
+        return pref.getBoolean(KEY_AUTO_DELETE_EXPIRED, false);
+    }
+
+    public void setAutoClearCompleted(boolean enabled) {
+        if (editor != null) {
+            editor.putBoolean(KEY_AUTO_CLEAR_COMPLETED, enabled);
+            editor.apply();
+        }
+    }
+
+    public boolean isAutoClearCompleted() {
+        return pref.getBoolean(KEY_AUTO_CLEAR_COMPLETED, false);
     }
 
     public void clearAll() {
