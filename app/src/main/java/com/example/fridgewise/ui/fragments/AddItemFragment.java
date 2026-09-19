@@ -10,6 +10,7 @@ import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
 
 import com.example.fridgewise.R;
+import com.google.android.material.textfield.TextInputLayout;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -52,7 +53,7 @@ public class AddItemFragment extends Fragment {
     
     private EditText itemNameEditText;
     private AutoCompleteTextView categoryDropdown;
-    private Spinner quantitySpinner;
+    private AutoCompleteTextView unitDropdown;
     private EditText notesEditText;
 
     public AddItemFragment() {
@@ -90,16 +91,14 @@ public class AddItemFragment extends Fragment {
         EditText quantityEditText = view.findViewById(R.id.quantityEditText);
         notesEditText = view.findViewById(R.id.notesEditText);
         categoryDropdown = view.findViewById(R.id.categoryDropdown);
-        quantitySpinner = view.findViewById(R.id.spinner_units);
+        unitDropdown = view.findViewById(R.id.unitDropdown);
         TextView purchaseDateText = view.findViewById(R.id.purchaseDateText);
-        View purchaseCalendarBtn = view.findViewById(R.id.purchaseCalendarIcon);
         TextView expiry_DateText = view.findViewById(R.id.expiry_DateText);
-        View expiry_DateBtn = view.findViewById(R.id.expiry_DateIcon);
         Button saveButton = view.findViewById(R.id.save_button);
-        View btnScan = view.findViewById(R.id.btnScanBarcode);
 
-        if (btnScan != null) {
-            btnScan.setOnClickListener(v -> {
+        TextInputLayout tilItemName = view.findViewById(R.id.tilItemName);
+        if (tilItemName != null) {
+            tilItemName.setEndIconOnClickListener(v -> {
                 Intent intent = new Intent(requireContext(), BarcodeScannerActivity.class);
                 scannerLauncher.launch(intent);
             });
@@ -134,25 +133,24 @@ public class AddItemFragment extends Fragment {
         categoryDropdown.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, categories));
         categoryDropdown.setOnClickListener(v -> categoryDropdown.showDropDown());
         
-        ArrayAdapter<CharSequence> unitAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.quantity_units, android.R.layout.simple_spinner_item);
-        unitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        quantitySpinner.setAdapter(unitAdapter);
+        ArrayAdapter<CharSequence> unitAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.quantity_units, android.R.layout.simple_dropdown_item_1line);
+        unitDropdown.setAdapter(unitAdapter);
+        unitDropdown.setOnClickListener(v -> unitDropdown.showDropDown());
 
         categoryDropdown.setOnItemClickListener((parent, view1, position, id) -> {
             String selectedCategory = categories[position];
             updateCategoryIcon(selectedCategory);
-            autoSelectUnit(selectedCategory, quantitySpinner, unitAdapter);
+            autoSelectUnit(selectedCategory, unitDropdown, unitAdapter);
         });
 
         // Select correct unit if editing
         if (editingItem != null) {
-            int spinnerPosition = unitAdapter.getPosition(editingItem.getUnit());
-            quantitySpinner.setSelection(spinnerPosition);
+            unitDropdown.setText(editingItem.getUnit(), false);
         }
 
         // --- Date Pickers ---
         View.OnClickListener datePickerListener = v -> {
-            boolean isPurchase = v.getId() == R.id.purchaseCalendarIcon;
+            boolean isPurchase = v.getId() == R.id.purchaseDateText;
             Calendar cal = Calendar.getInstance();
             new DatePickerDialog(requireContext(), (view1, year, month, day) -> {
                 String date = day + "/" + (month + 1) + "/" + year;
@@ -160,21 +158,23 @@ public class AddItemFragment extends Fragment {
                 else expiry_DateText.setText(date);
             }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
         };
-        purchaseCalendarBtn.setOnClickListener(datePickerListener);
-        expiry_DateBtn.setOnClickListener(datePickerListener);
+        purchaseDateText.setOnClickListener(datePickerListener);
+        expiry_DateText.setOnClickListener(datePickerListener);
 
         if (img_01 != null) img_01.setOnClickListener(v -> requireActivity().onBackPressed());
         
+        /*
         if (btnInfo != null) {
             btnInfo.setOnClickListener(v -> showAboutBottomSheet());
         }
+        */
 
         // --- Save / Update Logic ---
         saveButton.setOnClickListener(v -> {
             String itemName = itemNameEditText.getText().toString().trim();
             String quantityStr = quantityEditText.getText().toString().trim();
             String category = categoryDropdown.getText().toString().trim();
-            String unit = quantitySpinner.getSelectedItem().toString();
+            String unit = unitDropdown.getText().toString().trim();
             String purchaseDate = purchaseDateText.getText().toString().trim();
             String expiryDate = expiry_DateText.getText().toString().trim();
             String notes = notesEditText.getText().toString().trim();
@@ -300,7 +300,7 @@ public class AddItemFragment extends Fragment {
         add_item_photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
     }
 
-    private void autoSelectUnit(String category, Spinner spinner, ArrayAdapter<CharSequence> adapter) {
+    private void autoSelectUnit(String category, AutoCompleteTextView dropdown, ArrayAdapter<CharSequence> adapter) {
         String defaultUnit = "pcs";
         switch (category.toLowerCase()) {
             case "dairy":
@@ -323,10 +323,7 @@ public class AddItemFragment extends Fragment {
                 defaultUnit = "kg";
                 break;
         }
-        int position = adapter.getPosition(defaultUnit);
-        if (position >= 0) {
-            spinner.setSelection(position);
-        }
+        dropdown.setText(defaultUnit, false);
     }
 
     private void showAboutBottomSheet() {
@@ -358,8 +355,8 @@ public class AddItemFragment extends Fragment {
                     }
                     
                     // Trigger unit auto-selection
-                    ArrayAdapter<CharSequence> unitAdapter = (ArrayAdapter<CharSequence>) quantitySpinner.getAdapter();
-                    autoSelectUnit(appCategory, quantitySpinner, unitAdapter);
+                    ArrayAdapter<CharSequence> unitAdapter = (ArrayAdapter<CharSequence>) unitDropdown.getAdapter();
+                    autoSelectUnit(appCategory, unitDropdown, unitAdapter);
                     
                     Toast.makeText(getContext(), "Product found: " + name, Toast.LENGTH_SHORT).show();
                 }

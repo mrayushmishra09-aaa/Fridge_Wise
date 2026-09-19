@@ -14,7 +14,7 @@
     <string name="item_name">Item name</string>
     <string name="enter_item_name">Enter item name</string>
     <string name="textview">TextView</string>
-    <string name="add_items">Add items</string>
+    <string name="add_items">Add Items</string>
     <string name="add_photo">Add Photo</string>
     <string name="itemsss">Add items</string>
     <string name="todo01">TODO</string>
@@ -25,7 +25,7 @@
     <string name="purchase_date">Purchase Date</string>
     <string name="_15_may_2025">15 May 2025</string>
     <string name="_18_may_2025">18 May 2025</string>
-    <string name="save">save</string>
+    <string name="save">Save</string>
     <string name="category">Category</string>
     <string name="Memory" />
     <string name="memory">Spaces</string>
@@ -36,6 +36,10 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="add_medicine">Add Medicine</string>
+    <plurals name="documents_count">
+        <item quantity="one">%d Document saved</item>
+        <item quantity="other">%d Documents saved</item>
+    </plurals>
     <string name="documents_saved_count">%1$d Documents saved</string>
     <string name="no_items_found">No items found</string>
     <string name="custom_spaces_info">Want to track something else? Create a Custom Space for Pets, Household items, or even your Toolbox!</string>
@@ -118,6 +122,15 @@
     <string name="go_back_desc">Go back</string>
     <string name="doc_name_placeholder">Document Name</string>
     <string name="doc_tag_placeholder">Document #01</string>
+
+    <string name="item_name_label">Item Name</string>
+    <string name="category_label">Category</string>
+    <string name="quantity_label">Quantity</string>
+    <string name="unit_label">Unit</string>
+    <string name="purchase_date_label">Purchase Date</string>
+    <string name="expiry_date_label">Expiry Date</string>
+    <string name="notes_label">Notes (Optional)</string>
+    <string name="save_item">Save Item</string>
 
     <!-- category section -->
     <string-array name="category_array">

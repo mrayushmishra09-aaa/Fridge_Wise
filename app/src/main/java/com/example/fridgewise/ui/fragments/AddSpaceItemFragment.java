@@ -54,15 +54,13 @@ public class AddSpaceItemFragment extends Fragment {
     private SwitchMaterial switchReminder;
     private String documentUri = null;
     private String documentName = null;
+    private String documentMimeType = null;
     private Long selectedReminderTimestamp = null;
 
-    private final ActivityResultLauncher<String[]> filePickerLauncher =
-        registerForActivityResult(new ActivityResultContracts.OpenDocument(), uri -> {
+    private final ActivityResultLauncher<String> filePickerLauncher =
+        registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
             if (uri != null) {
-                documentUri = uri.toString();
-                documentName = getFileName(uri);
-                tvFileName.setText(documentName);
-                btnRemoveFile.setVisibility(View.VISIBLE);
+                saveFileLocally(uri);
             }
         });
 
@@ -124,7 +122,9 @@ public class AddSpaceItemFragment extends Fragment {
             }
             
             etNotes.setText(existingItem.getNotes());
+            documentUri = existingItem.getDocumentUri();
             documentName = existingItem.getDocumentName();
+            documentMimeType = existingItem.getDocumentMimeType();
             if (documentName != null) {
                 tvFileName.setText(documentName);
                 btnRemoveFile.setVisibility(View.VISIBLE);
@@ -144,7 +144,7 @@ public class AddSpaceItemFragment extends Fragment {
         etReminder.setOnClickListener(v -> showCombinedDateTimePicker());
         
         view.findViewById(R.id.btnAttachFile).setOnClickListener(v -> {
-            filePickerLauncher.launch(new String[]{"application/pdf", "application/msword", "text/plain", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+            filePickerLauncher.launch("*/*");
         });
 
         btnRemoveFile.setOnClickListener(v -> {
@@ -272,6 +272,7 @@ public class AddSpaceItemFragment extends Fragment {
         CustomSpaceItem item = new CustomSpaceItem(spaceId, name, quantity, unit, date, selectedReminderTimestamp, notes);
         item.setDocumentUri(documentUri);
         item.setDocumentName(documentName);
+        item.setDocumentMimeType(documentMimeType);
         
         // Safety: default to unchecked when creating/editing from form per user request
         if (existingItem != null) {
@@ -315,24 +316,28 @@ public class AddSpaceItemFragment extends Fragment {
                 "group_space");
     }
 
-    private String getFileName(Uri uri) {
-        String result = null;
-        if (uri.getScheme().equals("content")) {
-            Cursor cursor = requireContext().getContentResolver().query(uri, null, null, null, null);
-            try {
-                if (cursor != null && cursor.moveToFirst()) {
-                    int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    if (index != -1) result = cursor.getString(index);
-                }
-            } finally {
-                if (cursor != null) cursor.close();
+    private void saveFileLocally(Uri uri) {
+        Context context = getContext();
+        if (context == null) return;
+        
+        new Thread(() -> {
+            String name = FileUtil.getFileName(context, uri);
+            String mime = FileUtil.getMimeType(context, uri);
+            String localPath = FileUtil.saveToInternalStorage(context, uri);
+            
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (!localPath.isEmpty()) {
+                        documentUri = localPath;
+                        documentName = name;
+                        documentMimeType = mime;
+                        tvFileName.setText(documentName);
+                        btnRemoveFile.setVisibility(View.VISIBLE);
+                    } else {
+                        Toast.makeText(context, "Error attaching file", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
-        }
-        if (result == null) {
-            result = uri.getPath();
-            int cut = result.lastIndexOf('/');
-            if (cut != -1) result = result.substring(cut + 1);
-        }
-        return result;
+        }).start();
     }
 }

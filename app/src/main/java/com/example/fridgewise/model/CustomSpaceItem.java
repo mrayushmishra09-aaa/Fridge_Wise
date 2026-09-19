@@ -29,6 +29,7 @@ public class CustomSpaceItem implements Serializable {
     private boolean isChecked; // For Checklist Mode
     private String documentUri; // For PDF/Docs
     private String documentName; // Display name of file
+    private String documentMimeType;
     private Long completionTimestamp; // Time when marked completed
 
     public CustomSpaceItem(int spaceId, String name, double quantity, String unit, String date, Long reminderTimestamp, String notes) {
@@ -42,6 +43,9 @@ public class CustomSpaceItem implements Serializable {
         this.isChecked = false;
         this.completionTimestamp = null;
     }
+
+    public String getDocumentMimeType() { return documentMimeType; }
+    public void setDocumentMimeType(String documentMimeType) { this.documentMimeType = documentMimeType; }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

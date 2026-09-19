@@ -205,6 +205,7 @@
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="5dp">
                 <ImageView
+                    android:id="@+id/ivTagAttachment"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:layout_marginEnd="4dp"

@@ -85,19 +85,23 @@ public class ProfileFragment extends Fragment {
         // Initialize views
         tvUsername = view.findViewById(R.id.pfp_username_show);
         tvUserEmail = view.findViewById(R.id.pfp_user_email_show);
-        tvUserDOB = view.findViewById(R.id.pfp_user_dob_show);
+        // tvUserDOB = view.findViewById(R.id.pfp_user_dob_show);
         ivUserProfile = view.findViewById(R.id.ivUserProfile);
         profileCameraIcon = view.findViewById(R.id.pfp_img_add);
         
         View btnLogout = view.findViewById(R.id.pfp_logout_txt);
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
-        btnDeleteAccount = view.findViewById(R.id.btn_delete_account);
+        // btnDeleteAccount = view.findViewById(R.id.btn_delete_account);
         View cardProfileImage = view.findViewById(R.id.cardProfileImage);
 
         // Observe ViewModel
         viewModel.getUserName().observe(getViewLifecycleOwner(), name -> tvUsername.setText(name));
         viewModel.getUserEmail().observe(getViewLifecycleOwner(), email -> tvUserEmail.setText(email));
-        viewModel.getUserDOB().observe(getViewLifecycleOwner(), dob -> tvUserDOB.setText("Date of Birth: " + dob));
+        /*
+        viewModel.getUserDOB().observe(getViewLifecycleOwner(), dob -> {
+            if (tvUserDOB != null) tvUserDOB.setText("Date of Birth: " + dob);
+        });
+        */
         
         viewModel.getLogoutCompleted().observe(getViewLifecycleOwner(), completed -> {
             if (completed) {
@@ -132,7 +136,11 @@ public class ProfileFragment extends Fragment {
         
         btnLogout.setOnClickListener(v -> showLogoutConfirmation());
         
-        btnDeleteAccount.setOnClickListener(v -> showDeleteAccountConfirmation());
+        /*
+        if (btnDeleteAccount != null) {
+            btnDeleteAccount.setOnClickListener(v -> showDeleteAccountConfirmation());
+        }
+        */
 
         view.findViewById(R.id.btnNotifications).setOnClickListener(v -> 
             new NotificationSettingsBottomSheet().show(getParentFragmentManager(), "notif_settings"));
@@ -140,12 +148,22 @@ public class ProfileFragment extends Fragment {
         view.findViewById(R.id.btn_appearance).setOnClickListener(v -> 
             new AppearanceBottomSheet().show(getParentFragmentManager(), "appearance_settings"));
 
-        view.findViewById(R.id.btn_memory_pref).setOnClickListener(v -> 
-            new MemoryPreferencesBottomSheet().show(getParentFragmentManager(), "memory_preferences"));
+        /*
+        View btnMemoryPref = view.findViewById(R.id.btn_memory_pref);
+        if (btnMemoryPref != null) {
+            btnMemoryPref.setOnClickListener(v -> 
+                new MemoryPreferencesBottomSheet().show(getParentFragmentManager(), "memory_preferences"));
+        }
+        */
 
         view.findViewById(R.id.btnHelp).setOnClickListener(v -> openHelpEmail());
 
-        view.findViewById(R.id.btnAbout).setOnClickListener(v -> showAboutDialog());
+        /*
+        View btnAbout = view.findViewById(R.id.btnAbout);
+        if (btnAbout != null) {
+            btnAbout.setOnClickListener(v -> showAboutDialog());
+        }
+        */
     }
 
     private void showAboutDialog() {

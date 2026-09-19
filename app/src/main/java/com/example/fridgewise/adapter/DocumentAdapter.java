@@ -4,6 +4,7 @@ import com.example.fridgewise.R;
 import com.example.fridgewise.model.DocumentItem;
 
 import android.content.Intent;
+import com.example.fridgewise.util.FileUtil;
 import com.example.fridgewise.ui.activities.DocumentViewerActivity;
 import com.google.android.material.card.MaterialCardView;
 
@@ -65,17 +66,30 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
         holder.tvName.setText(currentDoc.getName());
         holder.tvCategory.setText(String.format("Document #%02d", position + 1));
 
-        if (currentDoc.getImagePath() != null && !currentDoc.getImagePath().isEmpty()) {
-            try {
-                holder.ivThumbnail.setImageURI(Uri.parse(currentDoc.getImagePath()));
-                holder.ivThumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            } catch (Exception e) {
-                holder.ivThumbnail.setImageResource(R.drawable.round_camera_alt_24);
-                holder.ivThumbnail.setScaleType(ImageView.ScaleType.CENTER);
+        String path = currentDoc.getImagePath();
+        String mime = currentDoc.getMimeType();
+
+        if (path != null && !path.isEmpty()) {
+            if (mime != null && mime.startsWith("image/")) {
+                try {
+                    holder.ivThumbnail.setImageURI(Uri.parse(path));
+                    holder.ivThumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    holder.ivThumbnail.setPadding(0, 0, 0, 0);
+                } catch (Exception e) {
+                    holder.ivThumbnail.setImageResource(R.drawable.round_camera_alt_24);
+                    holder.ivThumbnail.setScaleType(ImageView.ScaleType.CENTER);
+                    holder.ivThumbnail.setPadding(30, 30, 30, 30);
+                }
+            } else {
+                // Show file icon
+                holder.ivThumbnail.setImageResource(FileUtil.getIconForMimeType(mime));
+                holder.ivThumbnail.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                holder.ivThumbnail.setPadding(30, 30, 30, 30);
             }
         } else {
             holder.ivThumbnail.setImageResource(R.drawable.round_camera_alt_24);
             holder.ivThumbnail.setScaleType(ImageView.ScaleType.CENTER);
+            holder.ivThumbnail.setPadding(30, 30, 30, 30);
         }
 
         // --- Selection Logic (Tint Based) ---
@@ -90,6 +104,15 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
             holder.docCard.setStrokeColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.doc_item_card_stroke));
             holder.docCard.setStrokeWidth(3);
         }
+
+        holder.tvCategory.setOnClickListener(v -> {
+            if (!isSelectionMode) {
+                isSelectionMode = true;
+                vibrate(v.getContext());
+                if (listener != null) listener.onSelectionModeChanged(true);
+            }
+            toggleSelection(currentDoc.getId());
+        });
 
         holder.itemView.setOnLongClickListener(v -> {
             if (!isSelectionMode) {
@@ -106,12 +129,16 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
             if (isSelectionMode) {
                 toggleSelection(currentDoc.getId());
             } else {
-                if (currentDoc.getImagePath() != null && !currentDoc.getImagePath().isEmpty()) {
-                    Intent intent = new Intent(v.getContext(), DocumentViewerActivity.class);
-                    intent.putExtra("imageUri", currentDoc.getImagePath());
-                    intent.putExtra("docName", currentDoc.getName());
-                    intent.putExtra("docTag", String.format("Document #%02d", position + 1));
-                    v.getContext().startActivity(intent);
+                if (path != null && !path.isEmpty()) {
+                    if (mime != null && mime.startsWith("image/")) {
+                        Intent intent = new Intent(v.getContext(), DocumentViewerActivity.class);
+                        intent.putExtra("imageUri", path);
+                        intent.putExtra("docName", currentDoc.getName());
+                        intent.putExtra("docTag", String.format("Document #%02d", position + 1));
+                        v.getContext().startActivity(intent);
+                    } else {
+                        FileUtil.openFile(v.getContext(), path, mime);
+                    }
                 }
             }
         });

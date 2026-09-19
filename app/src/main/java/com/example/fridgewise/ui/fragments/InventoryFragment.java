@@ -13,6 +13,7 @@ import com.example.fridgewise.R;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -79,6 +80,10 @@ public class InventoryFragment extends Fragment {
 
         view.findViewById(R.id.btnCloseSelection).setOnClickListener(v -> exitSelectionMode());
         view.findViewById(R.id.btnBulkDelete).setOnClickListener(v -> bulkDelete());
+        View btnBulkShare = view.findViewById(R.id.btnBulkShare);
+        if (btnBulkShare != null) {
+            btnBulkShare.setOnClickListener(v -> bulkShare());
+        }
 
         if (cbSelectAll != null) {
             cbSelectAll.setOnClickListener(v -> {
@@ -314,5 +319,30 @@ public class InventoryFragment extends Fragment {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void bulkShare() {
+        List<FoodItem> selectedItems = adapter.getSelectedItems();
+        if (selectedItems.isEmpty()) return;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("🍎 Shared Inventory from FridgeWise:\n\n");
+        for (int i = 0; i < selectedItems.size(); i++) {
+            FoodItem item = selectedItems.get(i);
+            sb.append(i + 1).append(". ").append(item.getName());
+            sb.append(" (").append(item.getQuantity()).append(" ").append(item.getUnit()).append(")");
+            if (item.getExpiryDate() != null && !item.getExpiryDate().isEmpty()) {
+                sb.append(" - Expiry: ").append(item.getExpiryDate());
+            }
+            sb.append("\n");
+        }
+
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, sb.toString());
+        sendIntent.setType("text/plain");
+
+        Intent shareIntent = Intent.createChooser(sendIntent, "Share inventory via");
+        startActivity(shareIntent);
     }
 }

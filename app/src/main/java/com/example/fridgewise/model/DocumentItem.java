@@ -16,12 +16,16 @@ public class DocumentItem implements Serializable {
     private String name;
     private String category;
     private String imagePath;
+    private String mimeType;
 
     public DocumentItem(String name, String category, String imagePath) {
         this.name = name;
         this.category = category;
         this.imagePath = imagePath;
     }
+
+    public String getMimeType() { return mimeType; }
+    public void setMimeType(String mimeType) { this.mimeType = mimeType; }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

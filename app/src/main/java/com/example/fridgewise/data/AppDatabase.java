@@ -17,7 +17,7 @@ import com.example.fridgewise.model.NotificationInteraction;
 import com.example.fridgewise.model.ShoppingItem;
 import com.example.fridgewise.model.TodoItem;
 
-@Database(entities = {FoodItem.class, TodoItem.class, MedicineEntity.class, ShoppingItem.class, DocumentItem.class, CustomSpace.class, CustomSpaceItem.class, ActivityRecord.class, NotificationInteraction.class}, version = 20, exportSchema = false)
+@Database(entities = {FoodItem.class, TodoItem.class, MedicineEntity.class, ShoppingItem.class, DocumentItem.class, CustomSpace.class, CustomSpaceItem.class, ActivityRecord.class, NotificationInteraction.class}, version = 21, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract FoodItemDao foodItemDao();

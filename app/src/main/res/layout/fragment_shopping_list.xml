@@ -95,14 +95,28 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/btnBulkDelete"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:src="@drawable/outline_delete_24"
-                app:tint="@color/red_expired" />
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/btnBulkShare"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_share"
+                    app:tint="@color/green_primary" />
+
+                <ImageView
+                    android:id="@+id/btnBulkDelete"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/outline_delete_24"
+                    app:tint="@color/red_expired" />
+            </LinearLayout>
         </RelativeLayout>
     </FrameLayout>
 

@@ -2,19 +2,24 @@
 <resources>
 
     <style name="BottomNavTextInactive" parent="TextAppearance.Material3.LabelMedium">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="BottomNavTextActive" parent="TextAppearance.Material3.LabelMedium">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="App.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">@color/green_pale</item>
         <item name="android:width">48dp</item>
-        <item name="android:height">32dp</item>
+        <item name="android:height">40dp</item>
     </style>
 
 </resources>

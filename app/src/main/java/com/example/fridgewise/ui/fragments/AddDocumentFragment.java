@@ -44,27 +44,32 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
+import android.content.pm.PackageManager;
+import android.Manifest;
 
 import java.io.Serializable;
 
 public class AddDocumentFragment extends Fragment {
 
     private String selectedImageUri = "";
+    private String selectedMimeType = "";
     private ImageView ivDocPreview;
-    private ActivityResultLauncher<PickVisualMediaRequest> imagePickerLauncher;
+    private ActivityResultLauncher<String> filePickerLauncher;
     private ActivityResultLauncher<Intent> cameraLauncher;
+    private ActivityResultLauncher<String> cameraPermissionLauncher;
     private DocumentItem editingDocument = null;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Initialize the Image Picker (Gallery)
-        imagePickerLauncher = registerForActivityResult(
-                new ActivityResultContracts.PickVisualMedia(),
+        // Initialize the File Picker
+        filePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri != null) {
-                        saveAndShowImage(uri);
+                        saveAndShowFile(uri);
                     }
                 }
         );
@@ -89,6 +94,25 @@ public class AddDocumentFragment extends Fragment {
                     }
                 }
         );
+
+        // Initialize the Camera Permission Launcher
+        cameraPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        openCamera();
+                    } else {
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(), "Camera permission is required to take photos", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+        );
+    }
+
+    private void openCamera() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraLauncher.launch(cameraIntent);
     }
 
     @Nullable
@@ -124,37 +148,31 @@ public class AddDocumentFragment extends Fragment {
                 etDocName.setText(editingDocument.getName());
                 actvCategory.setText(editingDocument.getCategory(), false);
                 selectedImageUri = editingDocument.getImagePath();
+                selectedMimeType = editingDocument.getMimeType();
+                
                 if (selectedImageUri != null && !selectedImageUri.isEmpty()) {
-                    try {
-                        ivDocPreview.setImageURI(Uri.parse(selectedImageUri));
-                        ivDocPreview.setPadding(0, 0, 0, 0);
-                        ivDocPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    } catch (Exception e) {
-                        // Fallback if permission expired or URI invalid
-                        ivDocPreview.setImageResource(R.drawable.round_camera_alt_24);
-                        ivDocPreview.setPadding(40, 40, 40, 40);
-                    }
+                    updatePreview();
                 }
                 btnSaveDoc.setText("Update Document");
             }
         }
 
-        // --- Photo Capture Click ---
+        // --- Photo/File Capture Click ---
         view.findViewById(R.id.cardCapture).setOnClickListener(v -> {
             if (getContext() == null) return;
-            String[] options = {"Take Photo", "Choose from Gallery"};
+            String[] options = {"Take Photo", "Choose File (Images, PDF, etc.)"};
             new AlertDialog.Builder(getContext())
-                    .setTitle("Add Photo")
+                    .setTitle("Add Document")
                     .setItems(options, (dialog, which) -> {
                         if (which == 0) {
-                            // Open Camera
-                            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            cameraLauncher.launch(cameraIntent);
+                            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                                openCamera();
+                            } else {
+                                cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+                            }
                         } else {
-                            // Open Gallery
-                            imagePickerLauncher.launch(new PickVisualMediaRequest.Builder()
-                                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                                    .build());
+                            // Open File Picker
+                            filePickerLauncher.launch("*/*");
                         }
                     }).show();
         });
@@ -178,12 +196,13 @@ public class AddDocumentFragment extends Fragment {
                 // selectedImageUri is already expected to be a local path if it was just picked.
                 // If it's still a content URI (e.g. from older data in edit mode), we copy it now.
                 if (selectedImageUri != null && selectedImageUri.startsWith("content://")) {
-                    selectedImageUri = saveImageToInternalStorage(context, Uri.parse(selectedImageUri));
+                    selectedImageUri = FileUtil.saveToInternalStorage(context, Uri.parse(selectedImageUri));
                 }
 
                 if (editingDocument == null) {
                     // INSERT new document
                     DocumentItem newDoc = new DocumentItem(name, category, selectedImageUri);
+                    newDoc.setMimeType(selectedMimeType);
                     AppDatabase.getInstance(getContext()).documentDao().insert(newDoc);
                 } else {
                     // UPDATE existing document
@@ -196,6 +215,7 @@ public class AddDocumentFragment extends Fragment {
                     editingDocument.setName(name);
                     editingDocument.setCategory(category);
                     editingDocument.setImagePath(selectedImageUri);
+                    editingDocument.setMimeType(selectedMimeType);
                     AppDatabase.getInstance(getContext()).documentDao().update(editingDocument);
                 }
 
@@ -213,26 +233,44 @@ public class AddDocumentFragment extends Fragment {
         return view;
     }
 
-    private void saveAndShowImage(Uri uri) {
+    private void saveAndShowFile(Uri uri) {
         Context context = getContext();
         if (context != null) {
             new Thread(() -> {
-                String localPath = saveImageToInternalStorage(context, uri);
+                String mimeType = FileUtil.getMimeType(context, uri);
+                String localPath = FileUtil.saveToInternalStorage(context, uri);
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         if (!localPath.isEmpty()) {
                             selectedImageUri = localPath;
-                            if (ivDocPreview != null) {
-                                ivDocPreview.setImageURI(Uri.parse(selectedImageUri));
-                                ivDocPreview.setPadding(0, 0, 0, 0);
-                                ivDocPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                            }
+                            selectedMimeType = mimeType;
+                            updatePreview();
                         } else {
-                            Toast.makeText(getContext(), "Error saving image locally", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Error saving file locally", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
             }).start();
+        }
+    }
+
+    private void updatePreview() {
+        if (ivDocPreview == null) return;
+        
+        if (selectedMimeType != null && selectedMimeType.startsWith("image/")) {
+            try {
+                ivDocPreview.setImageURI(Uri.parse(selectedImageUri));
+                ivDocPreview.setPadding(0, 0, 0, 0);
+                ivDocPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            } catch (Exception e) {
+                ivDocPreview.setImageResource(R.drawable.round_camera_alt_24);
+                ivDocPreview.setPadding(40, 40, 40, 40);
+            }
+        } else {
+            // Show file icon
+            ivDocPreview.setImageResource(FileUtil.getIconForMimeType(selectedMimeType));
+            ivDocPreview.setPadding(60, 60, 60, 60);
+            ivDocPreview.setScaleType(ImageView.ScaleType.FIT_CENTER);
         }
     }
 
@@ -246,40 +284,9 @@ public class AddDocumentFragment extends Fragment {
 
         try (FileOutputStream fos = new FileOutputStream(file)) {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            selectedMimeType = "image/jpeg";
             return Uri.fromFile(file).toString();
         } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
-
-    /**
-     * Copies the image from the given URI to the app's internal storage.
-     * This avoids SecurityExceptions when accessing the URI later after permissions expire.
-     */
-    private String saveImageToInternalStorage(Context context, Uri uri) {
-        if (uri == null || context == null) return "";
-        try {
-            InputStream inputStream = context.getContentResolver().openInputStream(uri);
-            if (inputStream == null) return "";
-
-            File storageDir = context.getFilesDir();
-            String fileName = "doc_" + UUID.randomUUID().toString() + ".jpg";
-            File file = new File(storageDir, fileName);
-
-            OutputStream outputStream = new FileOutputStream(file);
-            byte[] buffer = new byte[4 * 1024];
-            int read;
-            while ((read = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, read);
-            }
-
-            outputStream.flush();
-            outputStream.close();
-            inputStream.close();
-
-            return Uri.fromFile(file).toString();
-        } catch (Exception e) {
             e.printStackTrace();
             return "";
         }

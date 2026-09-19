@@ -8,7 +8,7 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 
 import com.example.fridgewise.ui.fragments.HomeFragment;
-
+import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -61,9 +61,17 @@ public class MainActivity extends AppCompatActivity {
             handleIntent(getIntent());
         }
 
+        // fixed extra spacing for bottom navigation
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+
+            v.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    0
+            );
+
             return insets;
         });
 

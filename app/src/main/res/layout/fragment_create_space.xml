@@ -143,7 +143,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/space_name"
-                        app:startIconDrawable="@drawable/outline_person_24"
+                        app:startIconDrawable="@drawable/outline_pfp_24"
                         app:startIconTint="@color/green_primary"
                         app:counterEnabled="false"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">

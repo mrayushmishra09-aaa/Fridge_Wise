@@ -29,6 +29,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.button.MaterialButton;
@@ -41,12 +42,14 @@ import android.provider.MediaStore;
 import android.os.Build;
 import android.os.Environment;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.webkit.MimeTypeMap;
 
 public class DocumentListFragment extends Fragment {
 
     private DocumentAdapter adapter;
     private TextView tvDocCount, tvSelectionCount;
-    private View llEmptyState, selectionToolbar, headerLayout, bottomSelectionBar;
+    private View llEmptyState, headerLayout;
+    private Toolbar selectionToolbar;
     private CheckBox cbSelectAll;
     private RecyclerView rvDocuments;
     private FloatingActionButton fab;
@@ -72,14 +75,24 @@ public class DocumentListFragment extends Fragment {
         selectionToolbar = view.findViewById(R.id.selectionToolbar);
         headerLayout = view.findViewById(R.id.headerLayout);
         tvSelectionCount = view.findViewById(R.id.tvSelectionCount);
-        bottomSelectionBar = view.findViewById(R.id.bottomSelectionBar);
         cbSelectAll = view.findViewById(R.id.cbSelectAll);
 
         // --- Selection Toolbar Actions ---
-        view.findViewById(R.id.btnCloseSelection).setOnClickListener(v -> exitSelectionMode());
-        view.findViewById(R.id.btnBulkDelete).setOnClickListener(v -> bulkDelete());
-        view.findViewById(R.id.btnBulkDeleteTop).setOnClickListener(v -> bulkDelete());
-        view.findViewById(R.id.btnBulkShare).setOnClickListener(v -> bulkShare());
+        if (selectionToolbar != null) {
+            selectionToolbar.setNavigationOnClickListener(v -> exitSelectionMode());
+            selectionToolbar.inflateMenu(R.menu.menu_bulk_selection);
+            selectionToolbar.setOnMenuItemClickListener(item -> {
+                int itemId = item.getItemId();
+                if (itemId == R.id.action_share) {
+                    bulkShare();
+                    return true;
+                } else if (itemId == R.id.action_delete) {
+                    bulkDelete();
+                    return true;
+                }
+                return false;
+            });
+        }
 
         if (cbSelectAll != null) {
             cbSelectAll.setOnClickListener(v -> {
@@ -146,7 +159,10 @@ public class DocumentListFragment extends Fragment {
                 getActivity().runOnUiThread(() -> {
                     currentDocuments = documents;
                     if (adapter != null) adapter.setDocs(documents);
-                    if (tvDocCount != null) tvDocCount.setText(documents.size() + " Documents saved");
+                    if (tvDocCount != null) {
+                        String countText = getResources().getQuantityString(R.plurals.documents_count, documents.size(), documents.size());
+                        tvDocCount.setText(countText);
+                    }
                     if (llEmptyState != null && rvDocuments != null) {
                         if (documents.isEmpty()) {
                             llEmptyState.setVisibility(View.VISIBLE);
@@ -165,15 +181,11 @@ public class DocumentListFragment extends Fragment {
         if (selectionToolbar != null) selectionToolbar.setVisibility(View.VISIBLE);
         if (headerLayout != null) headerLayout.setVisibility(View.GONE);
         if (fab != null) fab.hide();
-        
-        if (bottomSelectionBar != null) {
-            bottomSelectionBar.setVisibility(View.VISIBLE);
-            bottomSelectionBar.setTranslationY(300);
-            bottomSelectionBar.animate()
-                    .translationY(0)
-                    .setDuration(300)
-                    .setInterpolator(new AccelerateDecelerateInterpolator())
-                    .start();
+
+        // Hide main bottom navigation
+        if (getActivity() != null) {
+            View nav = getActivity().findViewById(R.id.bottomNavigationView);
+            if (nav != null) nav.setVisibility(View.GONE);
         }
     }
 
@@ -182,13 +194,11 @@ public class DocumentListFragment extends Fragment {
         if (headerLayout != null) headerLayout.setVisibility(View.VISIBLE);
         if (fab != null) fab.show();
         if (cbSelectAll != null) cbSelectAll.setChecked(false);
-        
-        if (bottomSelectionBar != null) {
-            bottomSelectionBar.animate()
-                    .translationY(300)
-                    .setDuration(300)
-                    .withEndAction(() -> bottomSelectionBar.setVisibility(View.GONE))
-                    .start();
+
+        // Show main bottom navigation
+        if (getActivity() != null) {
+            View nav = getActivity().findViewById(R.id.bottomNavigationView);
+            if (nav != null) nav.setVisibility(View.VISIBLE);
         }
         if (adapter != null) adapter.clearSelection();
     }
@@ -237,18 +247,35 @@ public class DocumentListFragment extends Fragment {
             String path = item.getImagePath();
             if (path != null && !path.isEmpty()) {
                 try {
-                    File file = new File(Uri.parse(path).getPath());
-                    Uri contentUri = FileProvider.getUriForFile(requireContext(), "com.example.fridgewise.fileprovider", file);
-                    imageUris.add(contentUri);
+                    File file;
+                    if (path.startsWith("file://")) {
+                        file = new File(Uri.parse(path).getPath());
+                    } else {
+                        file = new File(path);
+                    }
+                    
+                    if (file.exists()) {
+                        Uri contentUri = FileProvider.getUriForFile(requireContext(), "com.example.fridgewise.fileprovider", file);
+                        imageUris.add(contentUri);
+                    }
                 } catch (Exception ignored) {}
             }
         }
 
-        if (imageUris.isEmpty()) return;
+        if (imageUris.isEmpty()) {
+            Toast.makeText(getContext(), "No valid images to share", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-        shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
+        if (imageUris.size() == 1) {
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, imageUris.get(0));
+        } else {
+            shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
+        }
+        
         shareIntent.setType("image/*");
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(Intent.createChooser(shareIntent, "Share documents via"));
@@ -256,41 +283,37 @@ public class DocumentListFragment extends Fragment {
 
     private void downloadDocument(DocumentItem document) {
         String imagePath = document.getImagePath();
+        String mimeType = document.getMimeType();
         if (imagePath == null || imagePath.isEmpty()) return;
 
         new Thread(() -> {
             try {
                 Uri sourceUri = Uri.parse(imagePath);
-                String fileName = "FridgeWise_" + System.currentTimeMillis() + ".jpg";
+                String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+                if (ext == null) ext = "dat";
+                
+                String fileName = "FridgeWise_" + System.currentTimeMillis() + "." + ext;
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
-                values.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+                values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
+                
+                Uri externalUri;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
-                    Uri externalUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
-                    Uri destinationUri = requireContext().getContentResolver().insert(externalUri, values);
-                    if (destinationUri != null) {
-                        try (InputStream is = requireContext().getContentResolver().openInputStream(sourceUri);
-                             OutputStream os = requireContext().getContentResolver().openOutputStream(destinationUri)) {
-                            byte[] buffer = new byte[8192];
-                            int length;
-                            while ((length = is.read(buffer)) > 0) os.write(buffer, 0, length);
-                        }
-                        if (getActivity() != null) getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Saved to Downloads", Toast.LENGTH_SHORT).show());
-                    }
+                    externalUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
                 } else {
-                    // Fallback for older APIs: Save to standard external storage or legacy MediaStore
-                    Uri externalUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                    Uri destinationUri = requireContext().getContentResolver().insert(externalUri, values);
-                    if (destinationUri != null) {
-                        try (InputStream is = requireContext().getContentResolver().openInputStream(sourceUri);
-                             OutputStream os = requireContext().getContentResolver().openOutputStream(destinationUri)) {
-                            byte[] buffer = new byte[8192];
-                            int length;
-                            while ((length = is.read(buffer)) > 0) os.write(buffer, 0, length);
-                        }
-                        if (getActivity() != null) getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Saved to Gallery", Toast.LENGTH_SHORT).show());
+                    externalUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                }
+
+                Uri destinationUri = requireContext().getContentResolver().insert(externalUri, values);
+                if (destinationUri != null) {
+                    try (InputStream is = requireContext().getContentResolver().openInputStream(sourceUri);
+                         OutputStream os = requireContext().getContentResolver().openOutputStream(destinationUri)) {
+                        byte[] buffer = new byte[8192];
+                        int length;
+                        while ((length = is.read(buffer)) > 0) os.write(buffer, 0, length);
                     }
+                    if (getActivity() != null) getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Saved to Downloads", Toast.LENGTH_SHORT).show());
                 }
             } catch (Exception ignored) {}
         }).start();

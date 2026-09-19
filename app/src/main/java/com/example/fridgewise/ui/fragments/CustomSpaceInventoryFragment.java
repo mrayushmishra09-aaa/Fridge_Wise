@@ -12,6 +12,7 @@ import com.example.fridgewise.ui.bottomsheet.*;
 import com.example.fridgewise.R;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.os.Build;
@@ -39,6 +40,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 public class CustomSpaceInventoryFragment extends Fragment {
@@ -210,6 +212,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
         view.findViewById(R.id.btnBack).setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
         view.findViewById(R.id.btnCloseSelection).setOnClickListener(v -> viewModel.exitSelectionMode());
         view.findViewById(R.id.btnDeleteSelected).setOnClickListener(v -> showBulkDeleteConfirmation());
+        view.findViewById(R.id.btnShareSelected).setOnClickListener(v -> bulkShare());
         view.findViewById(R.id.btnMoreOptions).setOnClickListener(this::showMoreOptions);
 
         view.findViewById(R.id.fabAddItem).setOnClickListener(v -> {
@@ -295,6 +298,46 @@ public class CustomSpaceInventoryFragment extends Fragment {
                 .setNegativeButton("Cancel", null)
                 .setIcon(R.drawable.outline_delete_24)
                 .show();
+    }
+
+    private void bulkShare() {
+        Set<Integer> selectedIds = viewModel.getSelectedIds().getValue();
+        if (selectedIds == null || selectedIds.isEmpty()) return;
+
+        List<CustomSpaceItem> selectedItems = new ArrayList<>();
+        for (CustomSpaceItem item : allItems) {
+            if (selectedIds.contains(item.getId())) {
+                selectedItems.add(item);
+            }
+        }
+
+        if (selectedItems.isEmpty()) return;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("📂 Items from Space: ").append(currentSpace.getName()).append("\n\n");
+        for (int i = 0; i < selectedItems.size(); i++) {
+            CustomSpaceItem item = selectedItems.get(i);
+            sb.append(i + 1).append(". ").append(item.getName());
+            sb.append(" (").append(item.getQuantity()).append(" ").append(item.getUnit()).append(")");
+            if (item.getDate() != null && !item.getDate().isEmpty()) {
+                sb.append(" - Date: ").append(item.getDate());
+            }
+            if (item.isChecked()) {
+                sb.append(" ✅");
+            }
+            sb.append("\n");
+            if (item.getNotes() != null && !item.getNotes().isEmpty()) {
+                sb.append("   - ").append(item.getNotes()).append("\n");
+            }
+        }
+
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, sb.toString());
+        sendIntent.setType("text/plain");
+
+        Intent shareIntent = Intent.createChooser(sendIntent, "Share space items via");
+        startActivity(shareIntent);
     }
 
     private void provideHapticFeedback() {

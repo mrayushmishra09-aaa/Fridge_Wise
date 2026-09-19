@@ -11,6 +11,7 @@ import com.example.fridgewise.ui.bottomsheet.*;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -85,6 +86,10 @@ public class TodoListFragment extends Fragment {
 
         view.findViewById(R.id.btnCloseSelection).setOnClickListener(v -> exitSelectionMode());
         view.findViewById(R.id.btnBulkDelete).setOnClickListener(v -> bulkDelete());
+        View btnBulkShare = view.findViewById(R.id.btnBulkShare);
+        if (btnBulkShare != null) {
+            btnBulkShare.setOnClickListener(v -> bulkShare());
+        }
 
         if (cbSelectAll != null) {
             cbSelectAll.setOnClickListener(v -> {
@@ -413,5 +418,35 @@ public class TodoListFragment extends Fragment {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void bulkShare() {
+        List<TodoItem> selectedItems = adapter.getSelectedItems();
+        if (selectedItems.isEmpty()) return;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("📋 Shared Tasks from FridgeWise:\n\n");
+        for (int i = 0; i < selectedItems.size(); i++) {
+            TodoItem item = selectedItems.get(i);
+            sb.append(i + 1).append(". ").append(item.getTitle());
+            if (item.getDate() != null && !item.getDate().isEmpty()) {
+                sb.append(" (Due: ").append(item.getDate()).append(")");
+            }
+            if (item.isCompleted()) {
+                sb.append(" ✅");
+            }
+            sb.append("\n");
+            if (item.getNote() != null && !item.getNote().isEmpty()) {
+                sb.append("   - ").append(item.getNote()).append("\n");
+            }
+        }
+
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, sb.toString());
+        sendIntent.setType("text/plain");
+
+        Intent shareIntent = Intent.createChooser(sendIntent, "Share selected tasks via");
+        startActivity(shareIntent);
     }
 }

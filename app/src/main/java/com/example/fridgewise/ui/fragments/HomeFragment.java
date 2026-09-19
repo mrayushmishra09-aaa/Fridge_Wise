@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +36,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.Navigation;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.Executors;
+import androidx.core.content.ContextCompat;
+
+import android.text.Editable;
+import android.text.TextWatcher;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.textfield.TextInputEditText;
+import android.widget.ImageButton;
+import com.google.android.material.chip.ChipGroup;
 
 public class HomeFragment extends Fragment {
 
@@ -80,6 +90,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupDashboard(View view) {
+        /*
         View ivSparkle = view.findViewById(R.id.iv_sparkle_1);
         if (ivSparkle != null) {
             ivSparkle.animate().rotation(360f).scaleX(1.2f).scaleY(1.2f).setDuration(3000).setListener(new AnimatorListenerAdapter() {
@@ -89,6 +100,7 @@ public class HomeFragment extends Fragment {
                 }
             }).start();
         }
+        */
 
         LinearLayout llAttentionSection = view.findViewById(R.id.ll_attention_section);
         RecyclerView rvAttention = view.findViewById(R.id.rv_attention);
@@ -113,12 +125,15 @@ public class HomeFragment extends Fragment {
         }
 
         // Setup Recipe RecyclerView
+        /*
         RecyclerView rvRecipes = view.findViewById(R.id.rv_suggested_recipes);
         if (rvRecipes != null) {
             rvRecipes.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
             rvRecipes.setAdapter(recipeAdapter);
         }
         View llRecipesSection = view.findViewById(R.id.ll_recipes_section);
+        */
+        View llRecipesSection = null;
         View cvSmartTip = view.findViewById(R.id.cv_smart_tip);
         TextView tvSmartTip = view.findViewById(R.id.tv_smart_tip_text);
 
@@ -217,11 +232,95 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        setupUniversalInput(view);
+
         viewModel.getActionMessage().observe(getViewLifecycleOwner(), message -> {
             if (message != null && !message.isEmpty()) {
                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void setupUniversalInput(View view) {
+        TextInputEditText etShortCode = view.findViewById(R.id.et_home_short_code);
+        ImageButton btnSubmit = view.findViewById(R.id.btn_quick_add_submit);
+        ChipGroup cgFeedback = view.findViewById(R.id.cg_home_parsing_feedback);
+
+        if (etShortCode == null || btnSubmit == null || cgFeedback == null) return;
+
+        etShortCode.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String input = s.toString();
+                if (input.contains("_")) {
+                    String prefix = input.split("_")[0];
+                    if (UniversalInputParser.isSection(prefix)) {
+                        etShortCode.setHint(UniversalInputParser.getHint(prefix));
+                        updateParsingFeedback(cgFeedback, input);
+                    } else {
+                        etShortCode.setHint("What did you bring home? Try '3 Milk exp 12/28'");
+                        cgFeedback.setVisibility(View.GONE);
+                    }
+                } else {
+                    etShortCode.setHint("What did you bring home? Try '3 Milk exp 12/28'");
+                    cgFeedback.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        btnSubmit.setOnClickListener(v -> {
+            String input = etShortCode.getText().toString();
+            UniversalInputParser.ParsedResult result = UniversalInputParser.parse(input);
+            
+            if (result != null && result.isValid) {
+                showParsingResult(result);
+                etShortCode.setText("");
+                cgFeedback.setVisibility(View.GONE);
+            } else {
+                Toast.makeText(getContext(), "Invalid format. Use section_value_...", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateParsingFeedback(ChipGroup cgFeedback, String input) {
+        UniversalInputParser.ParsedResult result = UniversalInputParser.parse(input);
+        cgFeedback.removeAllViews();
+        
+        if (result != null && !result.values.isEmpty()) {
+            cgFeedback.setVisibility(View.VISIBLE);
+            for (String field : result.fields) {
+                String value = result.values.get(field);
+                if (value != null) {
+                    Chip chip = new Chip(getContext());
+                    chip.setText(field + ": " + value);
+                    chip.setChipBackgroundColorResource(R.color.bg_primary);
+                    chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.green_primary));
+                    cgFeedback.addView(chip);
+                }
+            }
+        } else {
+            cgFeedback.setVisibility(View.GONE);
+        }
+    }
+
+    private void showParsingResult(UniversalInputParser.ParsedResult result) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Added to ").append(result.section.toUpperCase()).append(":\n");
+        for (Map.Entry<String, String> entry : result.values.entrySet()) {
+            sb.append("- ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+        }
+        
+        // Simple Toast for now as requested
+        Toast.makeText(getContext(), sb.toString(), Toast.LENGTH_LONG).show();
+        
+        // Log it too
+        Log.d("UniversalInput", sb.toString());
     }
 
     private void handleAttentionClick(AttentionItem item) {

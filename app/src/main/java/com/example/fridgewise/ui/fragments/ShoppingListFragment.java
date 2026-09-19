@@ -71,6 +71,10 @@ public class ShoppingListFragment extends Fragment {
 
         view.findViewById(R.id.btnCloseSelection).setOnClickListener(v -> exitSelectionMode());
         view.findViewById(R.id.btnBulkDelete).setOnClickListener(v -> bulkDelete());
+        View btnBulkShare = view.findViewById(R.id.btnBulkShare);
+        if (btnBulkShare != null) {
+            btnBulkShare.setOnClickListener(v -> bulkShare());
+        }
 
         if (cbSelectAll != null) {
             cbSelectAll.setOnClickListener(v -> {
@@ -231,6 +235,37 @@ public class ShoppingListFragment extends Fragment {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void bulkShare() {
+        List<ShoppingItem> selectedItems = adapter.getSelectedItems();
+        if (selectedItems.isEmpty()) return;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("🛒 Shared Shopping Items from FridgeWise:\n\n");
+        for (int i = 0; i < selectedItems.size(); i++) {
+            ShoppingItem item = selectedItems.get(i);
+            sb.append(i + 1).append(". ").append(item.getName());
+            if (item.getQuantity() != null && !item.getQuantity().isEmpty()) {
+                sb.append(" (").append(item.getQuantity());
+                if (item.getUnit() != null && !item.getUnit().isEmpty()) {
+                    sb.append(" ").append(item.getUnit());
+                }
+                sb.append(")");
+            }
+            if (item.isCompleted()) {
+                sb.append(" ✅");
+            }
+            sb.append("\n");
+        }
+
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, sb.toString());
+        sendIntent.setType("text/plain");
+
+        Intent shareIntent = Intent.createChooser(sendIntent, "Share selected items via");
+        startActivity(shareIntent);
     }
 
     private void loadItems() {

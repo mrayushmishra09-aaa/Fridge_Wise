@@ -4,6 +4,7 @@ import com.example.fridgewise.R;
 import com.example.fridgewise.model.CustomSpace;
 import com.example.fridgewise.model.CustomSpaceItem;
 import com.example.fridgewise.util.CategoryUtils;
+import com.example.fridgewise.util.FileUtil;
 import com.google.android.material.card.MaterialCardView;
 
 import android.content.res.ColorStateList;
@@ -241,6 +242,12 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         if (parentSpace.isHasAttachments() && item.getDocumentName() != null) {
             itemHolder.tagAttachment.setVisibility(View.VISIBLE);
             itemHolder.tvTagAttachment.setText(item.getDocumentName());
+            
+            // Set icon for attachment
+            ImageView ivAttachment = itemHolder.tagAttachment.findViewById(R.id.ivTagAttachment);
+            if (ivAttachment != null) {
+                ivAttachment.setImageResource(FileUtil.getIconForMimeType(item.getDocumentMimeType()));
+            }
         } else {
             itemHolder.tagAttachment.setVisibility(View.GONE);
         }
@@ -255,7 +262,19 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         
         itemHolder.tagsLayout.setVisibility(anyTagVisible ? View.VISIBLE : View.GONE);
 
-        itemHolder.itemView.setOnClickListener(v -> listener.onItemClick(item));
+        itemHolder.itemView.setOnClickListener(v -> {
+            if (isSelectionMode) {
+                listener.onItemClick(item);
+            } else {
+                String docUri = item.getDocumentUri();
+                String docMime = item.getDocumentMimeType();
+                if (docUri != null && !docUri.isEmpty()) {
+                    FileUtil.openFile(v.getContext(), docUri, docMime);
+                } else {
+                    listener.onItemClick(item);
+                }
+            }
+        });
         itemHolder.itemView.setOnLongClickListener(v -> {
             listener.onLongClick(item);
             return true;
