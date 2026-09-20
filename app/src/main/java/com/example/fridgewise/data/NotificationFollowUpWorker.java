@@ -32,10 +32,10 @@ public class NotificationFollowUpWorker extends Worker {
         AppDatabase db = AppDatabase.getInstance(context);
 
         boolean isPending = false;
+        int actualItemId = ("MEDICINE".equals(type)) ? id - 10000 : id - 20000;
 
         if ("MEDICINE".equals(type)) {
-            int actualId = id - 10000;
-            MedicineEntity med = db.medicineDao().getMedicineById(actualId);
+            MedicineEntity med = db.medicineDao().getMedicineById(actualItemId);
             if (med != null) {
                 String today = new SimpleDateFormat("d/M/yyyy", Locale.getDefault()).format(new Date());
                 if (!today.equals(med.getLastTakenDate())) {
@@ -43,8 +43,7 @@ public class NotificationFollowUpWorker extends Worker {
                 }
             }
         } else if ("TODO".equals(type)) {
-            int actualId = id - 20000;
-            TodoItem todo = db.todoDao().getTodoById(actualId);
+            TodoItem todo = db.todoDao().getTodoById(actualItemId);
             if (todo != null && !todo.isCompleted()) {
                 isPending = true;
             }
@@ -56,7 +55,7 @@ public class NotificationFollowUpWorker extends Worker {
                     ("MEDICINE".equals(type) ? "take your medicine?" : "finish this task?");
             
             NotificationHelper.showNotification(context, title, message, id + 500, iconRes, 
-                    null, null, null, type, "group_followup");
+                    null, null, null, type, "group_followup", actualItemId);
         }
 
         return Result.success();

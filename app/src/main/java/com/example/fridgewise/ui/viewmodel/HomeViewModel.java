@@ -23,6 +23,7 @@ import com.example.fridgewise.model.RecipeItem;
 import com.example.fridgewise.model.ShoppingItem;
 import com.example.fridgewise.model.TodoItem;
 import com.example.fridgewise.util.CategoryUtils;
+import com.example.fridgewise.util.UniversalInputParser;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -78,6 +79,19 @@ public class HomeViewModel extends AndroidViewModel {
         HomeUiState current = uiState.getValue();
         if (current == null) {
             uiState.postValue(new HomeUiState(new ArrayList<>(), "Thinking...", "Analyzing fridge...", "Hello!", userName, new ArrayList<>(), new ArrayList<>(), getRandomTip(), false, true));
+        } else {
+            uiState.postValue(new HomeUiState(
+                current.attentionItems,
+                current.insightTitle,
+                current.insightDescription,
+                current.greeting,
+                current.userName,
+                current.recentActivities,
+                current.suggestedRecipes,
+                current.smartTip,
+                current.hasActionableItems,
+                true
+            ));
         }
 
         executor.execute(() -> {
@@ -264,6 +278,97 @@ public class HomeViewModel extends AndroidViewModel {
             String message = addedCount > 0 ? "Added " + addedCount + " items to list!" : "Items already in list.";
             actionMessage.postValue(message);
             refreshDashboard();
+        });
+    }
+
+    public void processUniversalInput(String input) {
+        UniversalInputParser.ParsedResult result = UniversalInputParser.parse(input);
+        if (result == null || !result.isValid) {
+            actionMessage.postValue("Invalid input format.");
+            return;
+        }
+
+        executor.execute(() -> {
+            try {
+                boolean success = false;
+                String itemName = "";
+                int iconRes = R.drawable.ic_sparkle;
+
+                switch (result.section) {
+                    case "task":
+                        TodoItem todo = new TodoItem();
+                        todo.setTitle(result.get("name", "New Task"));
+                        todo.setPriority(result.get("priority", "Medium"));
+                        todo.setTime(result.get("time", "9:00 AM"));
+                        todo.setDate(result.get("date", dateFormat.format(new Date())));
+                        todo.setNote(result.get("note", ""));
+                        todo.setCompleted(false);
+                        db.todoDao().insert(todo);
+                        itemName = todo.getTitle();
+                        iconRes = CategoryUtils.getPriorityIcon(todo.getPriority());
+                        success = true;
+                        break;
+
+                    case "shop":
+                        ShoppingItem shop = new ShoppingItem();
+                        shop.setName(result.get("item", "Item"));
+                        shop.setQuantity(result.get("quantity", "1"));
+                        shop.setUnit(result.get("unit", "pcs"));
+                        shop.setCompleted(false);
+                        db.shoppingDao().insert(shop);
+                        itemName = shop.getName();
+                        iconRes = R.drawable.v02_img_icons_shopping;
+                        success = true;
+                        break;
+
+                    case "med":
+                        MedicineEntity med = new MedicineEntity();
+                        med.setMedicineName(result.get("name", "Medicine"));
+                        med.setMedicineType(result.get("type", "Pill"));
+                        med.setStartTime(result.get("time", "9:00 AM"));
+                        med.setStartDate(result.get("date", dateFormat.format(new Date())));
+                        med.setDosage(result.get("dosage", "1"));
+                        db.medicineDao().insert(med);
+                        itemName = med.getMedicineName();
+                        iconRes = R.drawable.med_image_07;
+                        success = true;
+                        break;
+
+                    case "inv":
+                        FoodItem food = new FoodItem();
+                        food.setName(result.get("item", "Food"));
+                        food.setCategory(result.get("category", "Others"));
+                        try {
+                            food.setQuantity(Double.parseDouble(result.get("quantity", "1")));
+                        } catch (NumberFormatException e) {
+                            food.setQuantity(1.0);
+                        }
+                        food.setUnit(result.get("unit", "pcs"));
+                        food.setExpiryDate(result.get("expiry", dateFormat.format(new Date())));
+                        food.setPurchaseDate(dateFormat.format(new Date()));
+                        db.foodItemDao().insert(food);
+                        itemName = food.getName();
+                        iconRes = CategoryUtils.getCategoryIcon(food.getCategory());
+                        success = true;
+                        break;
+                }
+
+                if (success) {
+                    db.activityDao().insert(new ActivityRecord(
+                            result.section.toUpperCase(),
+                            "Added",
+                            itemName,
+                            System.currentTimeMillis(),
+                            iconRes
+                    ));
+                    actionMessage.postValue("Successfully added " + itemName);
+                    refreshDashboard();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                actionMessage.postValue("Error saving data: " + e.getMessage());
+            }
         });
     }
 

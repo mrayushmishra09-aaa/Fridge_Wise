@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.cardview)
     implementation(libs.fragment)
     implementation(libs.recyclerview)
+    implementation(libs.swiperefreshlayout)
     implementation(libs.camerax.camera2)
     implementation(libs.camerax.core)
     implementation(libs.camerax.lifecycle)
@@ -94,6 +95,15 @@ dependencies {
     implementation(libs.navigation.ui)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.inline)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.arch.core.testing)
+    testImplementation(libs.androidx.test.core)
+    
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.room.testing)
+    androidTestImplementation(libs.work.testing)
+    androidTestImplementation(libs.arch.core.testing)
 }

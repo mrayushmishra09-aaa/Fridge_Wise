@@ -20,10 +20,15 @@ public class ReminderCoordinator {
     private static final int NOTIFICATION_BUDGET_PER_HOUR = 5;
     
     private final Context context;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor;
 
     public ReminderCoordinator(Context context) {
+        this(context, Executors.newSingleThreadExecutor());
+    }
+
+    public ReminderCoordinator(Context context, ExecutorService executor) {
         this.context = context.getApplicationContext();
+        this.executor = executor;
     }
 
     public void schedule(String type, int itemId, String title, String message, long timeInMillis, int iconResId, String groupKey) {

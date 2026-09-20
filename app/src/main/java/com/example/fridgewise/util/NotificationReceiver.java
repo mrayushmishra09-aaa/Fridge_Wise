@@ -17,6 +17,7 @@ import androidx.work.WorkManager;
 
 import com.example.fridgewise.R;
 import com.example.fridgewise.data.AppDatabase;
+import com.example.fridgewise.data.NotificationActionWorker;
 import com.example.fridgewise.data.NotificationFollowUpWorker;
 import com.example.fridgewise.data.PreferenceManager;
 import com.example.fridgewise.model.ActivityRecord;
@@ -26,6 +27,7 @@ import com.example.fridgewise.model.TodoItem;
 import com.example.fridgewise.ui.activities.MainActivity;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -44,17 +46,34 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         ReminderCoordinator coordinator = new ReminderCoordinator(context);
 
-        if (NotificationHelper.ACTION_TAKE_DOSE.equals(action)) {
-            coordinator.logInteraction(actionType, actualItemId, "CLICKED_TAKE_DOSE");
-            handleTakeDose(context, id);
+        if (NotificationHelper.ACTION_TAKE_DOSE.equals(action) || 
+            NotificationHelper.ACTION_ADD_TO_SHOPPING.equals(action) || 
+            NotificationHelper.ACTION_MARK_TODO_DONE.equals(action)) {
+            
+            // Log interaction
+            String interaction = "CLICKED_" + action.substring(action.lastIndexOf(".") + 1);
+            coordinator.logInteraction(actionType, actualItemId, interaction);
+            
+            // Delegate to Worker for resilience
+            Data.Builder dataBuilder = new Data.Builder()
+                    .putString("action", action)
+                    .putInt("id", id)
+                    .putInt("item_id_actual", actualItemId);
+            
+            if (NotificationHelper.ACTION_ADD_TO_SHOPPING.equals(action)) {
+                dataBuilder.putString("item_name", intent.getStringExtra("item_name"));
+                dataBuilder.putString("item_unit", intent.getStringExtra("item_unit"));
+                dataBuilder.putString("item_qty", intent.getStringExtra("item_qty"));
+            }
+            
+            OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(NotificationActionWorker.class)
+                    .setInputData(dataBuilder.build())
+                    .build();
+            WorkManager.getInstance(context).enqueue(workRequest);
             return;
-        } else if (NotificationHelper.ACTION_ADD_TO_SHOPPING.equals(action)) {
-            coordinator.logInteraction(actionType, actualItemId, "CLICKED_ADD_SHOPPING");
-            handleAddToShopping(context, intent);
-            return;
-        } else if (NotificationHelper.ACTION_MARK_TODO_DONE.equals(action)) {
-            coordinator.logInteraction(actionType, actualItemId, "CLICKED_DONE");
-            handleMarkTodoDone(context, id);
+        } else if (NotificationHelper.ACTION_SNOOZE.equals(action)) {
+            coordinator.logInteraction(actionType, actualItemId, "SNOOZED");
+            handleSnooze(context, intent);
             return;
         } else if (NotificationHelper.ACTION_DISMISSED.equals(action)) {
             coordinator.logInteraction(actionType, actualItemId, "DISMISSED");
@@ -64,6 +83,14 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         // Standard delivery
         coordinator.logInteraction(actionType, actualItemId, "DELIVERED");
+
+        // Quiet Hours Check for non-critical alerts
+        if ("FOOD".equals(actionType) || "SPACE".equals(actionType)) {
+            if (isQuietHours(context)) {
+                Log.d("NotificationReceiver", "Quiet Hours active. Silencing alert.");
+                return;
+            }
+        }
 
         long now = System.currentTimeMillis();
         boolean shouldBundle = (now - lastNotificationTime) < BUNDLING_WINDOW;
@@ -120,88 +147,45 @@ public class NotificationReceiver extends BroadcastReceiver {
         NotificationHelper.createNotificationChannel(context);
         NotificationHelper.showNotification(context, title != null ? title : "FridgeWise Alert", 
                 message != null ? message : "Something is expiring soon!", id, iconResId, 
-                customActionIntent, actionText, contentPendingIntent, actionType, groupKey);
+                customActionIntent, actionText, contentPendingIntent, actionType, groupKey, actualItemId);
     }
 
-    private void handleMarkTodoDone(Context context, int todoId) {
-        new Thread(() -> {
-            AppDatabase db = AppDatabase.getInstance(context);
-            int actualId = todoId - 20000;
-            TodoItem target = db.todoDao().getTodoById(actualId);
-            if (target != null) {
-                target.setCompleted(true);
-                db.todoDao().update(target);
-                // LOG ACTIVITY
-                db.activityDao().insert(new ActivityRecord("Tasks", "Completed (via Notify)", target.getTitle(), System.currentTimeMillis(), R.drawable.ic_todo_item));
-                
-                NotificationManagerCompat.from(context).cancel(todoId);
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    Toast.makeText(context, "Task marked as completed", Toast.LENGTH_SHORT).show();
-                });
-            }
-        }).start();
+    private void handleSnooze(Context context, Intent intent) {
+        int id = intent.getIntExtra("id", 0);
+        String actionType = intent.getStringExtra("actionType");
+        int actualItemId = intent.getIntExtra("item_id_actual", 0);
+        String title = intent.getStringExtra("title");
+        String message = intent.getStringExtra("message");
+        int iconResId = intent.getIntExtra("iconResId", 0);
+        String groupKey = intent.getStringExtra("groupKey");
+
+        // Schedule again in 30 minutes
+        long snoozeTime = System.currentTimeMillis() + (30 * 60 * 1000);
+        
+        ReminderCoordinator coordinator = new ReminderCoordinator(context);
+        coordinator.schedule(actionType, actualItemId, title, message, snoozeTime, iconResId, groupKey);
+
+        NotificationManagerCompat.from(context).cancel(id);
+        Toast.makeText(context, "Reminder snoozed for 30 minutes", Toast.LENGTH_SHORT).show();
     }
 
-    private void handleAddToShopping(Context context, Intent intent) {
-        String name = intent.getStringExtra("item_name");
-        String unit = intent.getStringExtra("item_unit");
-        String qty = intent.getStringExtra("item_qty");
-        int notificationId = intent.getIntExtra("id", 0);
+    private boolean isQuietHours(Context context) {
+        PreferenceManager pref = new PreferenceManager(context);
+        if (!pref.isQuietHoursEnabled()) return false;
+        
+        Calendar cal = Calendar.getInstance();
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        
+        int start = pref.getQuietHoursStart();
+        int end = pref.getQuietHoursEnd();
 
-        new Thread(() -> {
-            AppDatabase db = AppDatabase.getInstance(context);
-            ShoppingItem item = new ShoppingItem(name != null ? name : "Expired Item", qty, unit, false);
-            db.shoppingDao().insert(item);
-            
-            // LOG ACTIVITY
-            db.activityDao().insert(new ActivityRecord("Shopping List", "Added (via Notify)", name, System.currentTimeMillis(), R.drawable.v02_img_icons_shopping));
-
-            NotificationManagerCompat.from(context).cancel(notificationId);
-            new Handler(Looper.getMainLooper()).post(() -> {
-                Toast.makeText(context, "Added " + name + " to shopping list", Toast.LENGTH_SHORT).show();
-            });
-        }).start();
-    }
-
-    private void handleTakeDose(Context context, int medicineId) {
-        new Thread(() -> {
-            AppDatabase db = AppDatabase.getInstance(context);
-            int actualId = medicineId - 10000;
-            MedicineEntity med = db.medicineDao().getMedicineById(actualId);
-            if (med != null) {
-                // Update taken date
-                String today = new SimpleDateFormat("d/M/yyyy", Locale.getDefault()).format(new Date());
-                med.setLastTakenDate(today);
-
-                // Update quantity
-                try {
-                    double currentQty = Double.parseDouble(med.getQuantity());
-                    double dosage = Double.parseDouble(med.getDosage());
-                    if (currentQty >= dosage) {
-                        double remaining = currentQty - dosage;
-                        // Format to remove .0 if it's a whole number
-                        if (remaining == (long) remaining) {
-                            med.setQuantity(String.valueOf((long) remaining));
-                        } else {
-                            med.setQuantity(String.valueOf(remaining));
-                        }
-                    }
-                } catch (Exception e) {}
-
-                db.medicineDao().update(med);
-
-                // LOG ACTIVITY
-                db.activityDao().insert(new ActivityRecord("Medicine", "Dose Taken (via Notify)", med.getMedicineName(), System.currentTimeMillis(), med.getIconResId()));
-
-                // Dismiss notification
-                NotificationManagerCompat.from(context).cancel(medicineId);
-                
-                // Show toast (must be on main thread)
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    Toast.makeText(context, "Dose logged for " + med.getMedicineName(), Toast.LENGTH_SHORT).show();
-                });
-            }
-        }).start();
+        if (start < end) {
+            // e.g. 1 PM to 5 PM
+            return hour >= start && hour < end;
+        } else {
+            // e.g. 10 PM to 7 AM
+            return hour >= start || hour < end;
+        }
     }
 
     private void scheduleSmartFollowUp(Context context, int id, String type, String name, int iconRes) {

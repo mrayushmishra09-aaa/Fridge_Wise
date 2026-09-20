@@ -263,6 +263,11 @@ public class InventoryFragment extends Fragment {
         AppDatabase db = AppDatabase.getInstance(context);
         executor.execute(() -> {
             db.foodItemDao().delete(foodItem);
+            
+            // Cancel scheduled alarm
+            int notificationId = NotificationHelper.generateId("FOOD", foodItem.getId());
+            NotificationHelper.cancelNotification(context, notificationId);
+
             loadItems();
         });
     }
@@ -304,9 +309,14 @@ public class InventoryFragment extends Fragment {
                 .setMessage("This action cannot be undone.")
                 .setPositiveButton("Delete Forever", (dialog, which) -> {
                     executor.execute(() -> {
-                        AppDatabase db = AppDatabase.getInstance(requireContext());
+                        Context context = requireContext();
+                        AppDatabase db = AppDatabase.getInstance(context);
                         for (FoodItem item : selectedItems) {
                             db.foodItemDao().delete(item);
+                            
+                            // Cancel scheduled alarm
+                            int notificationId = NotificationHelper.generateId("FOOD", item.getId());
+                            NotificationHelper.cancelNotification(context, notificationId);
                         }
                         if (isAdded()) {
                             requireActivity().runOnUiThread(() -> {

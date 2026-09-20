@@ -8,12 +8,15 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import com.example.fridgewise.util.PermissionManager;
 
 import com.example.fridgewise.R;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -21,10 +24,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -35,6 +40,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.Navigation;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -46,6 +52,8 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.textfield.TextInputEditText;
 import android.widget.ImageButton;
 import com.google.android.material.chip.ChipGroup;
+
+import android.content.res.ColorStateList;
 
 public class HomeFragment extends Fragment {
 
@@ -87,20 +95,34 @@ public class HomeFragment extends Fragment {
         if (viewModel != null) {
             viewModel.refreshDashboard();
         }
+        checkReminderHealth(getView());
+    }
+
+    private void checkReminderHealth(View view) {
+        if (view == null) return;
+        View cvHealth = view.findViewById(R.id.cv_health_check);
+        View btnFix = view.findViewById(R.id.btn_fix_reminders);
+        
+        if (cvHealth == null || btnFix == null) return;
+        
+        boolean isHealthy = PermissionManager.isReminderSystemHealthy(requireContext());
+        cvHealth.setVisibility(isHealthy ? View.GONE : View.VISIBLE);
+        
+        btnFix.setOnClickListener(v -> {
+            // Open App Settings
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", requireContext().getPackageName(), null);
+            intent.setData(uri);
+            startActivity(intent);
+        });
     }
 
     private void setupDashboard(View view) {
-        /*
-        View ivSparkle = view.findViewById(R.id.iv_sparkle_1);
-        if (ivSparkle != null) {
-            ivSparkle.animate().rotation(360f).scaleX(1.2f).scaleY(1.2f).setDuration(3000).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    ivSparkle.animate().rotation(0f).scaleX(1.0f).scaleY(1.0f).setDuration(3000).start();
-                }
-            }).start();
+        SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setOnRefreshListener(() -> viewModel.refreshDashboard());
+            swipeRefreshLayout.setColorSchemeResources(R.color.green_primary);
         }
-        */
 
         LinearLayout llAttentionSection = view.findViewById(R.id.ll_attention_section);
         RecyclerView rvAttention = view.findViewById(R.id.rv_attention);
@@ -158,6 +180,10 @@ public class HomeFragment extends Fragment {
 
         viewModel.getUiState().observe(getViewLifecycleOwner(), state -> {
             if (state == null) return;
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(state.isLoading);
+            }
 
             // Update Greeting & Name
             if (tvUserMessage != null && state.greeting != null) {
@@ -245,8 +271,17 @@ public class HomeFragment extends Fragment {
         TextInputEditText etShortCode = view.findViewById(R.id.et_home_short_code);
         ImageButton btnSubmit = view.findViewById(R.id.btn_quick_add_submit);
         ChipGroup cgFeedback = view.findViewById(R.id.cg_home_parsing_feedback);
+        ChipGroup cgSuggestions = view.findViewById(R.id.cg_home_input_suggestions);
+        View cvResult = view.findViewById(R.id.cv_universal_result);
+        ImageView ivResultIcon = view.findViewById(R.id.iv_result_icon);
+        TextView tvResultTitle = view.findViewById(R.id.tv_result_title);
+        TextView tvResultDetails = view.findViewById(R.id.tv_result_details);
+        ImageButton btnCloseResult = view.findViewById(R.id.btn_close_result);
 
-        if (etShortCode == null || btnSubmit == null || cgFeedback == null) return;
+        if (etShortCode == null || btnSubmit == null || cgFeedback == null || cgSuggestions == null) return;
+
+        // Setup Suggestion Chips
+        setupSuggestionChips(cgSuggestions, etShortCode);
 
         etShortCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -260,13 +295,13 @@ public class HomeFragment extends Fragment {
                     if (UniversalInputParser.isSection(prefix)) {
                         etShortCode.setHint(UniversalInputParser.getHint(prefix));
                         updateParsingFeedback(cgFeedback, input);
+                        updateAssistChips(cgSuggestions, etShortCode, prefix);
+                        if (cvResult != null) cvResult.setVisibility(View.GONE); 
                     } else {
-                        etShortCode.setHint("What did you bring home? Try '3 Milk exp 12/28'");
-                        cgFeedback.setVisibility(View.GONE);
+                        resetInputUI(etShortCode, cgFeedback, cgSuggestions);
                     }
                 } else {
-                    etShortCode.setHint("What did you bring home? Try '3 Milk exp 12/28'");
-                    cgFeedback.setVisibility(View.GONE);
+                    resetInputUI(etShortCode, cgFeedback, cgSuggestions);
                 }
             }
 
@@ -279,13 +314,113 @@ public class HomeFragment extends Fragment {
             UniversalInputParser.ParsedResult result = UniversalInputParser.parse(input);
             
             if (result != null && result.isValid) {
-                showParsingResult(result);
+                // Call ViewModel for real persistence
+                viewModel.processUniversalInput(input);
+                
+                // Visual feedback
+                showPolishedResult(result, cvResult, ivResultIcon, tvResultTitle, tvResultDetails);
                 etShortCode.setText("");
                 cgFeedback.setVisibility(View.GONE);
             } else {
-                Toast.makeText(getContext(), "Invalid format. Use section_value_...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Invalid format. Use name_value_...", Toast.LENGTH_SHORT).show();
             }
         });
+
+        if (btnCloseResult != null) {
+            btnCloseResult.setOnClickListener(v -> cvResult.setVisibility(View.GONE));
+        }
+    }
+
+    private void setupSuggestionChips(ChipGroup cgSuggestions, TextInputEditText etShortCode) {
+        cgSuggestions.removeAllViews();
+        for (String section : UniversalInputParser.getSections()) {
+            UniversalInputParser.SectionMetadata meta = UniversalInputParser.getMetadata(section);
+            if (meta == null) continue;
+
+            Chip chip = new Chip(getContext());
+            chip.setText("+ " + meta.title.split(" ")[0]); // e.g., "+ Task"
+            chip.setChipIcon(ContextCompat.getDrawable(requireContext(), meta.iconRes));
+            chip.setChipIconSize(dpToPx(18));
+            chip.setIconStartPadding(dpToPx(4));
+            chip.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.bg_secondary)));
+            chip.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), meta.colorRes)));
+            chip.setChipStrokeWidth((float) dpToPx(1));
+            chip.setTextColor(ContextCompat.getColor(requireContext(), meta.colorRes));
+            chip.setTextSize(12f);
+            
+            chip.setOnClickListener(v -> {
+                etShortCode.setText(section + "_");
+                etShortCode.setSelection(etShortCode.getText().length());
+                etShortCode.requestFocus();
+            });
+            cgSuggestions.addView(chip);
+        }
+    }
+
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
+    }
+
+    private void updateAssistChips(ChipGroup cgSuggestions, TextInputEditText etShortCode, String prefix) {
+        UniversalInputParser.SectionMetadata meta = UniversalInputParser.getMetadata(prefix);
+        if (meta == null) return;
+
+        cgSuggestions.removeAllViews();
+        for (String field : meta.allFields) {
+            Chip chip = new Chip(getContext());
+            chip.setText(field.substring(0, 1).toUpperCase() + field.substring(1));
+            chip.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.bg_primary)));
+            chip.setTextColor(ContextCompat.getColor(requireContext(), meta.colorRes));
+            chip.setChipStrokeWidth((float) dpToPx(1));
+            chip.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), meta.colorRes)));
+            chip.setTextSize(11f);
+
+            chip.setOnClickListener(v -> {
+                String current = etShortCode.getText().toString();
+                if (!current.endsWith("_")) {
+                    etShortCode.setText(current + "_");
+                }
+                etShortCode.setSelection(etShortCode.getText().length());
+                etShortCode.requestFocus();
+            });
+            cgSuggestions.addView(chip);
+        }
+    }
+
+    private void resetInputUI(TextInputEditText etShortCode, ChipGroup cgFeedback, ChipGroup cgSuggestions) {
+        etShortCode.setHint("What did you bring home? Try '3 Milk exp 12/28'");
+        cgFeedback.setVisibility(View.GONE);
+        setupSuggestionChips(cgSuggestions, etShortCode);
+    }
+
+    private void showPolishedResult(UniversalInputParser.ParsedResult result, View cvResult, ImageView ivIcon, TextView tvTitle, TextView tvDetails) {
+        UniversalInputParser.SectionMetadata meta = UniversalInputParser.getMetadata(result.section);
+        if (meta == null || cvResult == null) return;
+
+        ivIcon.setImageResource(meta.iconRes);
+        ivIcon.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), meta.colorRes)).withAlpha(30));
+        ivIcon.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), meta.colorRes)));
+
+        tvTitle.setText("Added to " + meta.title);
+        tvTitle.setTextColor(ContextCompat.getColor(requireContext(), meta.colorRes));
+
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        for (Map.Entry<String, String> entry : result.values.entrySet()) {
+            sb.append(entry.getKey()).append(": ").append(entry.getValue());
+            if (++count < result.values.size()) sb.append("  •  ");
+        }
+        tvDetails.setText(sb.toString());
+
+        // Animate result card entry
+        cvResult.setVisibility(View.VISIBLE);
+        cvResult.setAlpha(0f);
+        cvResult.setTranslationY(20f);
+        cvResult.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(300)
+                .start();
     }
 
     private void updateParsingFeedback(ChipGroup cgFeedback, String input) {

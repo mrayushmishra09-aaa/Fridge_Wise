@@ -27,6 +27,7 @@ public class NotificationHelper {
     public static final String ACTION_ADD_TO_SHOPPING = "com.example.fridgewise.ACTION_ADD_TO_SHOPPING";
     public static final String ACTION_MARK_TODO_DONE = "com.example.fridgewise.ACTION_MARK_TODO_DONE";
     public static final String ACTION_DISMISSED = "com.example.fridgewise.ACTION_DISMISSED";
+    public static final String ACTION_SNOOZE = "com.example.fridgewise.ACTION_SNOOZE";
 
     public static void createNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -57,7 +58,8 @@ public class NotificationHelper {
     }
 
     public static void showNotification(Context context, String title, String message, int notificationId, int iconResId, 
-                                        Intent actionIntent, String actionText, PendingIntent contentIntent, String actionType, String groupKey) {
+                                        Intent actionIntent, String actionText, PendingIntent contentIntent, 
+                                        String actionType, String groupKey, int actualItemId) {
         
         String channelId = ("MEDICINE".equals(actionType) || "TODO".equals(actionType)) ? CHANNEL_REMINDERS : CHANNEL_GENERAL;
 
@@ -66,7 +68,7 @@ public class NotificationHelper {
         dismissIntent.setAction(ACTION_DISMISSED);
         dismissIntent.putExtra("id", notificationId);
         dismissIntent.putExtra("actionType", actionType);
-        // We'd need item_id_actual here too for better tracking, let's assume it can be derived or passed.
+        dismissIntent.putExtra("item_id_actual", actualItemId);
         
         PendingIntent deletePendingIntent = PendingIntent.getBroadcast(context, notificationId, dismissIntent, 
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -90,6 +92,23 @@ public class NotificationHelper {
             PendingIntent actionPendingIntent = PendingIntent.getBroadcast(context, notificationId, actionIntent, 
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             builder.addAction(0, actionText, actionPendingIntent);
+        }
+
+        // Add Snooze button for Medicine and Todos
+        if ("MEDICINE".equals(actionType) || "TODO".equals(actionType)) {
+            Intent snoozeIntent = new Intent(context, NotificationReceiver.class);
+            snoozeIntent.setAction(ACTION_SNOOZE);
+            snoozeIntent.putExtra("id", notificationId);
+            snoozeIntent.putExtra("actionType", actionType);
+            snoozeIntent.putExtra("item_id_actual", actualItemId);
+            snoozeIntent.putExtra("title", title);
+            snoozeIntent.putExtra("message", message);
+            snoozeIntent.putExtra("iconResId", iconResId);
+            snoozeIntent.putExtra("groupKey", groupKey);
+            
+            PendingIntent snoozePendingIntent = PendingIntent.getBroadcast(context, notificationId + 1000, snoozeIntent, 
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            builder.addAction(R.drawable.notify_img, "Snooze (30m)", snoozePendingIntent);
         }
 
         // If a specific category icon is provided, show it as the large icon
@@ -150,5 +169,15 @@ public class NotificationHelper {
         if (alarmManager != null) {
             alarmManager.cancel(pendingIntent);
         }
+        
+        // Also cancel the notification if it's currently showing
+        NotificationManagerCompat.from(context).cancel(id);
+    }
+
+    public static int generateId(String type, int itemId) {
+        if ("MEDICINE".equals(type)) return 10000 + itemId;
+        if ("TODO".equals(type)) return 20000 + itemId;
+        if ("FOOD".equals(type)) return 30000 + itemId;
+        return 40000 + itemId;
     }
 }

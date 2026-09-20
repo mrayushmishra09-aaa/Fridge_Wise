@@ -22,6 +22,9 @@ public class PreferenceManager {
     private static final String KEY_ADVANCE_EXPIRY = "advanceExpiry";
     private static final String KEY_AUTO_DELETE_EXPIRED = "autoDeleteExpired";
     private static final String KEY_AUTO_CLEAR_COMPLETED = "autoClearCompleted";
+    private static final String KEY_QUIET_HOURS_ENABLED = "quietHoursEnabled";
+    private static final String KEY_QUIET_HOURS_START = "quietHoursStart"; // Hour of day 0-23
+    private static final String KEY_QUIET_HOURS_END = "quietHoursEnd";   // Hour of day 0-23
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -189,6 +192,39 @@ public class PreferenceManager {
 
     public boolean isAutoClearCompleted() {
         return pref.getBoolean(KEY_AUTO_CLEAR_COMPLETED, false);
+    }
+
+    public void setQuietHoursEnabled(boolean enabled) {
+        if (editor != null) {
+            editor.putBoolean(KEY_QUIET_HOURS_ENABLED, enabled);
+            editor.apply();
+        }
+    }
+
+    public boolean isQuietHoursEnabled() {
+        return pref.getBoolean(KEY_QUIET_HOURS_ENABLED, true);
+    }
+
+    public void setQuietHoursStart(int hour) {
+        if (editor != null) {
+            editor.putInt(KEY_QUIET_HOURS_START, hour);
+            editor.apply();
+        }
+    }
+
+    public int getQuietHoursStart() {
+        return pref.getInt(KEY_QUIET_HOURS_START, 22); // Default 10 PM
+    }
+
+    public void setQuietHoursEnd(int hour) {
+        if (editor != null) {
+            editor.putInt(KEY_QUIET_HOURS_END, hour);
+            editor.apply();
+        }
+    }
+
+    public int getQuietHoursEnd() {
+        return pref.getInt(KEY_QUIET_HOURS_END, 7); // Default 7 AM
     }
 
     public void clearAll() {

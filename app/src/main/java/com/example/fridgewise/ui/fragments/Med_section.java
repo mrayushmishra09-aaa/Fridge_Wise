@@ -188,6 +188,11 @@ public class Med_section extends Fragment {
         if (context == null) return;
         new Thread(() -> {
             AppDatabase.getInstance(context).medicineDao().delete(medicine);
+            
+            // Cancel scheduled alarm
+            int notificationId = NotificationHelper.generateId("MEDICINE", medicine.getId());
+            NotificationHelper.cancelNotification(context, notificationId);
+
             if (isAdded()) {
                 getActivity().runOnUiThread(() -> {
                     Toast.makeText(context, "Medicine deleted", Toast.LENGTH_SHORT).show();

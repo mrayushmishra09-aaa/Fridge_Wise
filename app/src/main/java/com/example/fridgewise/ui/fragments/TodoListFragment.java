@@ -344,6 +344,11 @@ public class TodoListFragment extends Fragment {
         if (context == null) return;
         new Thread(() -> {
             AppDatabase.getInstance(context).todoDao().delete(item);
+            
+            // Cancel scheduled alarm
+            int notificationId = NotificationHelper.generateId("TODO", item.getId());
+            NotificationHelper.cancelNotification(context, notificationId);
+
             Activity activity = getActivity();
             if (activity != null) {
                 activity.runOnUiThread(() -> {
@@ -404,8 +409,13 @@ public class TodoListFragment extends Fragment {
                 .setMessage("This action cannot be undone.")
                 .setPositiveButton("Delete Forever", (dialog, which) -> {
                     new Thread(() -> {
+                        Context context = requireContext();
                         for (TodoItem item : selectedItems) {
-                            AppDatabase.getInstance(requireContext()).todoDao().delete(item);
+                            AppDatabase.getInstance(context).todoDao().delete(item);
+                            
+                            // Cancel scheduled alarm
+                            int notificationId = NotificationHelper.generateId("TODO", item.getId());
+                            NotificationHelper.cancelNotification(context, notificationId);
                         }
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() -> {

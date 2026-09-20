@@ -11,6 +11,7 @@ import com.example.fridgewise.ui.bottomsheet.*;
 
 import com.example.fridgewise.R;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.cardview.widget.CardView;
@@ -184,11 +185,16 @@ public class Memory extends Fragment {
 
     private void deleteSpace(CustomSpace space) {
         Executors.newSingleThreadExecutor().execute(() -> {
-            AppDatabase db = AppDatabase.getInstance(requireContext());
+            Context context = requireContext();
+            AppDatabase db = AppDatabase.getInstance(context);
             // Delete all items in the space first
             List<CustomSpaceItem> items = db.customSpaceDao().getItemsForSpaceSync(space.getId());
             for (CustomSpaceItem item : items) {
                 db.customSpaceDao().deleteItem(item);
+                
+                // Cancel scheduled alarm
+                int notificationId = NotificationHelper.generateId("SPACE", item.getId());
+                NotificationHelper.cancelNotification(context, notificationId);
             }
             // Delete the space itself
             db.customSpaceDao().deleteSpace(space);

@@ -10,6 +10,7 @@ import androidx.lifecycle.Transformations;
 import com.example.fridgewise.data.AppDatabase;
 import com.example.fridgewise.model.CustomSpace;
 import com.example.fridgewise.model.CustomSpaceItem;
+import com.example.fridgewise.util.NotificationHelper;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -106,6 +107,11 @@ public class CustomSpaceViewModel extends AndroidViewModel {
         if (idsToDelete == null || idsToDelete.isEmpty()) return;
         
         executor.execute(() -> {
+            // Cancel notifications before deleting
+            for (Integer id : idsToDelete) {
+                int notificationId = NotificationHelper.generateId("SPACE", id);
+                NotificationHelper.cancelNotification(getApplication(), notificationId);
+            }
             db.customSpaceDao().deleteItemsByIds(new ArrayList<>(idsToDelete));
             requireActivityOnUiThread(() -> exitSelectionMode());
         });
@@ -124,7 +130,11 @@ public class CustomSpaceViewModel extends AndroidViewModel {
     }
 
     public void deleteItem(CustomSpaceItem item) {
-        executor.execute(() -> db.customSpaceDao().deleteItem(item));
+        executor.execute(() -> {
+            db.customSpaceDao().deleteItem(item);
+            int notificationId = NotificationHelper.generateId("SPACE", item.getId());
+            NotificationHelper.cancelNotification(getApplication(), notificationId);
+        });
     }
 
     public void deleteSpace(CustomSpace space) {
@@ -134,6 +144,8 @@ public class CustomSpaceViewModel extends AndroidViewModel {
             for (CustomSpaceItem item : currentItems) {
                 if (item.getSpaceId() == space.getId()) {
                     db.customSpaceDao().deleteItem(item);
+                    int notificationId = NotificationHelper.generateId("SPACE", item.getId());
+                    NotificationHelper.cancelNotification(getApplication(), notificationId);
                 }
             }
             db.customSpaceDao().deleteSpace(space);
@@ -152,6 +164,8 @@ public class CustomSpaceViewModel extends AndroidViewModel {
                 if (item.getSpaceId() == spaceId.getValue() && item.isChecked() && item.getCompletionTimestamp() != null) {
                     if (now - item.getCompletionTimestamp() > durationMillis) {
                         db.customSpaceDao().deleteItem(item);
+                        int notificationId = NotificationHelper.generateId("SPACE", item.getId());
+                        NotificationHelper.cancelNotification(getApplication(), notificationId);
                     }
                 }
             }
