@@ -91,6 +91,11 @@ dependencies {
     // Security
     implementation(libs.security.crypto)
 
+    implementation(libs.credentials)
+    implementation(libs.credentials.play.services.auth)
+    implementation(libs.play.services.auth)
+    implementation(libs.googleid)
+
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
 

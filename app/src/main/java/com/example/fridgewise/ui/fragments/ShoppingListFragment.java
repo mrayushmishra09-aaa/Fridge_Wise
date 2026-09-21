@@ -182,17 +182,26 @@ public class ShoppingListFragment extends Fragment {
     }
 
     private void setupSwipeToDelete() {
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
+        new ItemTouchHelper(new SwipeToDeleteCallback(requireContext()) {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getBindingAdapterPosition();
-                if (position < shoppingItems.size()) {
-                    deleteItem(shoppingItems.get(position));
+                if (position != RecyclerView.NO_POSITION && position < shoppingItems.size()) {
+                    ShoppingItem itemToDelete = shoppingItems.get(position);
+                    
+                    new AlertDialog.Builder(requireContext())
+                            .setTitle("Delete Shopping Item?")
+                            .setMessage("Are you sure you want to delete this item? This action cannot be undone.")
+                            .setPositiveButton("Delete Forever", (dialog, which) -> {
+                                deleteItem(itemToDelete);
+                            })
+                            .setNegativeButton("Cancel", (dialog, which) -> {
+                                adapter.notifyItemChanged(position);
+                            })
+                            .setOnCancelListener(dialog -> {
+                                adapter.notifyItemChanged(position);
+                            })
+                            .show();
                 }
             }
         }).attachToRecyclerView(rvShoppingList);

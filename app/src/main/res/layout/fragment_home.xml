@@ -179,11 +179,43 @@
                     android:queryHint="Search items.." />
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Fast Natural Input (Short Code) -->
+            <!-- Quick Section Toggle Button -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="@dimen/spacing_8"
+                android:paddingHorizontal="@dimen/spacing_4">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/quick_input_title"
+                    style="@style/TextAppearance.App.TitleMedium"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_toggle_shortcode"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:padding="0dp"
+                    app:icon="@drawable/ic_sparkle"
+                    app:iconTint="@color/green_primary"
+                    app:backgroundTint="@color/green_pale"
+                    android:contentDescription="@string/toggle_quick_actions_desc" />
+            </LinearLayout>
+
+            <!-- Fast Natural Input (Short Code) -->
+            <LinearLayout
+                android:id="@+id/ll_home_shortcode_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:visibility="gone"
                 android:layout_marginBottom="@dimen/spacing_16">
 
                 <!-- Suggestion Chips for Discovery -->
@@ -410,189 +442,247 @@
             </LinearLayout>
 
             <!-- Quick Add Section -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cv_quick_add"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_24"
-                app:cardCornerRadius="@dimen/radius_large"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/divider_color"
-                app:cardBackgroundColor="@color/card_green">
+                android:layout_marginTop="@dimen/spacing_16"
+                android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/ll_quick_add_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="@dimen/spacing_4"
+                    android:paddingVertical="@dimen/spacing_8">
 
-                    <LinearLayout
-                        android:id="@+id/ll_quick_add_header"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackground"
+                        android:layout_weight="1"
+                        android:text="@string/quick_add_title"
+                        style="@style/TextAppearance.App.TitleMedium"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/iv_expand_arrow"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:padding="0dp"
+                        android:clickable="false"
+                        android:focusable="false"
+                        app:icon="@drawable/outline_chevron_right_24"
+                        app:iconTint="@color/green_primary"
+                        app:backgroundTint="@color/green_pale"
+                        android:contentDescription="@string/toggle_quick_actions_desc" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_quick_add_options"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="@dimen/spacing_8"
+                    android:visibility="gone">
+
+                    <!-- Food -->
+                    <LinearLayout
+                        android:id="@+id/btn_add_food"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
                         android:focusable="true"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="@dimen/spacing_16">
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            app:cardCornerRadius="24dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="@color/green_pale"
+                            android:layout_marginBottom="@dimen/spacing_4">
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="12dp"
+                                android:src="@drawable/ic_quick_fridge"
+                                app:tint="@color/green_primary"
+                                android:layout_gravity="center" />
+                        </com.google.android.material.card.MaterialCardView>
 
                         <TextView
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/quick_add_title"
-                            android:textColor="@color/green_primary"
-                            style="@style/TextAppearance.App.TitleMedium" />
-
-                        <ImageView
-                            android:id="@+id/iv_expand_arrow"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/outline_chevron_right_24"
-                            app:tint="@color/green_primary" />
+                            android:text="@string/food_label"
+                            style="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp"/>
                     </LinearLayout>
 
+                    <!-- Medicine -->
                     <LinearLayout
-                        android:id="@+id/ll_quick_add_options"
-                        android:layout_width="match_parent"
+                        android:id="@+id/btn_add_medicine"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingBottom="@dimen/spacing_16"
-                        android:paddingHorizontal="@dimen/spacing_8"
-                        android:visibility="gone">
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="vertical">
 
-                        <!-- Food -->
-                        <LinearLayout
-                            android:id="@+id/btn_add_food"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:orientation="vertical">
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            app:cardCornerRadius="24dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="@color/badge_purple_bg"
+                            android:layout_marginBottom="@dimen/spacing_4">
                             <ImageView
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:padding="8dp"
-                                android:src="@drawable/add_img01"
-                                app:tint="@color/green_primary" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/food_label"
-                                style="@style/TextAppearance.App.LabelLarge"
-                                android:textSize="11sp"/>
-                        </LinearLayout>
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="12dp"
+                                android:src="@drawable/ic_quick_medicine"
+                                app:tint="@color/purple_primary"
+                                android:layout_gravity="center" />
+                        </com.google.android.material.card.MaterialCardView>
 
-                        <!-- Medicine -->
-                        <LinearLayout
-                            android:id="@+id/btn_add_medicine"
-                            android:layout_width="0dp"
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:orientation="vertical">
-                            <ImageView
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:padding="8dp"
-                                android:src="@drawable/med_image_07"
-                                app:tint="@color/purple_primary" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/medicine_label"
-                                style="@style/TextAppearance.App.LabelLarge"
-                                android:textColor="@color/purple_primary"
-                                android:textSize="11sp"/>
-                        </LinearLayout>
-
-                        <!-- To-Do -->
-                        <LinearLayout
-                            android:id="@+id/btn_add_todo"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:orientation="vertical">
-                            <ImageView
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:padding="8dp"
-                                android:src="@drawable/ic_todo_item"
-                                app:tint="@color/orange_warning" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/todo_label"
-                                style="@style/TextAppearance.App.LabelLarge"
-                                android:textColor="@color/orange_warning"
-                                android:textSize="11sp"/>
-                        </LinearLayout>
-
-                        <!-- Shopping -->
-                        <LinearLayout
-                            android:id="@+id/btn_add_shopping"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:orientation="vertical">
-                            <ImageView
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:padding="8dp"
-                                android:src="@drawable/v02_img_icons_shopping"
-                                app:tint="@color/green_primary" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/shopping_label"
-                                style="@style/TextAppearance.App.LabelLarge"
-                                android:textSize="11sp"/>
-                        </LinearLayout>
-
-                        <!-- Document -->
-                        <LinearLayout
-                            android:id="@+id/btn_add_document"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:orientation="vertical">
-                            <ImageView
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:padding="8dp"
-                                android:src="@drawable/v02_img_icons_doccc"
-                                app:tint="@color/doc_primary" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/documents_header"
-                                style="@style/TextAppearance.App.LabelLarge"
-                                android:textColor="@color/doc_primary"
-                                android:textSize="11sp"/>
-                        </LinearLayout>
-
+                            android:text="@string/medicine_label"
+                            style="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp"/>
                     </LinearLayout>
+
+                    <!-- To-Do -->
+                    <LinearLayout
+                        android:id="@+id/btn_add_todo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            app:cardCornerRadius="24dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="@color/badge_orange_bg"
+                            android:layout_marginBottom="@dimen/spacing_4">
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="12dp"
+                                android:src="@drawable/ic_todo_item"
+                                app:tint="@color/orange_warning"
+                                android:layout_gravity="center" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/todo_label"
+                            style="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+
+                    <!-- Shopping -->
+                    <LinearLayout
+                        android:id="@+id/btn_add_shopping"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            app:cardCornerRadius="24dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="@color/green_pale"
+                            android:layout_marginBottom="@dimen/spacing_4">
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="12dp"
+                                android:src="@drawable/ic_quick_shopping"
+                                app:tint="@color/green_primary"
+                                android:layout_gravity="center" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/shopping_label"
+                            style="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+
+                    <!-- Document -->
+                    <LinearLayout
+                        android:id="@+id/btn_add_document"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            app:cardCornerRadius="24dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="@color/doc_banner_bg"
+                            android:layout_marginBottom="@dimen/spacing_4">
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="12dp"
+                                android:src="@drawable/ic_quick_document"
+                                app:tint="@color/doc_primary"
+                                android:layout_gravity="center" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/documents_header"
+                            style="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
             <!-- Insights Section -->
             <TextView

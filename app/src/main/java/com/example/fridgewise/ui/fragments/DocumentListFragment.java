@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
@@ -146,6 +147,40 @@ public class DocumentListFragment extends Fragment {
         if (rvDocuments != null) {
             rvDocuments.setLayoutManager(new LinearLayoutManager(requireContext()));
             rvDocuments.setAdapter(adapter);
+
+            new ItemTouchHelper(new SwipeToDeleteCallback(requireContext()) {
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                    int position = viewHolder.getBindingAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION && currentDocuments != null && position < currentDocuments.size()) {
+                        DocumentItem itemToDelete = currentDocuments.get(position);
+                        
+                        // Delete with standard native confirmation dialog
+                        new AlertDialog.Builder(requireContext())
+                                .setTitle("Delete Document")
+                                .setMessage("Are you sure you want to delete this document? This action cannot be undone.")
+                                .setPositiveButton("Delete Forever", (dialog, which) -> {
+                                    new Thread(() -> {
+                                        deleteDocumentFiles(itemToDelete);
+                                        AppDatabase.getInstance(requireContext()).documentDao().delete(itemToDelete);
+                                        if (getActivity() != null) {
+                                            getActivity().runOnUiThread(() -> {
+                                                Toast.makeText(requireContext(), "Deleted", Toast.LENGTH_SHORT).show();
+                                                loadDocuments();
+                                            });
+                                        }
+                                    }).start();
+                                })
+                                .setNegativeButton("Cancel", (dialog, which) -> {
+                                    adapter.notifyItemChanged(position);
+                                })
+                                .setOnCancelListener(dialog -> {
+                                    adapter.notifyItemChanged(position);
+                                })
+                                .show();
+                    }
+                }
+            }).attachToRecyclerView(rvDocuments);
         }
 
         loadDocuments();
@@ -207,35 +242,26 @@ public class DocumentListFragment extends Fragment {
         List<DocumentItem> selectedItems = adapter.getSelectedItems();
         if (selectedItems.isEmpty()) return;
 
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_confirm_delete, null);
-        AlertDialog dialog = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
-                .setView(dialogView)
-                .create();
-        
-        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
-        TextView tvTitle = dialogView.findViewById(R.id.tvDialogTitle);
-        tvTitle.setText("Delete " + selectedItems.size() + " items?");
-
-        dialogView.findViewById(R.id.btnCancel).setOnClickListener(v -> dialog.dismiss());
-        dialogView.findViewById(R.id.btnDelete).setOnClickListener(v -> {
-            new Thread(() -> {
-                for (DocumentItem item : selectedItems) {
-                    deleteDocumentFiles(item);
-                    AppDatabase.getInstance(requireContext()).documentDao().delete(item);
-                }
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), selectedItems.size() + " documents deleted", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                        exitSelectionMode();
-                        loadDocuments();
-                    });
-                }
-            }).start();
-        });
-
-        dialog.show();
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delete " + selectedItems.size() + " items?")
+                .setMessage("This action cannot be undone.")
+                .setPositiveButton("Delete Forever", (dialog, which) -> {
+                    new Thread(() -> {
+                        for (DocumentItem item : selectedItems) {
+                            deleteDocumentFiles(item);
+                            AppDatabase.getInstance(requireContext()).documentDao().delete(item);
+                        }
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), selectedItems.size() + " documents deleted", Toast.LENGTH_SHORT).show();
+                                exitSelectionMode();
+                                loadDocuments();
+                            });
+                        }
+                    }).start();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void bulkShare() {
@@ -320,14 +346,21 @@ public class DocumentListFragment extends Fragment {
     }
 
     private void deleteDocument(DocumentItem document) {
-        new Thread(() -> {
-            deleteDocumentFiles(document);
-            AppDatabase.getInstance(requireContext()).documentDao().delete(document);
-            if (getActivity() != null) getActivity().runOnUiThread(() -> {
-                Toast.makeText(requireContext(), "Deleted", Toast.LENGTH_SHORT).show();
-                loadDocuments();
-            });
-        }).start();
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delete Document")
+                .setMessage("Are you sure you want to delete this document? This action cannot be undone.")
+                .setPositiveButton("Delete Forever", (dialog, which) -> {
+                    new Thread(() -> {
+                        deleteDocumentFiles(document);
+                        AppDatabase.getInstance(requireContext()).documentDao().delete(document);
+                        if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                            Toast.makeText(requireContext(), "Deleted", Toast.LENGTH_SHORT).show();
+                            loadDocuments();
+                        });
+                    }).start();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void deleteDocumentFiles(DocumentItem document) {

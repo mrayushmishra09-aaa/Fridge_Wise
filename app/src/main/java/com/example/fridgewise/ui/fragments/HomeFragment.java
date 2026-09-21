@@ -17,6 +17,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -25,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.provider.Settings;
+import android.transition.AutoTransition;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,6 +50,8 @@ import androidx.core.content.ContextCompat;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.textfield.TextInputEditText;
 import android.widget.ImageButton;
@@ -100,21 +104,71 @@ public class HomeFragment extends Fragment {
 
     private void checkReminderHealth(View view) {
         if (view == null) return;
-        View cvHealth = view.findViewById(R.id.cv_health_check);
+        MaterialCardView cvHealth = view.findViewById(R.id.cv_health_check);
         View btnFix = view.findViewById(R.id.btn_fix_reminders);
+        ImageView ivIcon = view.findViewById(R.id.iv_health_check_icon);
+        TextView tvTitle = view.findViewById(R.id.tv_health_check_title);
+        TextView tvSubtitle = view.findViewById(R.id.tv_health_check_subtitle);
         
         if (cvHealth == null || btnFix == null) return;
         
-        boolean isHealthy = PermissionManager.isReminderSystemHealthy(requireContext());
-        cvHealth.setVisibility(isHealthy ? View.GONE : View.VISIBLE);
+        boolean hasNotification = PermissionManager.hasNotificationPermission(requireContext());
+        boolean canScheduleAlarms = PermissionManager.canScheduleExactAlarms(requireContext());
         
-        btnFix.setOnClickListener(v -> {
-            // Open App Settings
-            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-            Uri uri = Uri.fromParts("package", requireContext().getPackageName(), null);
-            intent.setData(uri);
-            startActivity(intent);
-        });
+        if (hasNotification && canScheduleAlarms) {
+            cvHealth.setVisibility(View.GONE);
+        } else {
+            cvHealth.setVisibility(View.VISIBLE);
+            if (!hasNotification) {
+                cvHealth.setCardBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.card_red)));
+                cvHealth.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.badge_red_text)));
+                if (ivIcon != null) {
+                    ivIcon.setImageResource(R.drawable.ic_attention_red);
+                    ivIcon.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.badge_red_text)));
+                }
+                if (tvTitle != null) {
+                    tvTitle.setText("Notifications are Disabled");
+                    tvTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.badge_red_text));
+                }
+                if (tvSubtitle != null) {
+                    tvSubtitle.setText("Enable permissions to get alerts and reminders.");
+                }
+                
+                btnFix.setOnClickListener(v -> {
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    Uri uri = Uri.fromParts("package", requireContext().getPackageName(), null);
+                    intent.setData(uri);
+                    startActivity(intent);
+                });
+            } else {
+                cvHealth.setCardBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.card_orange)));
+                cvHealth.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.badge_orange_text)));
+                if (ivIcon != null) {
+                    ivIcon.setImageResource(R.drawable.ic_attention_red);
+                    ivIcon.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.badge_orange_text)));
+                }
+                if (tvTitle != null) {
+                    tvTitle.setText("Alarms & Reminders are Blocked");
+                    tvTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.badge_orange_text));
+                }
+                if (tvSubtitle != null) {
+                    tvSubtitle.setText("Allow exact alarms in Special App Access for precise alerts.");
+                }
+                
+                btnFix.setOnClickListener(v -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                        intent.setData(Uri.fromParts("package", requireContext().getPackageName(), null));
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", requireContext().getPackageName(), null);
+                        intent.setData(uri);
+                        startActivity(intent);
+                    }
+                });
+            }
+        }
     }
 
     private void setupDashboard(View view) {
@@ -268,6 +322,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupUniversalInput(View view) {
+        View btnToggle = view.findViewById(R.id.btn_toggle_shortcode);
+        View llContainer = view.findViewById(R.id.ll_home_shortcode_container);
         TextInputEditText etShortCode = view.findViewById(R.id.et_home_short_code);
         ImageButton btnSubmit = view.findViewById(R.id.btn_quick_add_submit);
         ChipGroup cgFeedback = view.findViewById(R.id.cg_home_parsing_feedback);
@@ -277,6 +333,22 @@ public class HomeFragment extends Fragment {
         TextView tvResultTitle = view.findViewById(R.id.tv_result_title);
         TextView tvResultDetails = view.findViewById(R.id.tv_result_details);
         ImageButton btnCloseResult = view.findViewById(R.id.btn_close_result);
+
+        if (btnToggle != null && llContainer != null) {
+            btnToggle.setOnClickListener(v -> {
+                boolean isVisible = llContainer.getVisibility() == View.VISIBLE;
+                AutoTransition transition = new AutoTransition();
+                transition.setDuration(200);
+                TransitionManager.beginDelayedTransition((ViewGroup) view.getRootView(), transition);
+                if (isVisible) {
+                    llContainer.setVisibility(View.GONE);
+                    btnToggle.animate().rotation(0f).setDuration(200).start();
+                } else {
+                    llContainer.setVisibility(View.VISIBLE);
+                    btnToggle.animate().rotation(45f).setDuration(200).start();
+                }
+            });
+        }
 
         if (etShortCode == null || btnSubmit == null || cgFeedback == null || cgSuggestions == null) return;
 
@@ -529,11 +601,20 @@ public class HomeFragment extends Fragment {
         
         LinearLayout llHeader = view.findViewById(R.id.ll_quick_add_header);
         LinearLayout llOptions = view.findViewById(R.id.ll_quick_add_options);
+        View ivArrow = view.findViewById(R.id.iv_expand_arrow);
         if (llHeader != null && llOptions != null) {
             llHeader.setOnClickListener(v -> {
-                int vis = llOptions.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE;
-                TransitionManager.beginDelayedTransition((ViewGroup) view);
-                llOptions.setVisibility(vis);
+                boolean isVisible = llOptions.getVisibility() == View.VISIBLE;
+                AutoTransition transition = new AutoTransition();
+                transition.setDuration(200);
+                TransitionManager.beginDelayedTransition((ViewGroup) view.getRootView(), transition);
+                if (isVisible) {
+                    llOptions.setVisibility(View.GONE);
+                    if (ivArrow != null) ivArrow.animate().rotation(0f).setDuration(200).start();
+                } else {
+                    llOptions.setVisibility(View.VISIBLE);
+                    if (ivArrow != null) ivArrow.animate().rotation(90f).setDuration(200).start();
+                }
             });
         }
 

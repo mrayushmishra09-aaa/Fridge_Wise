@@ -10,6 +10,8 @@ public class PreferenceManager {
     private static final String TAG = "PreferenceManager";
     private static final String PREF_NAME = "FridgeWisePrefs_Secure";
     private static final String KEY_IS_FIRST_TIME = "isFirstTimeLaunch";
+    private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
+    private static final String KEY_IS_GUEST = "isGuest";
     private static final String KEY_USER_NAME = "userName";
     private static final String KEY_USER_EMAIL = "userEmail";
     private static final String KEY_USER_DOB = "userDOB";
@@ -60,6 +62,28 @@ public class PreferenceManager {
 
     public boolean isFirstTimeLaunch() {
         return pref.getBoolean(KEY_IS_FIRST_TIME, true);
+    }
+
+    public void setLoggedIn(boolean isLoggedIn) {
+        if (editor != null) {
+            editor.putBoolean(KEY_IS_LOGGED_IN, isLoggedIn);
+            editor.apply();
+        }
+    }
+
+    public boolean isLoggedIn() {
+        return pref.getBoolean(KEY_IS_LOGGED_IN, false);
+    }
+
+    public void setGuest(boolean isGuest) {
+        if (editor != null) {
+            editor.putBoolean(KEY_IS_GUEST, isGuest);
+            editor.apply();
+        }
+    }
+
+    public boolean isGuest() {
+        return pref.getBoolean(KEY_IS_GUEST, false);
     }
 
     public void setUserName(String name) {

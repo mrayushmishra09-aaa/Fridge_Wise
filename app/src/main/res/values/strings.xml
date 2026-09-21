@@ -173,4 +173,16 @@
     <string name="bulk_delete_message">This action is permanent and cannot be undone.</string>
     <string name="bulk_delete_confirm">Delete Forever</string>
     <string name="note_copied">Note copied to clipboard</string>
+    <string name="quick_input_title">Quick Input</string>
+    <string name="toggle_quick_actions_desc">Toggle Quick Actions</string>
+    <string name="shortcode_hint">Try \'3 Milk exp 12/28\'</string>
+
+    <!-- Auth Strings -->
+    <string name="google_web_client_id">YOUR_WEB_CLIENT_ID_HERE.apps.googleusercontent.com</string>
+    <string name="sign_in_google">Sign in with Google</string>
+    <string name="continue_as_guest">Continue as Guest</string>
+    <string name="welcome_back">Welcome Back!</string>
+    <string name="sign_in_to_sync">Sign in to sync your data</string>
+    <string name="already_have_account">Already have an account? Log In</string>
+    <string name="create_account">Create new account</string>
 </resources>

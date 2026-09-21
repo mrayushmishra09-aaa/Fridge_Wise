@@ -273,17 +273,27 @@ public class InventoryFragment extends Fragment {
     }
 
     private void setupSwipeToDelete() {
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
+        new ItemTouchHelper(new SwipeToDeleteCallback(requireContext()) {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getBindingAdapterPosition();
-                FoodItem itemToDelete = adapter.getFoodList().get(position);
-                deleteItem(itemToDelete);
+                if (position != RecyclerView.NO_POSITION && adapter.getFoodList() != null && position < adapter.getFoodList().size()) {
+                    FoodItem itemToDelete = adapter.getFoodList().get(position);
+                    
+                    new AlertDialog.Builder(requireContext())
+                            .setTitle("Delete " + itemToDelete.getName() + "?")
+                            .setMessage("This action cannot be undone.")
+                            .setPositiveButton("Delete Forever", (dialog, which) -> {
+                                deleteItem(itemToDelete);
+                            })
+                            .setNegativeButton("Cancel", (dialog, which) -> {
+                                adapter.notifyItemChanged(position);
+                            })
+                            .setOnCancelListener(dialog -> {
+                                adapter.notifyItemChanged(position);
+                            })
+                            .show();
+                }
             }
         }).attachToRecyclerView(recyclerView);
     }

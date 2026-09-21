@@ -368,19 +368,26 @@ public class TodoListFragment extends Fragment {
     }
 
     private void setupSwipeToDelete() {
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
+        new ItemTouchHelper(new SwipeToDeleteCallback(requireContext()) {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getBindingAdapterPosition();
-                // We need to get the item from the adapter because it's filtered
-                if (adapter != null && position < adapter.getItemCount()) {
+                if (adapter != null && position != RecyclerView.NO_POSITION && position < adapter.getTodoItems().size()) {
                     TodoItem itemToDelete = adapter.getTodoItems().get(position);
-                    deleteTask(itemToDelete);
+                    
+                    new AlertDialog.Builder(requireContext())
+                            .setTitle("Delete Task?")
+                            .setMessage("Are you sure you want to delete this task? This action cannot be undone.")
+                            .setPositiveButton("Delete Forever", (dialog, which) -> {
+                                deleteTask(itemToDelete);
+                            })
+                            .setNegativeButton("Cancel", (dialog, which) -> {
+                                adapter.notifyItemChanged(position);
+                            })
+                            .setOnCancelListener(dialog -> {
+                                adapter.notifyItemChanged(position);
+                            })
+                            .show();
                 }
             }
         }).attachToRecyclerView(rvTasks);
