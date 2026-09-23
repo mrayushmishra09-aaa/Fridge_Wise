@@ -95,10 +95,7 @@
                             <ImageView
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:padding="@dimen/spacing_16"
-                                android:src="@drawable/outline_pfp_24"
-                                app:tint="@color/profile_text_secondary"
-                                android:alpha="0.5" />
+                                android:src="@drawable/ic_default_avatar" />
                             <ImageView
                                 android:id="@+id/ivUserProfile"
                                 android:layout_width="match_parent"

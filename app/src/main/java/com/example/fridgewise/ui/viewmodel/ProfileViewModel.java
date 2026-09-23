@@ -18,8 +18,12 @@ public class ProfileViewModel extends AndroidViewModel {
     private final MutableLiveData<String> userName = new MutableLiveData<>();
     private final MutableLiveData<String> userEmail = new MutableLiveData<>();
     private final MutableLiveData<String> userDOB = new MutableLiveData<>();
+    private final MutableLiveData<String> userId = new MutableLiveData<>();
+    private final MutableLiveData<String> authProvider = new MutableLiveData<>();
     private final MutableLiveData<String> userPassword = new MutableLiveData<>();
     private final MutableLiveData<String> profileImageUri = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isLoggedIn = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isGuest = new MutableLiveData<>();
     private final MutableLiveData<Boolean> logoutCompleted = new MutableLiveData<>(false);
 
     public ProfileViewModel(@NonNull Application application) {
@@ -32,8 +36,20 @@ public class ProfileViewModel extends AndroidViewModel {
         userName.setValue(prefManager.getUserName());
         userEmail.setValue(prefManager.getUserEmail());
         userDOB.setValue(prefManager.getUserDOB());
+        userId.setValue(prefManager.getUserId());
+        authProvider.setValue(prefManager.getAuthProvider());
         userPassword.setValue(prefManager.getUserPassword());
         profileImageUri.setValue(prefManager.getProfileImageUri());
+        isLoggedIn.setValue(prefManager.isLoggedIn());
+        isGuest.setValue(prefManager.isGuest());
+    }
+
+    public LiveData<Boolean> getIsLoggedIn() {
+        return isLoggedIn;
+    }
+
+    public LiveData<Boolean> getIsGuest() {
+        return isGuest;
     }
 
     public LiveData<String> getUserName() {
@@ -46,6 +62,14 @@ public class ProfileViewModel extends AndroidViewModel {
 
     public LiveData<String> getUserDOB() {
         return userDOB;
+    }
+
+    public LiveData<String> getUserId() {
+        return userId;
+    }
+
+    public LiveData<String> getAuthProvider() {
+        return authProvider;
     }
 
     public LiveData<String> getUserPassword() {

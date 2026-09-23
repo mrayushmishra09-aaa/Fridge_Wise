@@ -8,6 +8,7 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
@@ -154,7 +155,7 @@ public class AddSpaceItemFragment extends Fragment {
             btnRemoveFile.setVisibility(View.GONE);
         });
 
-        view.findViewById(R.id.btnBack).setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        view.findViewById(R.id.btnBack).setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
         view.findViewById(R.id.btnSave).setOnClickListener(v -> saveItem());
 
         return view;
@@ -301,7 +302,9 @@ public class AddSpaceItemFragment extends Fragment {
             }
 
             if (isAdded()) {
-                requireActivity().runOnUiThread(() -> getParentFragmentManager().popBackStack());
+                requireActivity().runOnUiThread(() -> {
+                    if (getView() != null) Navigation.findNavController(getView()).popBackStack();
+                });
             }
         });
     }

@@ -25,10 +25,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import com.example.fridgewise.util.IdentityNudgeWorker;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import androidx.core.splashscreen.SplashScreen;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
@@ -43,7 +45,17 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+
         super.onCreate(savedInstanceState);
+
+        PreferenceManager prefManager = new PreferenceManager(this);
+        if (!prefManager.isLoggedIn() && (prefManager.isFirstTimeLaunch() || !prefManager.isGuest())) {
+            startActivity(new Intent(this, OnboardingActivity.class));
+            finish();
+            return;
+        }
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
@@ -54,6 +66,54 @@ public class MainActivity extends AppCompatActivity {
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
             NavigationUI.setupWithNavController(bottomNavigationView, navController);
+
+            // Ensure sub-destinations map to their parent bottom nav tab
+            navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+                int destId = destination.getId();
+                int tabMenuId = -1;
+
+                if (destId == R.id.nav_home || destId == R.id.globalSearchFragment) {
+                    tabMenuId = R.id.nav_home;
+                } else if (destId == R.id.nav_inventory || destId == R.id.addItemFragment) {
+                    tabMenuId = R.id.nav_inventory;
+                } else if (destId == R.id.nav_memory || destId == R.id.med_section
+                        || destId == R.id.todoListFragment || destId == R.id.shoppingListFragment
+                        || destId == R.id.documentListFragment || destId == R.id.createSpaceFragment
+                        || destId == R.id.addSpaceItemFragment || destId == R.id.customSpaceInventoryFragment
+                        || destId == R.id.medicineAddFragment || destId == R.id.addTodoFragment
+                        || destId == R.id.addDocumentFragment) {
+                    tabMenuId = R.id.nav_memory;
+                } else if (destId == R.id.nav_alerts) {
+                    tabMenuId = R.id.nav_alerts;
+                } else if (destId == R.id.nav_pfp) {
+                    tabMenuId = R.id.nav_pfp;
+                }
+
+                if (tabMenuId != -1) {
+                    MenuItem item = bottomNavigationView.getMenu().findItem(tabMenuId);
+                    if (item != null && !item.isChecked()) {
+                        item.setChecked(true);
+                    }
+                }
+            });
+
+            // Handle tab reselection: reset to tab root if in sub-destination
+            bottomNavigationView.setOnItemReselectedListener(item -> {
+                int itemId = item.getItemId();
+                int currentDestId = navController.getCurrentDestination() != null ? navController.getCurrentDestination().getId() : -1;
+
+                if (itemId == R.id.nav_memory && currentDestId != R.id.nav_memory) {
+                    navController.popBackStack(R.id.nav_memory, false);
+                } else if (itemId == R.id.nav_home && currentDestId != R.id.nav_home) {
+                    navController.popBackStack(R.id.nav_home, false);
+                } else if (itemId == R.id.nav_inventory && currentDestId != R.id.nav_inventory) {
+                    navController.popBackStack(R.id.nav_inventory, false);
+                } else if (itemId == R.id.nav_alerts && currentDestId != R.id.nav_alerts) {
+                    navController.popBackStack(R.id.nav_alerts, false);
+                } else if (itemId == R.id.nav_pfp && currentDestId != R.id.nav_pfp) {
+                    navController.popBackStack(R.id.nav_pfp, false);
+                }
+            });
         }
 
         // Set default fragment on first launch
@@ -85,6 +145,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         scheduleSmartCleanup();
+        scheduleIdentityNudge();
+    }
+
+    private void scheduleIdentityNudge() {
+        PeriodicWorkRequest nudgeRequest = new PeriodicWorkRequest.Builder(
+                IdentityNudgeWorker.class, 2, TimeUnit.DAYS) // Nudge every 2 days
+                .setInitialDelay(1, TimeUnit.DAYS) // Wait 1 day before first nudge
+                .build();
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "IdentityNudgeWork",
+                ExistingPeriodicWorkPolicy.KEEP,
+                nudgeRequest
+        );
     }
 
     private void scheduleSmartCleanup() {
@@ -115,25 +189,20 @@ public class MainActivity extends AppCompatActivity {
                 .findFragmentById(R.id.fragmentContainerView2);
         if (navHostFragment == null) return;
         NavController navController = navHostFragment.getNavController();
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
 
         if (target == null) return;
 
         switch (target) {
             case "MEDICINE":
-                bottomNav.setSelectedItemId(R.id.nav_memory);
                 navController.navigate(R.id.med_section);
                 break;
             case "TODO":
-                bottomNav.setSelectedItemId(R.id.nav_memory);
                 navController.navigate(R.id.todoListFragment);
                 break;
             case "FOOD":
-                bottomNav.setSelectedItemId(R.id.nav_inventory);
                 navController.navigate(R.id.nav_inventory);
                 break;
             default:
-                bottomNav.setSelectedItemId(R.id.nav_home);
                 navController.navigate(R.id.nav_home);
                 break;
         }

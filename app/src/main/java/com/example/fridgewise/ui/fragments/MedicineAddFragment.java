@@ -8,6 +8,7 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import androidx.navigation.Navigation;
 
 import com.example.fridgewise.R;
 
@@ -99,7 +100,7 @@ public class MedicineAddFragment extends Fragment {
 
         ImageView backbtn = view.findViewById(R.id.backBtn);
         backbtn.setOnClickListener(v->{
-            getParentFragmentManager().popBackStack();
+            Navigation.findNavController(v).popBackStack();
         });
 
         ImageView btnInfo = view.findViewById(R.id.btnInfo);
@@ -285,7 +286,7 @@ public class MedicineAddFragment extends Fragment {
                 if (activity != null) {
                     activity.runOnUiThread(() -> {
                         Toast.makeText(context, existingMedicine != null ? "Medicine Updated!" : "Medicine Saved!", Toast.LENGTH_SHORT).show();
-                        getParentFragmentManager().popBackStack();
+                        if (getView() != null) Navigation.findNavController(getView()).popBackStack();
                     });
                 }
             }

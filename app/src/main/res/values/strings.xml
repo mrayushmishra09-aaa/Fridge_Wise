@@ -56,6 +56,9 @@
     <string name="update_space">Update Space</string>
     <string name="char_count_30">%1$d/30</string>
     <string name="char_count_80">%1$d/80</string>
+    <string name="enter_user_id_error">Please create a valid User ID</string>
+    <string name="user_id_taken_error">This User ID is already taken. Try another!</string>
+    <string name="create_user_id_hint">Create your User ID (e.g. shine123)</string>
     <string name="view_all_link">View All</string>
     <string name="more_options_soon">Choose the structure of your space:</string>
     <string name="option_progress_bar">Progress Tracking (Bar)</string>
@@ -185,4 +188,6 @@
     <string name="sign_in_to_sync">Sign in to sync your data</string>
     <string name="already_have_account">Already have an account? Log In</string>
     <string name="create_account">Create new account</string>
+    <string name="guest_mode_desc">Guest Mode - Data is local only</string>
+    <string name="guest_user">Guest User</string>
 </resources>

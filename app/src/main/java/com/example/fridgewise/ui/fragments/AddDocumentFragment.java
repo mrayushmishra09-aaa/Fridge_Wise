@@ -8,6 +8,7 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import androidx.navigation.Navigation;
 
 import com.example.fridgewise.R;
 
@@ -121,7 +122,7 @@ public class AddDocumentFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_add_document, container, false);
 
         // --- Back Button ---
-        view.findViewById(R.id.btnBack).setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        view.findViewById(R.id.btnBack).setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
 
         // --- View Initializations ---
         ivDocPreview = view.findViewById(R.id.ivDocPreview);
@@ -224,7 +225,9 @@ public class AddDocumentFragment extends Fragment {
                         if (getContext() != null) {
                             Toast.makeText(getContext(), editingDocument == null ? "Document saved" : "Document updated", Toast.LENGTH_SHORT).show();
                         }
-                        getParentFragmentManager().popBackStack();
+                        if (getView() != null) {
+                            Navigation.findNavController(getView()).popBackStack();
+                        }
                     });
                 }
             }).start();

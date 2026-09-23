@@ -8,6 +8,7 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import androidx.navigation.Navigation;
 
 import com.example.fridgewise.R;
 
@@ -96,7 +97,7 @@ public class ShoppingListFragment extends Fragment {
             }
         });
 
-        btnBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        btnBack.setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
 
         btnShare.setOnClickListener(v -> shareShoppingList());
 

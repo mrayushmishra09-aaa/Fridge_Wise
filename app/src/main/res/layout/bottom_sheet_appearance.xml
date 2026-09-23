@@ -68,8 +68,11 @@
         android:layout_marginTop="32dp"
         android:text="Apply"
         android:textAllCaps="false"
+        android:textColor="@color/white"
         android:textStyle="bold"
         app:cornerRadius="16dp"
-        android:backgroundTint="@color/profile_accent_green" />
+        app:strokeColor="@color/glass_outline"
+        app:strokeWidth="1dp"
+        android:backgroundTint="@color/settings_button_tint" />
 
 </LinearLayout>

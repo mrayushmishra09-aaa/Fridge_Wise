@@ -35,6 +35,12 @@ public class NotificationPersonalityEngine {
             "Whenever you have a moment, this is waiting."
     };
 
+    private static final String[] SECURITY_NUDGE = {
+            "Your data is important! Sign in to keep your fridge safe.",
+            "Don't lose your inventory. Secure your account today.",
+            "Want to sync with your other devices? Just sign in!"
+    };
+
     public static String getHumanizedMessage(String baseTask, boolean isFollowUp, int dismissalsCount) {
         StringBuilder sb = new StringBuilder();
         
@@ -61,6 +67,10 @@ public class NotificationPersonalityEngine {
         if (hour >= 5 && hour < 12) return getRandom(MORNING_GREETINGS);
         if (hour >= 12 && hour < 17) return getRandom(AFTERNOON_GREETINGS);
         return getRandom(EVENING_GREETINGS);
+    }
+
+    public static String getSecurityNudge() {
+        return getRandom(SECURITY_NUDGE);
     }
 
     private static String getRandom(String[] array) {

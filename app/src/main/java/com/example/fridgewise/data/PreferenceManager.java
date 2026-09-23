@@ -16,6 +16,8 @@ public class PreferenceManager {
     private static final String KEY_USER_EMAIL = "userEmail";
     private static final String KEY_USER_DOB = "userDOB";
     private static final String KEY_USER_PASSWORD = "userPassword";
+    private static final String KEY_USER_ID = "userId";
+    private static final String KEY_AUTH_PROVIDER = "authProvider"; // "GOOGLE" or "GUEST"
     private static final String KEY_PROFILE_IMAGE_URI = "profileImageUri";
     private static final String KEY_APP_THEME = "appTheme"; // 0: System, 1: Light, 2: Dark
     private static final String KEY_NOTIF_EXPIRY = "notifExpiry";
@@ -128,6 +130,28 @@ public class PreferenceManager {
 
     public String getUserPassword() {
         return pref.getString(KEY_USER_PASSWORD, "********");
+    }
+
+    public void setUserId(String userId) {
+        if (editor != null) {
+            editor.putString(KEY_USER_ID, userId);
+            editor.apply();
+        }
+    }
+
+    public String getUserId() {
+        return pref.getString(KEY_USER_ID, null);
+    }
+
+    public void setAuthProvider(String provider) {
+        if (editor != null) {
+            editor.putString(KEY_AUTH_PROVIDER, provider);
+            editor.apply();
+        }
+    }
+
+    public String getAuthProvider() {
+        return pref.getString(KEY_AUTH_PROVIDER, null);
     }
 
     public void setProfileImageUri(String uri) {

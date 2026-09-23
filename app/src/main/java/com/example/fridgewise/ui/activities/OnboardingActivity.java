@@ -12,6 +12,7 @@ import com.example.fridgewise.R;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
@@ -50,9 +51,11 @@ public class OnboardingActivity extends AppCompatActivity {
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                if (position == 2) { // Last page (Registration)
-                    btnNext.setText("Get Started");
+                if (position == 2) { // Last page (Registration / Login)
+                    // Hide the bottom controls layout entirely on the Login page
+                    findViewById(R.id.ll_bottom_controls).setVisibility(View.GONE);
                 } else {
+                    findViewById(R.id.ll_bottom_controls).setVisibility(View.VISIBLE);
                     btnNext.setText("Next");
                 }
             }

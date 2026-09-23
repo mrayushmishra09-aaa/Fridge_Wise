@@ -142,7 +142,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
 
             @Override
             public void onDeleteClick(CustomSpaceItem item) {
-                deleteItem(item);
+                deleteItem(item, -1);
             }
 
             @Override

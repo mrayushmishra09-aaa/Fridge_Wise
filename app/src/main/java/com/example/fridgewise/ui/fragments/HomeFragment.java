@@ -9,6 +9,7 @@ import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
 import com.example.fridgewise.util.PermissionManager;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.example.fridgewise.R;
 
@@ -250,7 +251,12 @@ public class HomeFragment extends Fragment {
             
             TextView tvUserName = view.findViewById(R.id.tv_user_name);
             if (tvUserName != null && state.userName != null) {
-                tvUserName.setText("Hello, " + state.userName);
+                PreferenceManager pm = new PreferenceManager(requireContext());
+                if (pm.getUserId() != null) {
+                    tvUserName.setText("Hello, " + pm.getUserId());
+                } else {
+                    tvUserName.setText("Hello, " + state.userName);
+                }
             }
 
             // Update Recent Activities
@@ -584,6 +590,34 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupNavigation(View view) {
+        View ivProfile = view.findViewById(R.id.pfp01);
+        if (ivProfile != null) {
+            ivProfile.setOnClickListener(v -> {
+                try {
+                    BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottomNavigationView);
+                    if (bottomNav != null) {
+                        bottomNav.setSelectedItemId(R.id.nav_pfp);
+                    } else {
+                        Navigation.findNavController(v).navigate(R.id.nav_pfp);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            
+            // Set avatar if customized locally
+            PreferenceManager pm = new PreferenceManager(requireContext());
+            if (pm.getProfileImageUri() != null && !pm.getProfileImageUri().isEmpty()) {
+                try {
+                    ((ImageView) ivProfile).setImageURI(Uri.parse(pm.getProfileImageUri()));
+                } catch (Exception e) {
+                    ((ImageView) ivProfile).setImageResource(R.drawable.ic_default_avatar);
+                }
+            } else {
+                ((ImageView) ivProfile).setImageResource(R.drawable.ic_default_avatar);
+            }
+        }
+
         View btnAddFood = view.findViewById(R.id.btn_add_food);
         if (btnAddFood != null) btnAddFood.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.addItemFragment));
         

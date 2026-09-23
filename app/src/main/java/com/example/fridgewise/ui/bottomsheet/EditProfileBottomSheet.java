@@ -16,6 +16,12 @@ import com.example.fridgewise.R;
 import com.example.fridgewise.ui.viewmodel.ProfileViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.datepicker.MaterialDatePicker;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class EditProfileBottomSheet extends BottomSheetDialogFragment {
 
@@ -39,6 +45,8 @@ public class EditProfileBottomSheet extends BottomSheetDialogFragment {
         etPassword = view.findViewById(R.id.etEditPassword);
         MaterialButton btnDone = view.findViewById(R.id.btnSaveProfile);
 
+        etDOB.setOnClickListener(v -> showDatePicker());
+
         // Pre-fill
         etUsername.setText(viewModel.getUserName().getValue());
         etDOB.setText(viewModel.getUserDOB().getValue());
@@ -58,6 +66,22 @@ public class EditProfileBottomSheet extends BottomSheetDialogFragment {
                 dismiss();
             }
         });
+    }
+
+    private void showDatePicker() {
+        MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select Date of Birth")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            calendar.setTimeInMillis(selection);
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            etDOB.setText(format.format(calendar.getTime()));
+        });
+
+        datePicker.show(getParentFragmentManager(), "DATE_PICKER");
     }
 
     private boolean validateFields(String username, String dob, String email, String password) {

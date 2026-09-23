@@ -85,6 +85,11 @@ public class ProfileFragment extends Fragment {
         // Initialize views
         tvUsername = view.findViewById(R.id.pfp_username_show);
         tvUserEmail = view.findViewById(R.id.pfp_user_email_show);
+        
+        TextView tvUserIdDisplay = new TextView(getContext());
+        // We will bind text inside the observer
+        
+        // Let's bind User ID safely inside the view hierarchy or update the fields cleanly
         // tvUserDOB = view.findViewById(R.id.pfp_user_dob_show);
         ivUserProfile = view.findViewById(R.id.ivUserProfile);
         profileCameraIcon = view.findViewById(R.id.pfp_img_add);
@@ -96,7 +101,30 @@ public class ProfileFragment extends Fragment {
 
         // Observe ViewModel
         viewModel.getUserName().observe(getViewLifecycleOwner(), name -> tvUsername.setText(name));
+        
+        viewModel.getUserId().observe(getViewLifecycleOwner(), uid -> {
+            if (uid != null && !uid.isEmpty()) {
+                tvUsername.setText(uid);
+            }
+        });
+
         viewModel.getUserEmail().observe(getViewLifecycleOwner(), email -> tvUserEmail.setText(email));
+        
+        viewModel.getAuthProvider().observe(getViewLifecycleOwner(), provider -> {
+            View badge = getView() != null ? getView().findViewById(R.id.badge_member) : null;
+            if (badge instanceof LinearLayout && getView() != null) {
+                TextView badgeText = (TextView) ((LinearLayout) badge).getChildAt(1);
+                if ("GUEST".equals(provider)) {
+                    badgeText.setText(R.string.guest_user);
+                    tvUserEmail.setText(R.string.guest_mode_desc);
+                } else if ("GOOGLE".equals(provider)) {
+                    badgeText.setText("Google Account");
+                    if (viewModel.getUserEmail().getValue() != null) {
+                        tvUserEmail.setText(viewModel.getUserEmail().getValue());
+                    }
+                }
+            }
+        });
         /*
         viewModel.getUserDOB().observe(getViewLifecycleOwner(), dob -> {
             if (tvUserDOB != null) tvUserDOB.setText("Date of Birth: " + dob);
@@ -116,10 +144,12 @@ public class ProfileFragment extends Fragment {
                     ivUserProfile.setImageURI(uri);
                     ivUserProfile.setVisibility(View.VISIBLE);
                 } catch (Exception e) {
-                    ivUserProfile.setVisibility(View.GONE);
+                    ivUserProfile.setImageResource(R.drawable.ic_default_avatar);
+                    ivUserProfile.setVisibility(View.VISIBLE);
                 }
             } else {
-                ivUserProfile.setVisibility(View.GONE);
+                ivUserProfile.setImageResource(R.drawable.ic_default_avatar);
+                ivUserProfile.setVisibility(View.VISIBLE);
             }
             // Camera icon stays visible as a professional "Edit" trigger
             profileCameraIcon.setVisibility(View.VISIBLE);
@@ -204,10 +234,10 @@ public class ProfileFragment extends Fragment {
     }
 
     private void navigateToMain() {
-        Intent intent = new Intent(getActivity(), MainActivity2.class);
+        Intent intent = new Intent(getActivity(), MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        getActivity().finish();
+        if (getActivity() != null) getActivity().finish();
     }
 
     private void showLogoutConfirmation() {

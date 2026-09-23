@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/reg_bg_end"
     tools:context=".OnboardingActivity">
 
     <androidx.viewpager2.widget.ViewPager2
@@ -18,10 +18,13 @@
         android:id="@+id/ll_bottom_controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_onboarding_controls"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingBottom="32dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:paddingTop="20dp"
+        android:paddingBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="0dp">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
@@ -31,31 +34,35 @@
             app:tabBackground="@drawable/dot_selector"
             app:tabGravity="center"
             app:tabIndicatorHeight="0dp"
-            app:tabRippleColor="@null"
             app:tabMaxWidth="24dp"
             app:tabMinWidth="24dp"
+            app:tabPaddingEnd="0dp"
             app:tabPaddingStart="0dp"
-            app:tabPaddingEnd="0dp" />
+            app:tabRippleColor="@null" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNext"
+            style="@style/Widget.Material3.Button.UnelevatedButton"
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:layout_marginHorizontal="24dp"
             android:layout_marginTop="24dp"
+            android:background="@drawable/bg_onboarding_btn_premium"
+            android:elevation="8dp"
+            android:stateListAnimator="@null"
             android:text="Next"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:backgroundTint="@color/onboarding_primary"
-            app:cornerRadius="20dp"
+            app:backgroundTint="@null"
             app:icon="@drawable/ic_arrow_forward"
             app:iconGravity="end"
-            app:iconPadding="12dp"
-            app:iconSize="20dp"
+            android:layout_marginBottom="15dp"
+            app:iconPadding="16dp"
+            app:iconSize="22dp"
             app:iconTint="@color/white"
-            />
+            app:shapeAppearanceOverlay="@null" />
 
     </LinearLayout>
 

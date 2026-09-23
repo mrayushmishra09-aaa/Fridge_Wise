@@ -8,6 +8,7 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import androidx.navigation.Navigation;
 
 import com.example.fridgewise.R;
 import com.google.android.material.textfield.TextInputLayout;
@@ -236,7 +237,7 @@ public class AddItemFragment extends Fragment {
                         } catch (Exception ignored) {}
                         
                         Toast.makeText(context, editingItem == null ? "Item added" : "Item updated", Toast.LENGTH_SHORT).show();
-                        getParentFragmentManager().popBackStack();
+                        if (getView() != null) Navigation.findNavController(getView()).popBackStack();
                     });
                 }
             });

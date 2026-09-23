@@ -8,6 +8,7 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import androidx.navigation.Navigation;
 
 import android.app.Activity;
 import android.content.Context;
@@ -160,7 +161,7 @@ public class TodoListFragment extends Fragment {
         });
 
         btnBacktodo.setOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
+            Navigation.findNavController(v).popBackStack();
         });
 
         return view;

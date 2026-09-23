@@ -8,6 +8,7 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import androidx.navigation.Navigation;
 
 import com.example.fridgewise.R;
 
@@ -139,7 +140,7 @@ public class AddTodoFragment extends Fragment {
 
                     requireActivity().runOnUiThread(() -> {
                         Toast.makeText(requireContext(), "Task updated successfully!", Toast.LENGTH_SHORT).show();
-                        requireActivity().getSupportFragmentManager().popBackStack();
+                        if (getView() != null) Navigation.findNavController(getView()).popBackStack();
                     });
                 }).start();
             } else {
@@ -157,14 +158,14 @@ public class AddTodoFragment extends Fragment {
 
                     requireActivity().runOnUiThread(() -> {
                         Toast.makeText(requireContext(), "Task added successfully!", Toast.LENGTH_SHORT).show();
-                        requireActivity().getSupportFragmentManager().popBackStack();
+                        if (getView() != null) Navigation.findNavController(getView()).popBackStack();
                     });
                 }).start();
             }
         });
 
         // Handle Back Button
-        btnBack.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+        btnBack.setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
 
         // Handle Date Selection
         tvDate.setOnClickListener(v -> {

@@ -8,6 +8,7 @@
     <color name="profile_text_primary">#1A1A1A</color>
     <color name="profile_text_secondary">#757575</color>
     <color name="profile_accent_green">#2D6A4F</color>
+    <color name="settings_button_tint">#2D6A4F</color>
     <color name="profile_accent_teal">#2DD4BF</color>
     <color name="profile_accent_blue">#1565C0</color>
     <color name="profile_accent_purple">#7C4DFF</color>
@@ -103,6 +104,21 @@
     <color name="onboarding_tip_bg">#EDF5F1</color>
     <color name="onboarding_tip_text">#2D6A4F</color>
     <color name="onboarding_dot_inactive">#D1D9D5</color>
+
+    <!-- Registration Redesign Light Mode Colors -->
+    <color name="reg_bg_start">#EAF5EE</color>
+    <color name="reg_bg_end">#FFFFFF</color>
+    <color name="reg_card_bg">#FFFFFF</color>
+    <color name="reg_card_stroke">#E8F2EC</color>
+    <color name="reg_input_bg">#F4F8F6</color>
+    <color name="reg_input_stroke">#E2EBE6</color>
+    <color name="reg_text_primary">#1B4332</color>
+    <color name="reg_text_secondary">#60786E</color>
+    <color name="reg_btn_gradient_start">#2D6A4F</color>
+    <color name="reg_btn_gradient_end">#1B4332</color>
+    <color name="reg_glass_shadow">#0D2D6A4F</color>
+    <color name="onboarding_tip_bg_dark">#EDF5F1</color>
+    <color name="onboarding_tip_text_dark">#2D6A4F</color>
 
     <!-- Premium Dark Theme -->
     <color name="premium_dark_bg">#1C1E22</color>

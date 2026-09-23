@@ -32,6 +32,14 @@
 
         <!-- Component Styles -->
         <item name="floatingActionButtonStyle">@style/Widget.App.FloatingActionButton</item>
+    </style>
 
+    <style name="Theme.FridgeWise" parent="Base.Theme.FridgeWise" />
+
+    <!-- Splash Screen Starting Theme -->
+    <style name="Theme.FridgeWise.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/bg_primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_img</item>
+        <item name="postSplashScreenTheme">@style/Theme.FridgeWise</item>
     </style>
 </resources>

@@ -1,217 +1,386 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:fillViewport="true">
+    android:background="@drawable/bg_registration_main"
+    android:clickable="true"
+    android:focusable="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
-        <!-- Header -->
-        <TextView
-            android:id="@+id/tvRegTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Make FridgeWise\nyours"
-            android:textColor="@color/onboarding_text_header"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tvRegSub"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="A few details will help us\npersonalize your experience."
-            android:textColor="@color/text_gray"
-            android:textSize="15sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvRegTitle" />
-
-        <!-- Profile Image Area -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/clProfilePic"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvRegSub">
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="24dp">
 
-            <ImageView
-                android:id="@+id/ivProfilePlaceholder"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:src="@drawable/bg_profile_placeholder"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+            <!-- Top Padding to fix status bar overlapping -->
+            <View
+                android:id="@+id/vStatusBarSpacer"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- Logo Section -->
             <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:alpha="0.2"
-                android:src="@drawable/pfp_img"
-                app:layout_constraintBottom_toBottomOf="@id/ivProfilePlaceholder"
-                app:layout_constraintEnd_toEndOf="@id/ivProfilePlaceholder"
-                app:layout_constraintStart_toStartOf="@id/ivProfilePlaceholder"
-                app:layout_constraintTop_toTopOf="@id/ivProfilePlaceholder" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                app:cardBackgroundColor="@color/onboarding_primary"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:layout_constraintBottom_toBottomOf="@id/ivProfilePlaceholder"
-                app:layout_constraintEnd_toEndOf="@id/ivProfilePlaceholder"
-                app:layout_constraintHorizontal_bias="0.9"
-                app:layout_constraintStart_toStartOf="@id/ivProfilePlaceholder"
-                app:layout_constraintTop_toTopOf="@id/ivProfilePlaceholder"
-                app:layout_constraintVertical_bias="0.8">
-
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/round_camera_alt_24"
-                    app:tint="@color/white" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <TextView
-                android:id="@+id/tvAddProfile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Add profile picture"
-                android:textColor="@color/onboarding_primary"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ivProfilePlaceholder" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="(Optional)"
-                android:textColor="@color/text_gray"
-                android:textSize="12sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvAddProfile" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- Inputs -->
-        <LinearLayout
-            android:id="@+id/llInputs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/clProfilePic">
-
-            <!-- Name Input -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Your name"
-                android:textColor="@color/black"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/etName"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_onboarding_input"
-                android:hint="Enter your name"
-                android:inputType="textPersonName"
-                android:paddingHorizontal="16dp"
-                android:textColor="@color/black"
-                android:textSize="15sp" />
-
-            <!-- DOB Input -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/ivLogo"
+                android:layout_width="140dp"
+                android:layout_height="40dp"
                 android:layout_marginTop="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:src="@drawable/logo_img"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/vStatusBarSpacer" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Date of Birth"
-                    android:textColor="@color/black"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="(optional)"
-                    android:textColor="@color/text_gray"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/etAge"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_onboarding_input"
-                android:hint="DD/MM/YYYY"
-                android:inputType="text"
-                android:paddingHorizontal="16dp"
-                android:textColor="@color/black"
-                android:textSize="15sp" />
-        </LinearLayout>
-
-        <!-- Settings Tip -->
-        <LinearLayout
-            android:id="@+id/llTip"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:background="@drawable/bg_onboarding_tip"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            app:layout_constraintTop_toBottomOf="@id/llInputs">
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_sparkle"
-                app:tint="@color/onboarding_primary" />
+            <!-- Title & Subtitle -->
+            <TextView
+                android:id="@+id/tvRegTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="Make FridgeWise\nyours"
+                android:textColor="@color/reg_text_primary"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ivLogo" />
 
             <TextView
+                android:id="@+id/tvRegSub"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:text="You can change these details anytime from settings."
-                android:textColor="@color/text_dark"
-                android:textSize="13sp" />
-        </LinearLayout>
+                android:layout_marginTop="12dp"
+                android:text="A few details will help us\npersonalize your experience."
+                android:textColor="@color/reg_text_secondary"
+                android:textSize="15sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvRegTitle" />
 
-        <!-- Placeholder to ensure content doesn't get hidden behind the floating button in OnboardingActivity if needed -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            app:layout_constraintTop_toBottomOf="@id/llTip"/>
+            <!-- Main Glass Card -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clGlassCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_glass_card"
+                android:elevation="8dp"
+                android:padding="20dp"
+                app:layout_constraintTop_toBottomOf="@id/tvRegSub">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+                <!-- Profile Pic Section -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clProfilePic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/ivProfilePlaceholder"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:src="@drawable/ic_default_avatar"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        app:cardBackgroundColor="@color/onboarding_primary"
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="2dp"
+                        app:layout_constraintBottom_toBottomOf="@id/ivProfilePlaceholder"
+                        app:layout_constraintEnd_toEndOf="@id/ivProfilePlaceholder"
+                        app:layout_constraintHorizontal_bias="0.85"
+                        app:layout_constraintStart_toStartOf="@id/ivProfilePlaceholder"
+                        app:layout_constraintTop_toTopOf="@id/ivProfilePlaceholder"
+                        app:layout_constraintVertical_bias="0.8">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/round_camera_alt_24"
+                            app:tint="@color/white" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/tvAddProfile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Add profile picture"
+                        android:textColor="@color/reg_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/ivProfilePlaceholder" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="(Optional)"
+                        android:textColor="@color/reg_text_secondary"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvAddProfile" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- Google Sign In Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGoogleSignIn"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="24dp"
+                    android:backgroundTint="@android:color/transparent"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="@string/sign_in_google"
+                    android:textAllCaps="false"
+                    android:textColor="@color/reg_text_primary"
+                    app:icon="@drawable/ic_google_g"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconTint="@android:color/transparent"
+                    app:iconTintMode="src_atop"
+                    app:layout_constraintTop_toBottomOf="@id/clProfilePic"
+                    app:strokeColor="@color/reg_card_stroke"
+                    app:strokeWidth="1.5dp" />
+
+                <!-- OR Divider -->
+                <LinearLayout
+                    android:id="@+id/llDivider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/btnGoogleSignIn">
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="@color/reg_card_stroke" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="12dp"
+                        android:text="OR"
+                        android:textColor="@color/reg_text_secondary"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="@color/reg_card_stroke" />
+                </LinearLayout>
+
+                <!-- Name Input -->
+                <LinearLayout
+                    android:id="@+id/llNameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_input_field_redesign"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    app:layout_constraintTop_toBottomOf="@id/llDivider">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_profile_filled"
+                        app:tint="@color/reg_text_secondary" />
+
+                    <EditText
+                        android:id="@+id/etName"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="12dp"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/create_user_id_hint"
+                        android:inputType="text"
+                        android:textColor="@color/reg_text_primary"
+                        android:textColorHint="@color/reg_text_secondary"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <!-- DOB Input -->
+                <LinearLayout
+                    android:id="@+id/llAgeInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_input_field_redesign"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    app:layout_constraintTop_toBottomOf="@id/llNameInput">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_calendar"
+                        app:tint="@color/reg_text_secondary" />
+
+                    <EditText
+                        android:id="@+id/etAge"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:hint="DD/MM/YYYY"
+                        android:inputType="none"
+                        android:textColor="@color/reg_text_primary"
+                        android:textColorHint="@color/reg_text_secondary"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_chip_light_purple"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp"
+                        android:text="Optional"
+                        android:textColor="@color/purple_primary"
+                        android:textSize="11sp"
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
+
+                <!-- Settings Tip -->
+                <LinearLayout
+                    android:id="@+id/llTip"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_onboarding_tip"
+                    android:backgroundTint="@color/onboarding_tip_bg_dark"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="12dp"
+                    app:layout_constraintTop_toBottomOf="@id/llAgeInput"
+                    tools:ignore="UnusedAttribute">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_sparkle"
+                        app:tint="@color/onboarding_tip_text_dark" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:text="You can change these details anytime from settings."
+                        android:textColor="@color/onboarding_tip_text_dark"
+                        android:textSize="12sp" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_arrow_forward"
+                        app:tint="@color/onboarding_tip_text_dark" />
+                </LinearLayout>
+
+                <!-- Continue as Guest Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnContinueGuest"
+                    style="@style/Widget.Material3.Button.UnelevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/bg_green_gradient_button"
+                    android:text="@string/continue_as_guest"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"
+                    app:icon="@drawable/ic_profile_filled"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/white"
+                    app:layout_constraintTop_toBottomOf="@id/llTip" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Bottom Footer Links -->
+            <LinearLayout
+                android:id="@+id/llFooter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/clGlassCard"
+                tools:ignore="HardcodedText">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Good food"
+                    android:textColor="@color/reg_text_secondary"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:src="@drawable/ic_sparkle"
+                    app:tint="@color/onboarding_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Better you"
+                    android:textColor="@color/reg_text_secondary"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:src="@drawable/ic_sparkle"
+                    app:tint="@color/onboarding_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="FridgeWise"
+                    android:textColor="@color/reg_text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Bottom Spacing to cushion content below the bleed area -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                app:layout_constraintTop_toBottomOf="@id/llFooter" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

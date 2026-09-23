@@ -8,6 +8,7 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import androidx.navigation.Navigation;
 
 import com.example.fridgewise.R;
 import com.google.android.material.button.MaterialButton;
@@ -101,7 +102,7 @@ public class CreateSpaceFragment extends Fragment {
             populateEditingData(view);
         }
 
-        view.findViewById(R.id.btnBack).setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        view.findViewById(R.id.btnBack).setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
         view.findViewById(R.id.btnCreateSpace).setOnClickListener(v -> validateAndSave());
 
         return view;
@@ -338,7 +339,9 @@ public class CreateSpaceFragment extends Fragment {
             }
 
             if (isAdded()) {
-                requireActivity().runOnUiThread(() -> getParentFragmentManager().popBackStack());
+                requireActivity().runOnUiThread(() -> {
+                    if (getView() != null) Navigation.findNavController(getView()).popBackStack();
+                });
             }
         });
     }
