@@ -216,9 +216,11 @@ public class CustomSpaceInventoryFragment extends Fragment {
         view.findViewById(R.id.btnMoreOptions).setOnClickListener(this::showMoreOptions);
 
         view.findViewById(R.id.fabAddItem).setOnClickListener(v -> {
-            Bundle args = new Bundle();
-            args.putInt("arg_space_id", currentSpace.getId());
-            Navigation.findNavController(v).navigate(R.id.addSpaceItemFragment, args);
+            if (currentSpace != null) {
+                Bundle args = new Bundle();
+                args.putInt("arg_space_id", currentSpace.getId());
+                Navigation.findNavController(v).navigate(R.id.addSpaceItemFragment, args);
+            }
         });
 
         SearchView searchView = view.findViewById(R.id.searchView);
@@ -260,18 +262,13 @@ public class CustomSpaceInventoryFragment extends Fragment {
     }
 
     private void setupSwipeToDelete() {
-        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
+        SwipeToDeleteCallback swipeCallback = new SwipeToDeleteCallback(requireContext()) {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int position = viewHolder.getBindingAdapterPosition();
-                if (position < allItems.size()) {
+                if (position != RecyclerView.NO_POSITION && position < allItems.size()) {
                     CustomSpaceItem item = allItems.get(position);
-                    deleteItem(item);
+                    deleteItem(item, position);
                 }
             }
 
@@ -282,7 +279,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
             }
         };
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
@@ -430,14 +427,19 @@ public class CustomSpaceInventoryFragment extends Fragment {
         adapter.setItems(filtered, currentSpace);
     }
 
-    private void deleteItem(CustomSpaceItem item) {
+    private void deleteItem(CustomSpaceItem item, int position) {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Item")
                 .setMessage("Are you sure you want to delete this item?")
                 .setPositiveButton("Delete", (dialog, which) -> {
                     viewModel.deleteItem(item);
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    if (position >= 0) adapter.notifyItemChanged(position);
+                })
+                .setOnCancelListener(dialog -> {
+                    if (position >= 0) adapter.notifyItemChanged(position);
+                })
                 .show();
     }
 }

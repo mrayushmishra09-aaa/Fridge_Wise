@@ -33,6 +33,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * @deprecated Replaced by StreakFragment / Progress Screen.
+ */
+@Deprecated
 public class AlertsFragment extends Fragment {
 
     private RecyclerView rvAlerts;

@@ -30,6 +30,8 @@
     <string name="Memory" />
     <string name="memory">Spaces</string>
     <string name="alerts">Alerts</string>
+    <string name="progress">Progress</string>
+    <string name="streak">Streak</string>
     <string name="stay_on_top_of_what_matters">Stay on top of what matters</string>
     <string name="add_tasks_set_reminders_and_fridgewise_will_help_you_remember">Add tasks, set reminders and FridgeWise will help you remember.</string>
     <string name="today">Today</string>
@@ -133,6 +135,7 @@
     <string name="purchase_date_label">Purchase Date</string>
     <string name="expiry_date_label">Expiry Date</string>
     <string name="notes_label">Notes (Optional)</string>
+    <string name="add_item">Add item</string>
     <string name="save_item">Save Item</string>
 
     <!-- category section -->

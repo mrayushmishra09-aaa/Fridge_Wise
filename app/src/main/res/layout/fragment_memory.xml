@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_primary"
-    tools:context=".Memory">
+    tools:context=".ui.fragments.Memory">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -86,6 +86,7 @@
                         android:layout_width="100dp"
                         android:layout_height="80dp"
                         android:background="@drawable/glow_banner_radial"
+                        android:contentDescription="@string/memory"
                         android:padding="@dimen/spacing_8"
                         android:scaleType="centerInside"
                         android:src="@drawable/bellbrain_img_memorysection"

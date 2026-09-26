@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.example.fridgewise.data.AppDatabase;
+import com.example.fridgewise.model.FoodItem;
 import com.example.fridgewise.model.NotificationInteraction;
 
 import java.util.List;
@@ -80,6 +81,16 @@ public class ReminderCoordinator {
         intent.putExtra("actionType", type);
         intent.putExtra("groupKey", groupKey);
         intent.putExtra("item_id_actual", itemId);
+
+        if ("FOOD".equals(type)) {
+            AppDatabase db = AppDatabase.getInstance(context);
+            FoodItem food = db.foodItemDao().getItemById(itemId);
+            if (food != null) {
+                intent.putExtra("item_name", food.getName());
+                intent.putExtra("item_unit", food.getUnit());
+                intent.putExtra("item_qty", food.getQuantity());
+            }
+        }
 
         int id = generateNotificationId(type, itemId);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);

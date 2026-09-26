@@ -32,7 +32,10 @@ public class NotificationFollowUpWorker extends Worker {
         AppDatabase db = AppDatabase.getInstance(context);
 
         boolean isPending = false;
-        int actualItemId = ("MEDICINE".equals(type)) ? id - 10000 : id - 20000;
+        int actualItemId = getInputData().getInt("item_id_actual", 0);
+        if (actualItemId == 0) {
+            actualItemId = ("MEDICINE".equals(type)) ? id - 10000 : id - 20000;
+        }
 
         if ("MEDICINE".equals(type)) {
             MedicineEntity med = db.medicineDao().getMedicineById(actualItemId);

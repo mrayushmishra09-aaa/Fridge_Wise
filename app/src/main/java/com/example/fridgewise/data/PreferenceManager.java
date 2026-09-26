@@ -29,6 +29,12 @@ public class PreferenceManager {
     private static final String KEY_QUIET_HOURS_ENABLED = "quietHoursEnabled";
     private static final String KEY_QUIET_HOURS_START = "quietHoursStart"; // Hour of day 0-23
     private static final String KEY_QUIET_HOURS_END = "quietHoursEnd";   // Hour of day 0-23
+    private static final String KEY_STREAK_COUNT = "streakCount";
+    private static final String KEY_LAST_STREAK_DATE = "lastStreakDate";
+    private static final String KEY_PIN_NOTIFICATION = "pinNotification";
+    private static final String KEY_FLOATING_BUBBLE = "floatingBubble";
+    private static final String KEY_DAILY_TASK_TARGET = "dailyTaskTarget";
+    private static final String KEY_HEATMAP_DATA = "heatmapData";
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -273,6 +279,72 @@ public class PreferenceManager {
 
     public int getQuietHoursEnd() {
         return pref.getInt(KEY_QUIET_HOURS_END, 7); // Default 7 AM
+    }
+
+    public void setStreakCount(int count) {
+        if (editor != null) {
+            editor.putInt(KEY_STREAK_COUNT, count);
+            editor.apply();
+        }
+    }
+
+    public int getStreakCount() {
+        return pref.getInt(KEY_STREAK_COUNT, 7); // Default 7 for initial experience
+    }
+
+    public void setLastStreakDate(String date) {
+        if (editor != null) {
+            editor.putString(KEY_LAST_STREAK_DATE, date);
+            editor.apply();
+        }
+    }
+
+    public String getLastStreakDate() {
+        return pref.getString(KEY_LAST_STREAK_DATE, "");
+    }
+
+    public void setPinNotificationEnabled(boolean enabled) {
+        if (editor != null) {
+            editor.putBoolean(KEY_PIN_NOTIFICATION, enabled);
+            editor.apply();
+        }
+    }
+
+    public boolean isPinNotificationEnabled() {
+        return pref.getBoolean(KEY_PIN_NOTIFICATION, true);
+    }
+
+    public void setFloatingBubbleEnabled(boolean enabled) {
+        if (editor != null) {
+            editor.putBoolean(KEY_FLOATING_BUBBLE, enabled);
+            editor.apply();
+        }
+    }
+
+    public boolean isFloatingBubbleEnabled() {
+        return pref.getBoolean(KEY_FLOATING_BUBBLE, false);
+    }
+
+    public void setDailyTaskTarget(int target) {
+        if (editor != null) {
+            editor.putInt(KEY_DAILY_TASK_TARGET, target);
+            editor.apply();
+        }
+    }
+
+    public int getDailyTaskTarget() {
+        return pref.getInt(KEY_DAILY_TASK_TARGET, 5); // Default 5 tasks
+    }
+
+    public void setHeatmapData(String json) {
+        if (editor != null) {
+            editor.putString(KEY_HEATMAP_DATA, json);
+            editor.apply();
+        }
+    }
+
+    public String getHeatmapData() {
+        return pref.getString(KEY_HEATMAP_DATA, "");
     }
 
     public void clearAll() {

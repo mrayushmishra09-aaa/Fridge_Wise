@@ -180,4 +180,30 @@
     <!-- Bulb Glow (Mint/Cool White) -->
     <color name="glow_bulb_mint_start">#1AA5D6A7</color>
     <color name="glow_bulb_mint_end">#00A5D6A7</color>
+
+    <!-- Streak / Progress Screen Colors (Light Mode) -->
+    <color name="streak_bg">#F4F6FB</color>
+    <color name="streak_card_bg">#FFFFFF</color>
+    <color name="streak_card_stroke">#E2E8F0</color>
+    <color name="streak_text_primary">#0F172A</color>
+    <color name="streak_text_secondary">#64748B</color>
+    <color name="streak_chip_unselected_bg">#FFFFFF</color>
+    <color name="streak_chip_unselected_stroke">#E2E8F0</color>
+    <color name="streak_chip_selected_bg">#4F46E5</color>
+    <color name="streak_chip_selected_text">#FFFFFF</color>
+    <color name="streak_banner_start">#FED7AA</color>
+    <color name="streak_banner_end">#FBCFE8</color>
+    <color name="streak_progress_fill">#10B981</color>
+    <color name="streak_progress_track">#E2E8F0</color>
+    <color name="streak_heatmap_level_0">#E2E8F0</color>
+    <color name="streak_heatmap_level_1">#A7F3D0</color>
+    <color name="streak_heatmap_level_2">#6EE7B7</color>
+    <color name="streak_heatmap_level_3">#34D399</color>
+    <color name="streak_heatmap_level_4">#059669</color>
+    <color name="streak_prio_high_bg">#FEE2E2</color>
+    <color name="streak_prio_high_text">#EF4444</color>
+    <color name="streak_prio_med_bg">#FFEDD5</color>
+    <color name="streak_prio_med_text">#F97316</color>
+    <color name="streak_prio_low_bg">#E0F2FE</color>
+    <color name="streak_prio_low_text">#0284C7</color>
 </resources>

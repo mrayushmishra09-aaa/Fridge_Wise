@@ -22,6 +22,8 @@ public class TodoItem implements Serializable {
     private boolean isReminderSet;
     private boolean isCompleted;
     private long statusChangeTime; // Timestamp of when the status was changed
+    private String spaceName = "General";
+    private boolean countTowardsStreak = true;
 
     /**
      * Default constructor required by Room.
@@ -73,4 +75,10 @@ public class TodoItem implements Serializable {
 
     public long getStatusChangeTime() { return statusChangeTime; }
     public void setStatusChangeTime(long statusChangeTime) { this.statusChangeTime = statusChangeTime; }
+
+    public String getSpaceName() { return spaceName != null ? spaceName : "General"; }
+    public void setSpaceName(String spaceName) { this.spaceName = spaceName; }
+
+    public boolean isCountTowardsStreak() { return countTowardsStreak; }
+    public void setCountTowardsStreak(boolean countTowardsStreak) { this.countTowardsStreak = countTowardsStreak; }
 }

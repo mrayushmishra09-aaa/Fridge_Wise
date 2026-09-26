@@ -9,8 +9,6 @@ import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
 
-import com.example.fridgewise.R;
-
 import android.content.Context;
 import android.os.Bundle;
 
@@ -32,6 +30,7 @@ import androidx.navigation.Navigation;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -44,6 +43,7 @@ public class Memory extends Fragment {
     MaterialCardView cardTodo;
     private RecyclerView rvCustomSpaces;
     private CustomSpaceAdapter customSpaceAdapter;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -146,7 +146,7 @@ public class Memory extends Fragment {
     }
 
     private void loadCustomSpaces() {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
             List<CustomSpace> spaces = db.customSpaceDao().getAllSpacesSync();
             // Fetch counts for each space
@@ -184,7 +184,7 @@ public class Memory extends Fragment {
     }
 
     private void deleteSpace(CustomSpace space) {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             Context context = requireContext();
             AppDatabase db = AppDatabase.getInstance(context);
             // Delete all items in the space first
@@ -216,7 +216,7 @@ public class Memory extends Fragment {
         TextView tvShoppingCount = view.findViewById(R.id.tvShoppingCount);
         TextView tvDocsCount = view.findViewById(R.id.tvDocsCount);
 
-        Executors.newSingleThreadExecutor().execute(() -> {
+        executor.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
             int medCount = db.medicineDao().getAllMedicines().size();
             int todoCount = db.todoDao().getAllTodos().size();

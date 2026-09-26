@@ -83,8 +83,8 @@ public class MainActivity extends AppCompatActivity {
                         || destId == R.id.medicineAddFragment || destId == R.id.addTodoFragment
                         || destId == R.id.addDocumentFragment) {
                     tabMenuId = R.id.nav_memory;
-                } else if (destId == R.id.nav_alerts) {
-                    tabMenuId = R.id.nav_alerts;
+                } else if (destId == R.id.nav_streak) {
+                    tabMenuId = R.id.nav_streak;
                 } else if (destId == R.id.nav_pfp) {
                     tabMenuId = R.id.nav_pfp;
                 }
@@ -105,11 +105,11 @@ public class MainActivity extends AppCompatActivity {
                 if (itemId == R.id.nav_memory && currentDestId != R.id.nav_memory) {
                     navController.popBackStack(R.id.nav_memory, false);
                 } else if (itemId == R.id.nav_home && currentDestId != R.id.nav_home) {
-                    navController.popBackStack(R.id.nav_home, false);
+                     navController.popBackStack(R.id.nav_home, false);
                 } else if (itemId == R.id.nav_inventory && currentDestId != R.id.nav_inventory) {
                     navController.popBackStack(R.id.nav_inventory, false);
-                } else if (itemId == R.id.nav_alerts && currentDestId != R.id.nav_alerts) {
-                    navController.popBackStack(R.id.nav_alerts, false);
+                } else if (itemId == R.id.nav_streak && currentDestId != R.id.nav_streak) {
+                    navController.popBackStack(R.id.nav_streak, false);
                 } else if (itemId == R.id.nav_pfp && currentDestId != R.id.nav_pfp) {
                     navController.popBackStack(R.id.nav_pfp, false);
                 }

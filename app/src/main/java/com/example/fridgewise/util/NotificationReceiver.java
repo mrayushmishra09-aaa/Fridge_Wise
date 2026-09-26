@@ -111,7 +111,7 @@ public class NotificationReceiver extends BroadcastReceiver {
         // Schedule Smart Follow-up if enabled
         PreferenceManager pref = new PreferenceManager(context);
         if (pref.isSmartFollowUpEnabled() && ("MEDICINE".equals(actionType) || "TODO".equals(actionType))) {
-            scheduleSmartFollowUp(context, id, actionType, title, iconResId);
+            scheduleSmartFollowUp(context, id, actualItemId, actionType, title, iconResId);
         }
 
         Intent customActionIntent = null;
@@ -121,11 +121,15 @@ public class NotificationReceiver extends BroadcastReceiver {
             customActionIntent = new Intent(context, NotificationReceiver.class);
             customActionIntent.setAction(NotificationHelper.ACTION_TAKE_DOSE);
             customActionIntent.putExtra("id", id);
+            customActionIntent.putExtra("actionType", actionType);
+            customActionIntent.putExtra("item_id_actual", actualItemId);
             actionText = "Take Dose";
         } else if ("FOOD".equals(actionType)) {
             customActionIntent = new Intent(context, NotificationReceiver.class);
             customActionIntent.setAction(NotificationHelper.ACTION_ADD_TO_SHOPPING);
             customActionIntent.putExtra("id", id);
+            customActionIntent.putExtra("actionType", actionType);
+            customActionIntent.putExtra("item_id_actual", actualItemId);
             customActionIntent.putExtra("item_name", intent.getStringExtra("item_name"));
             customActionIntent.putExtra("item_unit", intent.getStringExtra("item_unit"));
             customActionIntent.putExtra("item_qty", intent.getStringExtra("item_qty"));
@@ -134,6 +138,8 @@ public class NotificationReceiver extends BroadcastReceiver {
             customActionIntent = new Intent(context, NotificationReceiver.class);
             customActionIntent.setAction(NotificationHelper.ACTION_MARK_TODO_DONE);
             customActionIntent.putExtra("id", id);
+            customActionIntent.putExtra("actionType", actionType);
+            customActionIntent.putExtra("item_id_actual", actualItemId);
             actionText = "Mark as Done";
         }
 
@@ -188,9 +194,10 @@ public class NotificationReceiver extends BroadcastReceiver {
         }
     }
 
-    private void scheduleSmartFollowUp(Context context, int id, String type, String name, int iconRes) {
+    private void scheduleSmartFollowUp(Context context, int id, int actualItemId, String type, String name, int iconRes) {
         Data inputData = new Data.Builder()
                 .putInt("id", id)
+                .putInt("item_id_actual", actualItemId)
                 .putString("type", type)
                 .putString("name", name)
                 .putInt("iconRes", iconRes)

@@ -225,7 +225,7 @@ public class HomeFragment extends Fragment {
                 NavHostFragment navHostFragment = (NavHostFragment) requireActivity().getSupportFragmentManager()
                         .findFragmentById(R.id.fragmentContainerView2);
                 if (navHostFragment != null) {
-                    navHostFragment.getNavController().navigate(R.id.nav_alerts);
+                    navHostFragment.getNavController().navigate(R.id.nav_streak);
                 }
             });
         }

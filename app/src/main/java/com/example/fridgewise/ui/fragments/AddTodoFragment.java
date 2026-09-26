@@ -81,6 +81,7 @@ public class AddTodoFragment extends Fragment {
 
         EditText etNote = view.findViewById(R.id.etNote);
         SwitchCompat switchReminder = view.findViewById(R.id.switchReminder);
+        SwitchCompat switchStreakTracking = view.findViewById(R.id.switchStreakTracking);
         TextView tvTime = view.findViewById(R.id.tvTime);
 
         // Pre-fill fields if editing
@@ -97,6 +98,9 @@ public class AddTodoFragment extends Fragment {
             selectedPriority = existingTask.getPriority();
             etNote.setText(existingTask.getNote());
             switchReminder.setChecked(existingTask.isReminderSet());
+            if (switchStreakTracking != null) {
+                switchStreakTracking.setChecked(existingTask.isCountTowardsStreak());
+            }
 
             // Update priority selection UI
             btnPriorityHigh.setSelected("High".equalsIgnoreCase(selectedPriority));
@@ -117,6 +121,7 @@ public class AddTodoFragment extends Fragment {
 
             String note = etNote != null ? etNote.getText().toString().trim() : "";
             boolean isReminderSet = switchReminder != null && switchReminder.isChecked();
+            boolean countTowardsStreak = switchStreakTracking != null && switchStreakTracking.isChecked();
 
             if (existingTask != null) {
                 // Update existing task
@@ -126,6 +131,7 @@ public class AddTodoFragment extends Fragment {
                 existingTask.setPriority(selectedPriority);
                 existingTask.setNote(note);
                 existingTask.setReminderSet(isReminderSet);
+                existingTask.setCountTowardsStreak(countTowardsStreak);
 
                 new Thread(() -> {
                     AppDatabase db = AppDatabase.getInstance(requireContext());
@@ -146,6 +152,7 @@ public class AddTodoFragment extends Fragment {
             } else {
                 // Save new task
                 TodoItem newTask = new TodoItem(title, selectedDate, selectedTime, selectedPriority, note, isReminderSet, false);
+                newTask.setCountTowardsStreak(countTowardsStreak);
                 new Thread(() -> {
                     AppDatabase db = AppDatabase.getInstance(requireContext());
                     long id = db.todoDao().insert(newTask);
