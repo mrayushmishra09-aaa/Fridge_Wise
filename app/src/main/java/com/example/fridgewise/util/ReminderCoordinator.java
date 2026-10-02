@@ -5,14 +5,11 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Bundle;
-import android.util.Log;
 
 import com.example.fridgewise.data.AppDatabase;
 import com.example.fridgewise.model.FoodItem;
 import com.example.fridgewise.model.NotificationInteraction;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,30 +30,40 @@ public class ReminderCoordinator {
     }
 
     public void schedule(String type, int itemId, String title, String message, long timeInMillis, int iconResId, String groupKey) {
+        schedule3StageReminders(type, itemId, title, message, timeInMillis, iconResId, groupKey, false, 0, 0);
+    }
+
+    public void schedule3StageReminders(String type, int itemId, String title, String message, long targetTimeInMillis, int iconResId, String groupKey, boolean isClockAlarmEnabled, int preOffsetMins, int postOffsetMins) {
         executor.execute(() -> {
-            AppDatabase db = AppDatabase.getInstance(context);
-            
-            // Log the 'SCHEDULED' intent internally if we wanted, but let's focus on the budget
-            long oneHourAgo = System.currentTimeMillis() - (60 * 60 * 1000);
-            int count = db.notificationInteractionDao().getNotificationCountSince(oneHourAgo);
-            
-            if (count >= NOTIFICATION_BUDGET_PER_HOUR) {
-                Log.w(TAG, "Notification budget exceeded. Delaying reminder.");
-                // In a real "Next Level" system, we'd queue this. For now, we'll let it pass or adjust.
+            long now = System.currentTimeMillis();
+
+            // Stage 1: Pre-Notification (Advance Warning)
+            if (preOffsetMins > 0) {
+                long preTime = targetTimeInMillis - (preOffsetMins * 60L * 1000L);
+                if (preTime > now) {
+                    String preTitle = "⏳ Upcoming: " + title;
+                    String preMsg = "Reminder: " + message + " (due in " + preOffsetMins + " mins)";
+                    int preId = generateNotificationId(type, itemId) + 100000;
+                    dispatchAlarm(type, itemId, preId, preTitle, preMsg, preTime, iconResId, groupKey, false);
+                }
             }
 
-            // Get interaction history to decide follow-up behavior
-            List<NotificationInteraction> dismissals = db.notificationInteractionDao().getDismissalsForItem(type, itemId);
-            int dismissCount = dismissals.size();
-
-            // Calculate adaptive time if needed (e.g. if user ignores, push it further)
-            long finalTime = timeInMillis;
-            if (dismissCount > 0) {
-                // Example: Add 10 mins for every dismissal
-                // finalTime += (dismissCount * 10 * 60 * 1000);
+            // Stage 2: Target Trigger / Alarm
+            if (targetTimeInMillis > now) {
+                int mainId = generateNotificationId(type, itemId);
+                dispatchAlarm(type, itemId, mainId, title, message, targetTimeInMillis, iconResId, groupKey, isClockAlarmEnabled);
             }
 
-            scheduleAlarm(type, itemId, title, message, finalTime, iconResId, groupKey, dismissCount);
+            // Stage 3: Post-Notification (Missed Target Follow-up)
+            if (postOffsetMins > 0) {
+                long postTime = targetTimeInMillis + (postOffsetMins * 60L * 1000L);
+                if (postTime > now) {
+                    String postTitle = "❓ Missed Target: " + title;
+                    String postMsg = "Did you complete '" + title + "'? Tap to mark completed or reschedule.";
+                    int postId = generateNotificationId(type, itemId) + 200000;
+                    dispatchAlarm(type, itemId, postId, postTitle, postMsg, postTime, iconResId, groupKey, false);
+                }
+            }
         });
     }
 
@@ -67,20 +74,18 @@ public class ReminderCoordinator {
         });
     }
 
-    private void scheduleAlarm(String type, int itemId, String title, String message, long timeInMillis, int iconResId, String groupKey, int dismissCount) {
+    private void dispatchAlarm(String type, int itemId, int notificationId, String title, String message, long timeInMillis, int iconResId, String groupKey, boolean isLoudAlarm) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, NotificationReceiver.class);
         
-        // Humanize title/message using Personality Engine
-        String humanTitle = NotificationPersonalityEngine.getHumanizedMessage(type.toLowerCase(), dismissCount > 0, dismissCount);
-        
-        intent.putExtra("title", humanTitle);
+        intent.putExtra("title", title);
         intent.putExtra("message", message);
-        intent.putExtra("id", generateNotificationId(type, itemId));
+        intent.putExtra("id", notificationId);
         intent.putExtra("iconResId", iconResId);
         intent.putExtra("actionType", type);
         intent.putExtra("groupKey", groupKey);
         intent.putExtra("item_id_actual", itemId);
+        intent.putExtra("isLoudAlarm", isLoudAlarm);
 
         if ("FOOD".equals(type)) {
             AppDatabase db = AppDatabase.getInstance(context);
@@ -92,11 +97,15 @@ public class ReminderCoordinator {
             }
         }
 
-        int id = generateNotificationId(type, itemId);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         if (alarmManager != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+            if (isLoudAlarm && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Intent showIntent = new Intent(context, NotificationReceiver.class);
+                PendingIntent showPendingIntent = PendingIntent.getBroadcast(context, notificationId + 1, showIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                AlarmManager.AlarmClockInfo clockInfo = new AlarmManager.AlarmClockInfo(timeInMillis, showPendingIntent);
+                alarmManager.setAlarmClock(clockInfo, pendingIntent);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
                 alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
             } else {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
@@ -108,6 +117,7 @@ public class ReminderCoordinator {
         if ("MEDICINE".equals(type)) return 10000 + itemId;
         if ("TODO".equals(type)) return 20000 + itemId;
         if ("FOOD".equals(type)) return 30000 + itemId;
-        return 40000 + itemId;
+        if ("CUSTOM".equals(type)) return 40000 + itemId;
+        return 50000 + itemId;
     }
 }

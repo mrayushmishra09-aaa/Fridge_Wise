@@ -8,8 +8,10 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import com.example.fridgewise.ui.dialog.NoteEditorDialogFragment;
 import androidx.navigation.Navigation;
 
+import com.google.android.material.chip.Chip;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import android.app.DatePickerDialog;
@@ -24,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.transition.TransitionManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -134,7 +137,10 @@ public class AddSpaceItemFragment extends Fragment {
 
         switchReminder.setOnCheckedChangeListener((buttonView, isChecked) -> {
             TransitionManager.beginDelayedTransition((ViewGroup) view);
-            view.findViewById(R.id.tilReminder).setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            View detailsView = view.findViewById(R.id.layoutReminderDetails);
+            if (detailsView != null) {
+                detailsView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            }
             if (!isChecked) {
                 selectedReminderTimestamp = null;
                 etReminder.setText("");
@@ -154,6 +160,40 @@ public class AddSpaceItemFragment extends Fragment {
             tvFileName.setText("No file attached");
             btnRemoveFile.setVisibility(View.GONE);
         });
+
+        // --- Note Editing Dialog & Eye Preview Wiring ---
+        ImageView ivNotesEye = view.findViewById(R.id.ivNotesEye);
+
+        Runnable updateNotesEye = () -> {
+            String notesText = etNotes.getText() != null ? etNotes.getText().toString().trim() : "";
+            if (ivNotesEye != null) {
+                ivNotesEye.setVisibility(notesText.isEmpty() ? View.GONE : View.VISIBLE);
+            }
+        };
+
+        updateNotesEye.run();
+
+        View.OnClickListener openNoteEditor = v -> {
+            String currentNote = etNotes.getText() != null ? etNotes.getText().toString() : "";
+            NoteEditorDialogFragment noteDialog = NoteEditorDialogFragment.newInstance("Space Item Note", currentNote);
+            noteDialog.setOnNoteSavedListener(noteText -> {
+                etNotes.setText(noteText);
+                updateNotesEye.run();
+            });
+            noteDialog.show(getParentFragmentManager(), "NoteEditorDialog");
+        };
+
+        etNotes.setOnClickListener(openNoteEditor);
+
+        if (ivNotesEye != null) {
+            ivNotesEye.setOnClickListener(v -> {
+                String currentNote = etNotes.getText() != null ? etNotes.getText().toString() : "";
+                if (!currentNote.isEmpty()) {
+                    NoteDetailBottomSheet noteSheet = NoteDetailBottomSheet.newInstance("Space Item Note", currentNote);
+                    noteSheet.show(getParentFragmentManager(), "NoteDetailBottomSheet");
+                }
+            });
+        }
 
         view.findViewById(R.id.btnBack).setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
         view.findViewById(R.id.btnSave).setOnClickListener(v -> saveItem());
@@ -285,6 +325,42 @@ public class AddSpaceItemFragment extends Fragment {
             item.setCompletionTimestamp(null);
         }
 
+        // 2-Tier & 3-Stage Notification Configuration
+        View currentView = getView();
+        boolean isClockAlarm = false;
+        int preOffsetMins = 0;
+        int postOffsetMins = 0;
+
+        if (currentView != null && switchReminder != null && switchReminder.isChecked()) {
+            SwitchMaterial switchClock = currentView.findViewById(R.id.switchClockAlarm);
+            isClockAlarm = switchClock != null && switchClock.isChecked();
+
+            View chip30m = currentView.findViewById(R.id.chipPre30m);
+            View chip1h = currentView.findViewById(R.id.chipPre1h);
+            View chip1d = currentView.findViewById(R.id.chipPre1d);
+
+            if (chip30m instanceof Chip && ((Chip) chip30m).isChecked()) {
+                preOffsetMins = 30;
+            } else if (chip1h instanceof Chip && ((Chip) chip1h).isChecked()) {
+                preOffsetMins = 60;
+            } else if (chip1d instanceof Chip && ((Chip) chip1d).isChecked()) {
+                preOffsetMins = 1440;
+            }
+
+            SwitchMaterial switchPost = currentView.findViewById(R.id.switchPostNotif);
+            if (switchPost != null && switchPost.isChecked()) {
+                postOffsetMins = 60;
+            }
+        }
+
+        item.setClockAlarmEnabled(isClockAlarm);
+        item.setPreNotificationOffsetMinutes(preOffsetMins);
+        item.setPostNotificationOffsetMinutes(postOffsetMins);
+
+        final boolean finalIsClockAlarm = isClockAlarm;
+        final int finalPreMins = preOffsetMins;
+        final int finalPostMins = postOffsetMins;
+
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
             long rowId;
@@ -298,7 +374,7 @@ public class AddSpaceItemFragment extends Fragment {
             }
 
             if (selectedReminderTimestamp != null && selectedReminderTimestamp > System.currentTimeMillis()) {
-                scheduleReminder(rowId, name, selectedReminderTimestamp);
+                scheduleReminder(rowId, name, selectedReminderTimestamp, finalIsClockAlarm, finalPreMins, finalPostMins);
             }
 
             if (isAdded()) {
@@ -309,14 +385,17 @@ public class AddSpaceItemFragment extends Fragment {
         });
     }
 
-    private void scheduleReminder(long itemId, String itemName, long timeInMillis) {
+    private void scheduleReminder(long itemId, String itemName, long timeInMillis, boolean isClockAlarm, int preOffsetMins, int postOffsetMins) {
         ReminderCoordinator coordinator = new ReminderCoordinator(requireContext());
-        coordinator.schedule("SPACE", (int) itemId,
-                "Space Reminder",
+        coordinator.schedule3StageReminders("CUSTOM", (int) itemId,
+                "Custom Space Target",
                 itemName,
                 timeInMillis,
                 R.drawable.ic_sparkle,
-                "group_space");
+                "group_custom_space",
+                isClockAlarm,
+                preOffsetMins,
+                postOffsetMins);
     }
 
     private void saveFileLocally(Uri uri) {

@@ -221,34 +221,146 @@
                         app:trackTint="@color/green_pale" />
                 </LinearLayout>
 
-                <RelativeLayout
-                    android:id="@+id/tilReminder"
+                <LinearLayout
+                    android:id="@+id/layoutReminderDetails"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_edittext"
-                    android:visibility="gone"
-                    android:paddingHorizontal="12dp">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
-                    <EditText
-                        android:id="@+id/etReminder"
+                    <RelativeLayout
+                        android:id="@+id/tilReminder"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@android:color/transparent"
-                        android:focusable="false"
-                        android:clickable="true"
-                        android:hint="Reminder Time"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_primary" />
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_edittext"
+                        android:paddingHorizontal="12dp">
 
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/ic_notification"
-                        app:tint="@color/text_secondary" />
-                </RelativeLayout>
+                        <EditText
+                            android:id="@+id/etReminder"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@android:color/transparent"
+                            android:clickable="true"
+                            android:focusable="false"
+                            android:hint="Target Date &amp; Time"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_notification"
+                            app:tint="@color/text_secondary" />
+                    </RelativeLayout>
+
+                    <!-- Tier 2: Loud Clock Alarm Toggle -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="🔔 Loud Clock Alarm Mode"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchClockAlarm"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:thumbTint="@color/green_primary"
+                            app:trackTint="@color/green_pale" />
+                    </LinearLayout>
+
+                    <!-- Stage 1: Pre-Notification Choice -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="⏱️ Pre-Notification (Advance Warning)"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:scrollbars="none">
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/cgPreNotif"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:singleLine="true">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipPreNone"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="true"
+                                android:text="None" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipPre30m"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="30m Before" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipPre1h"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="1h Before" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipPre1d"
+                                style="@style/Widget.MaterialComponents.Chip.Choice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="1d Before" />
+                        </com.google.android.material.chip.ChipGroup>
+                    </HorizontalScrollView>
+
+                    <!-- Stage 3: Post-Notification Toggle -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="❓ Post-Notification (Alert if missed)"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchPostNotif"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            app:thumbTint="@color/green_primary"
+                            app:trackTint="@color/green_pale" />
+                    </LinearLayout>
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -332,14 +444,36 @@
                     android:layout_marginVertical="20dp"
                     android:background="@color/divider_color" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:letterSpacing="0.1"
-                    android:text="NOTES (OPTIONAL)"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:letterSpacing="0.1"
+                        android:text="NOTES (OPTIONAL)"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/ivNotesEye"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="4dp"
+                        android:src="@drawable/ic_eye"
+                        android:visibility="gone"
+                        app:tint="@color/green_primary"
+                        android:contentDescription="View full note" />
+                </RelativeLayout>
 
                 <EditText
                     android:id="@+id/etNotes"
@@ -348,10 +482,12 @@
                     android:layout_marginTop="4dp"
                     android:background="@drawable/bg_edittext"
                     android:gravity="top"
-                    android:hint="Add any note here..."
+                    android:hint="Tap to add or edit note..."
                     android:padding="12dp"
                     android:textSize="14sp"
-                    android:inputType="textMultiLine"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:inputType="none"
                     android:textColor="@color/text_primary" />
             </LinearLayout>
 

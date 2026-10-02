@@ -2,6 +2,7 @@ package com.example.fridgewise.adapter;
 
 import com.example.fridgewise.R;
 import com.example.fridgewise.model.MedicineEntity;
+import com.example.fridgewise.util.HapticUtils;
 
 import android.graphics.Paint;
 import android.view.LayoutInflater;
@@ -92,6 +93,7 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
         }
 
         holder.btnTakeDose.setOnClickListener(v -> {
+            HapticUtils.performHaptic(v);
             if (listener != null) {
                 listener.onTakeDose(medicine);
             }
@@ -120,6 +122,7 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
         holder.switchMedicine.setChecked(medicine.isReminderOn());
         
         holder.switchMedicine.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            HapticUtils.performHaptic(buttonView);
             if (listener != null) {
                 listener.onReminderToggle(medicine, isChecked);
             }

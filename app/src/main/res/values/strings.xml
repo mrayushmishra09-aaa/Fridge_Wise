@@ -10,6 +10,7 @@
     <string name="inventory">Inventory</string>
     <string name="ai_chef">Ai Chef</string>
     <string name="profile">Profile</string>
+    <string name="settings">Settings</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="item_name">Item name</string>
     <string name="enter_item_name">Enter item name</string>
@@ -94,7 +95,7 @@
     <string name="reviewing_meds">Reviewing your medications&#8230;</string>
     <string name="looking_tasks">Looking at your tasks&#8230;</string>
     <string name="take_action">Take Action</string>
-    <string name="hello_cooking_today">What are we cooking today?</string>
+    <string name="hello_cooking_today">What are we tackling today?</string>
     <string name="smart_food_manager">Smart Food Manager</string>
     <string name="needs_attention">Needs your attention</string>
     <string name="attention_count_default">0 things need your attention today</string>
@@ -108,8 +109,7 @@
     <string name="new_badge_label">NEW</string>
     <string name="insight_heading_default">Smart Insight Heading</string>
     <string name="insight_desc_default">Detailed description of what FridgeWise noticed today.</string>
-    <string name="suggested_recipes_title">Suggested Recipes</string>
-    <string name="view_all_recipes_text">View all</string>
+
     <string name="smart_chef_tip_title">Smart Chef Tip</string>
     <string name="smart_chef_tip_default">Did you know? Storing tomatoes at room temp keeps them flavorful.</string>
     <string name="recent_activity_title">Recent Activity</string>

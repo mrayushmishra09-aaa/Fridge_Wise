@@ -35,6 +35,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ShoppingListFragment extends Fragment {
 
@@ -326,7 +327,17 @@ public class ShoppingListFragment extends Fragment {
 
     private void updateHeader() {
         int count = shoppingItems.size();
-        tvItemCount.setText(count + (count == 1 ? " item in your list" : " items in your list"));
+        double totalBudget = 0.0;
+        for (ShoppingItem item : shoppingItems) {
+            totalBudget += item.getTotalPrice();
+        }
+
+        String countText = count + (count == 1 ? " item" : " items");
+        if (totalBudget > 0) {
+            tvItemCount.setText(String.format(Locale.getDefault(), "%s • Total Est: $%.2f", countText, totalBudget));
+        } else {
+            tvItemCount.setText(countText + " in your list");
+        }
     }
 
     private void showAddEditDialog(ShoppingItem itemToEdit) {
@@ -337,6 +348,7 @@ public class ShoppingListFragment extends Fragment {
         EditText etName = dialogView.findViewById(R.id.etItemName);
         EditText etQty = dialogView.findViewById(R.id.etItemQuantity);
         EditText etUnit = dialogView.findViewById(R.id.etItemUnit);
+        EditText etPrice = dialogView.findViewById(R.id.etItemPrice);
         TextView tvDialogTitle = dialogView.findViewById(R.id.tvDialogTitle);
 
         if (itemToEdit != null) {
@@ -344,6 +356,9 @@ public class ShoppingListFragment extends Fragment {
             etName.setText(itemToEdit.getName());
             etQty.setText(itemToEdit.getQuantity());
             etUnit.setText(itemToEdit.getUnit());
+            if (itemToEdit.getPrice() > 0) {
+                etPrice.setText(String.valueOf(itemToEdit.getPrice()));
+            }
         } else {
             tvDialogTitle.setText("Add New Item");
         }
@@ -352,10 +367,19 @@ public class ShoppingListFragment extends Fragment {
             String name = etName.getText().toString().trim();
             String qty = etQty.getText().toString().trim();
             String unit = etUnit.getText().toString().trim();
+            String priceStr = etPrice != null ? etPrice.getText().toString().trim() : "";
+            double price = 0.0;
+            if (!priceStr.isEmpty()) {
+                try {
+                    price = Double.parseDouble(priceStr);
+                } catch (Exception ignored) {
+                    price = 0.0;
+                }
+            }
 
             if (!name.isEmpty()) {
                 if (itemToEdit == null) {
-                    ShoppingItem newItem = new ShoppingItem(name, qty, unit, false);
+                    ShoppingItem newItem = new ShoppingItem(name, qty, unit, false, price);
                     new Thread(() -> {
                         db.shoppingDao().insert(newItem);
                         loadItems();
@@ -364,6 +388,7 @@ public class ShoppingListFragment extends Fragment {
                     itemToEdit.setName(name);
                     itemToEdit.setQuantity(qty);
                     itemToEdit.setUnit(unit);
+                    itemToEdit.setPrice(price);
                     updateItem(itemToEdit);
                 }
             }

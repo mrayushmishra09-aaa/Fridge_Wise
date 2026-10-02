@@ -43,9 +43,9 @@ public class CreateSpaceFragment extends Fragment {
     private TextView tvNameCount;
     private ImageView ivSelectedIcon, ivCustomPhoto, ivAdvancedChevron;
     private MaterialCardView layoutAdvanced;
-    private View btnOptCheckbox, btnOptReminder, btnOptNotes, btnOptQuantity, btnOptDate, btnOptAttachments;
-    private MaterialCardView cardOptCheckbox, cardOptReminder, cardOptNotes, cardOptQuantity, cardOptDate, cardOptAttachments;
-    private boolean hasCheckbox, hasReminder, hasNotes, hasQuantity, hasDate, hasAttachments;
+    private View btnOptCheckbox, btnOptReminder, btnOptNotes, btnOptQuantity, btnOptDate, btnOptAttachments, btnOptStreak;
+    private MaterialCardView cardOptCheckbox, cardOptReminder, cardOptNotes, cardOptQuantity, cardOptDate, cardOptAttachments, cardOptStreak;
+    private boolean hasCheckbox, hasReminder, hasNotes, hasQuantity, hasDate, hasAttachments, isStreakEnabled = true;
     private Spinner spinnerAutoRemove;
     private TextInputLayout tilSpaceName;
     private int selectedIconRes = R.drawable.round_camera_alt_24;
@@ -93,6 +93,7 @@ public class CreateSpaceFragment extends Fragment {
         }
 
         initializeViews(view);
+        setupQuickTemplates(view);
         setupIconPicker(view);
         setupColorPicker(view);
         setupCharacterCounters();
@@ -122,6 +123,7 @@ public class CreateSpaceFragment extends Fragment {
         btnOptQuantity = view.findViewById(R.id.btnOptQuantity);
         btnOptDate = view.findViewById(R.id.btnOptDate);
         btnOptAttachments = view.findViewById(R.id.btnOptAttachments);
+        btnOptStreak = view.findViewById(R.id.btnOptStreak);
         
         cardOptCheckbox = view.findViewById(R.id.cardOptCheckbox);
         cardOptReminder = view.findViewById(R.id.cardOptReminder);
@@ -129,6 +131,7 @@ public class CreateSpaceFragment extends Fragment {
         cardOptQuantity = view.findViewById(R.id.cardOptQuantity);
         cardOptDate = view.findViewById(R.id.cardOptDate);
         cardOptAttachments = view.findViewById(R.id.cardOptAttachments);
+        cardOptStreak = view.findViewById(R.id.cardOptStreak);
         
         tilSpaceName = view.findViewById(R.id.tilSpaceName);
         
@@ -138,12 +141,13 @@ public class CreateSpaceFragment extends Fragment {
     }
 
     private void setupCapabilityButtons() {
-        btnOptCheckbox.setOnClickListener(v -> toggleCapability("checkbox"));
-        btnOptReminder.setOnClickListener(v -> toggleCapability("reminder"));
-        btnOptNotes.setOnClickListener(v -> toggleCapability("notes"));
-        btnOptQuantity.setOnClickListener(v -> toggleCapability("quantity"));
-        btnOptDate.setOnClickListener(v -> toggleCapability("date"));
-        btnOptAttachments.setOnClickListener(v -> toggleCapability("attachments"));
+        if (btnOptCheckbox != null) btnOptCheckbox.setOnClickListener(v -> toggleCapability("checkbox"));
+        if (btnOptReminder != null) btnOptReminder.setOnClickListener(v -> toggleCapability("reminder"));
+        if (btnOptNotes != null) btnOptNotes.setOnClickListener(v -> toggleCapability("notes"));
+        if (btnOptQuantity != null) btnOptQuantity.setOnClickListener(v -> toggleCapability("quantity"));
+        if (btnOptDate != null) btnOptDate.setOnClickListener(v -> toggleCapability("date"));
+        if (btnOptAttachments != null) btnOptAttachments.setOnClickListener(v -> toggleCapability("attachments"));
+        if (btnOptStreak != null) btnOptStreak.setOnClickListener(v -> toggleCapability("streak"));
     }
 
     private void toggleCapability(String type) {
@@ -154,10 +158,12 @@ public class CreateSpaceFragment extends Fragment {
             case "quantity": hasQuantity = !hasQuantity; updateButtonState(btnOptQuantity, hasQuantity); break;
             case "date": hasDate = !hasDate; updateButtonState(btnOptDate, hasDate); break;
             case "attachments": hasAttachments = !hasAttachments; updateButtonState(btnOptAttachments, hasAttachments); break;
+            case "streak": isStreakEnabled = !isStreakEnabled; updateButtonState(btnOptStreak, isStreakEnabled); break;
         }
     }
 
     private void updateButtonState(View view, boolean active) {
+        if (view == null) return;
         view.setAlpha(active ? 1.0f : 0.5f);
         view.animate().scaleX(active ? 1.05f : 1.0f).scaleY(active ? 1.05f : 1.0f).setDuration(200).start();
         
@@ -169,6 +175,7 @@ public class CreateSpaceFragment extends Fragment {
         else if (view.getId() == R.id.btnOptQuantity) card = cardOptQuantity;
         else if (view.getId() == R.id.btnOptDate) card = cardOptDate;
         else if (view.getId() == R.id.btnOptAttachments) card = cardOptAttachments;
+        else if (view.getId() == R.id.btnOptStreak) card = cardOptStreak;
         
         if (card != null) {
             card.setStrokeWidth(active ? 4 : 1);
@@ -269,6 +276,7 @@ public class CreateSpaceFragment extends Fragment {
         hasQuantity = editingSpace.isHasQuantity();
         hasDate = editingSpace.isHasDate();
         hasAttachments = editingSpace.isHasAttachments();
+        isStreakEnabled = editingSpace.isStreakEnabled();
         
         updateButtonState(btnOptCheckbox, hasCheckbox);
         updateButtonState(btnOptReminder, hasReminder);
@@ -276,6 +284,7 @@ public class CreateSpaceFragment extends Fragment {
         updateButtonState(btnOptQuantity, hasQuantity);
         updateButtonState(btnOptDate, hasDate);
         updateButtonState(btnOptAttachments, hasAttachments);
+        updateButtonState(btnOptStreak, isStreakEnabled);
         
         int duration = editingSpace.getAutoRemoveDuration();
         if (duration == 0) spinnerAutoRemove.setSelection(0);
@@ -321,6 +330,7 @@ public class CreateSpaceFragment extends Fragment {
                 space.setHasQuantity(hasQuantity);
                 space.setHasDate(hasDate);
                 space.setHasAttachments(hasAttachments);
+                space.setStreakEnabled(isStreakEnabled);
                 space.setAutoRemoveDuration(finalAutoRemoveDuration);
                 db.customSpaceDao().insertSpace(space);
             } else {
@@ -334,6 +344,7 @@ public class CreateSpaceFragment extends Fragment {
                 editingSpace.setHasQuantity(hasQuantity);
                 editingSpace.setHasDate(hasDate);
                 editingSpace.setHasAttachments(hasAttachments);
+                editingSpace.setStreakEnabled(isStreakEnabled);
                 editingSpace.setAutoRemoveDuration(finalAutoRemoveDuration);
                 db.customSpaceDao().updateSpace(editingSpace);
             }
@@ -344,5 +355,48 @@ public class CreateSpaceFragment extends Fragment {
                 });
             }
         });
+    }
+
+    private void setupQuickTemplates(View view) {
+        View chipStudy = view.findViewById(R.id.chipTemplateStudy);
+        View chipDorm = view.findViewById(R.id.chipTemplateDorm);
+        View chipHealth = view.findViewById(R.id.chipTemplateHealth);
+        View chipTravel = view.findViewById(R.id.chipTemplateTravel);
+        View chipProvisions = view.findViewById(R.id.chipTemplateProvisions);
+
+        if (chipStudy != null) {
+            chipStudy.setOnClickListener(v -> applyTemplate("Study & Exams", R.drawable.v02_img_icons_doccc, "#7B61FF", true, true, true, false, true, true, false));
+        }
+        if (chipDorm != null) {
+            chipDorm.setOnClickListener(v -> applyTemplate("Dorm & Tech", R.drawable.v02_img_icons_household, "#4A90E2", false, false, true, true, true, true, false));
+        }
+        if (chipHealth != null) {
+            chipHealth.setOnClickListener(v -> applyTemplate("Health & Habits", R.drawable.v02_img_icons_medicne, "#FF6B6B", true, true, true, false, false, false, true));
+        }
+        if (chipTravel != null) {
+            chipTravel.setOnClickListener(v -> applyTemplate("Travel Packing", R.drawable.v02_img_icons_shopping, "#FFB347", true, false, true, true, false, false, false));
+        }
+        if (chipProvisions != null) {
+            chipProvisions.setOnClickListener(v -> applyTemplate("Provisions", R.drawable.v02_img_icons_household, "#2D6A4F", false, true, true, true, true, false, false));
+        }
+    }
+
+    private void applyTemplate(String name, int iconRes, String colorHex, boolean chk, boolean rem, boolean notes, boolean qty, boolean date, boolean attach, boolean streak) {
+        etName.setText(name);
+        selectedIconRes = iconRes;
+        selectedColor = Color.parseColor(colorHex);
+        if (ivSelectedIcon != null) {
+            ivSelectedIcon.setImageResource(iconRes);
+        }
+        
+        hasCheckbox = chk; updateButtonState(btnOptCheckbox, chk);
+        hasReminder = rem; updateButtonState(btnOptReminder, rem);
+        hasNotes = notes; updateButtonState(btnOptNotes, notes);
+        hasQuantity = qty; updateButtonState(btnOptQuantity, qty);
+        hasDate = date; updateButtonState(btnOptDate, date);
+        hasAttachments = attach; updateButtonState(btnOptAttachments, attach);
+        isStreakEnabled = streak; updateButtonState(btnOptStreak, streak);
+        
+        Toast.makeText(getContext(), name + " template applied!", Toast.LENGTH_SHORT).show();
     }
 }

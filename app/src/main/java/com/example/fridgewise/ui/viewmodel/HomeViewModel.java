@@ -10,7 +10,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.fridgewise.BuildConfig;
-import com.example.fridgewise.R;
 import com.example.fridgewise.data.AppDatabase;
 import com.example.fridgewise.data.GeminiManager;
 import com.example.fridgewise.data.PreferenceManager;
@@ -19,7 +18,6 @@ import com.example.fridgewise.model.AttentionItem;
 import com.example.fridgewise.model.FoodItem;
 import com.example.fridgewise.model.HomeUiState;
 import com.example.fridgewise.model.MedicineEntity;
-import com.example.fridgewise.model.RecipeItem;
 import com.example.fridgewise.model.ShoppingItem;
 import com.example.fridgewise.model.TodoItem;
 import com.example.fridgewise.util.CategoryUtils;
@@ -78,7 +76,7 @@ public class HomeViewModel extends AndroidViewModel {
         String userName = prefManager.getUserName();
         HomeUiState current = uiState.getValue();
         if (current == null) {
-            uiState.postValue(new HomeUiState(new ArrayList<>(), "Thinking...", "Analyzing fridge...", "Hello!", userName, new ArrayList<>(), new ArrayList<>(), getRandomTip(), false, true));
+            uiState.postValue(new HomeUiState(new ArrayList<>(), "Thinking...", "Analyzing fridge...", "Hello!", userName, new ArrayList<>(), getRandomTip(), false, true));
         } else {
             uiState.postValue(new HomeUiState(
                 current.attentionItems,
@@ -87,7 +85,6 @@ public class HomeViewModel extends AndroidViewModel {
                 current.greeting,
                 current.userName,
                 current.recentActivities,
-                current.suggestedRecipes,
                 current.smartTip,
                 current.hasActionableItems,
                 true
@@ -210,26 +207,11 @@ public class HomeViewModel extends AndroidViewModel {
             final int fTodoCount = todos.size();
             final int fShoppingCount = shoppingCount;
 
-            if (!expiringSoonItems.isEmpty()) {
-                StringBuilder ingredients = new StringBuilder();
-                for (FoodItem fi : expiringSoonItems) ingredients.append(fi.getName()).append(", ");
-                geminiManager.getRecipeSuggestions(ingredients.toString(), new GeminiManager.RecipeCallback() {
-                    @Override
-                    public void onRecipesGenerated(List<RecipeItem> recipes) {
-                        fetchInsight(attentionItems, activities, hasActionable, recipes, fTotalMeds, fTakenMeds, fTodoCount, fShoppingCount);
-                    }
-                    @Override
-                    public void onError(Throwable t) {
-                        fetchInsight(attentionItems, activities, hasActionable, new ArrayList<>(), fTotalMeds, fTakenMeds, fTodoCount, fShoppingCount);
-                    }
-                });
-            } else {
-                fetchInsight(attentionItems, activities, hasActionable, new ArrayList<>(), fTotalMeds, fTakenMeds, fTodoCount, fShoppingCount);
-            }
+            fetchInsight(attentionItems, activities, hasActionable, fTotalMeds, fTakenMeds, fTodoCount, fShoppingCount);
         });
     }
 
-    private void fetchInsight(List<AttentionItem> attentionItems, List<ActivityRecord> activities, boolean hasActionable, List<RecipeItem> recipes, 
+    private void fetchInsight(List<AttentionItem> attentionItems, List<ActivityRecord> activities, boolean hasActionable, 
                               int totalMeds, int takenMeds, int todoCount, int shoppingCount) {
         String userName = prefManager.getUserName();
         Calendar calNow = Calendar.getInstance();
@@ -246,11 +228,11 @@ public class HomeViewModel extends AndroidViewModel {
         geminiManager.getSmartInsight(data.toString(), new GeminiManager.InsightCallback() {
             @Override
             public void onInsightGenerated(String greeting, String title, String description) {
-                uiState.postValue(new HomeUiState(attentionItems, title, description, greeting, userName, activities, recipes, getRandomTip(), hasActionable, false));
+                uiState.postValue(new HomeUiState(attentionItems, title, description, greeting, userName, activities, getRandomTip(), hasActionable, false));
             }
             @Override
             public void onError(Throwable t) {
-                uiState.postValue(new HomeUiState(attentionItems, "Fridge Insight", "Everything is looking good today!", fallbackGreeting, userName, activities, recipes, getRandomTip(), hasActionable, false));
+                uiState.postValue(new HomeUiState(attentionItems, "Fridge Insight", "Everything is looking good today!", fallbackGreeting, userName, activities, getRandomTip(), hasActionable, false));
             }
         });
     }

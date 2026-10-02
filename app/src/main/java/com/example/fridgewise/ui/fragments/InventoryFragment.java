@@ -199,6 +199,7 @@ public class InventoryFragment extends Fragment {
 
         FloatingActionButton fab = view.findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(v -> {
+            HapticUtils.performHaptic(v);
             Navigation.findNavController(v).navigate(R.id.addItemFragment);
         });
     }

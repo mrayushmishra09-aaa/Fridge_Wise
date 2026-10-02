@@ -203,17 +203,24 @@
 
                     <!-- Notes -->
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilNotes"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_16"
-                        android:hint="@string/notes_label">
+                        android:hint="@string/notes_label"
+                        app:endIconMode="custom"
+                        app:endIconDrawable="@drawable/ic_eye"
+                        app:endIconTint="@color/green_primary"
+                        app:endIconContentDescription="View note">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/notesEditText"
                             android:layout_width="match_parent"
                             android:layout_height="100dp"
                             android:gravity="top"
-                            android:inputType="textMultiLine" />
+                            android:focusable="false"
+                            android:clickable="true"
+                            android:inputType="none" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

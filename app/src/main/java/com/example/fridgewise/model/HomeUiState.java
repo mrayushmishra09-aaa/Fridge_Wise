@@ -12,7 +12,6 @@ public class HomeUiState {
     public final String greeting;
     public final String userName;
     public final List<ActivityRecord> recentActivities;
-    public final List<RecipeItem> suggestedRecipes;
     public final String smartTip;
     public final boolean hasActionableItems;
     public final boolean isLoading;
@@ -23,7 +22,6 @@ public class HomeUiState {
                       String greeting,
                       String userName,
                       List<ActivityRecord> recentActivities,
-                      List<RecipeItem> suggestedRecipes,
                       String smartTip,
                       boolean hasActionableItems,
                       boolean isLoading) {
@@ -33,7 +31,6 @@ public class HomeUiState {
         this.greeting = greeting;
         this.userName = userName;
         this.recentActivities = recentActivities;
-        this.suggestedRecipes = suggestedRecipes;
         this.smartTip = smartTip;
         this.hasActionableItems = hasActionableItems;
         this.isLoading = isLoading;

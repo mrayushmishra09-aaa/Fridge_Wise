@@ -79,6 +79,9 @@ public class BootReceiver extends BroadcastReceiver {
                 }
             }
 
+            // 5. Restore Pinned Streak Tracker Notification
+            NotificationHelper.updatePinnedStreakNotification(context);
+
         }).start();
     }
 

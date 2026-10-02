@@ -67,6 +67,38 @@
             app:layout_constraintTop_toTopOf="@id/ivTime"
             tools:text="Today, 5:00 PM" />
 
+        <!-- Automatic Time Progress Bar Layout -->
+        <LinearLayout
+            android:id="@+id/layoutTimeProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@id/ivNotification"
+            app:layout_constraintStart_toStartOf="@id/tvTaskTitle"
+            app:layout_constraintTop_toBottomOf="@id/ivTime">
+
+            <TextView
+                android:id="@+id/tvTimeProgressLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/green_primary"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                tools:text="⏱️ 3 hours remaining" />
+
+            <ProgressBar
+                android:id="@+id/pbTimeProgress"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginTop="3dp"
+                android:max="100"
+                android:progress="65"
+                android:progressDrawable="@drawable/custom_progress_bar" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/tvPriority"
             android:layout_width="wrap_content"
@@ -90,6 +122,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btnMore"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
             app:tint="@color/todo_text_primary" />
 
         <ImageButton

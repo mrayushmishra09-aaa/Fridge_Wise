@@ -13,15 +13,27 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+
+import com.example.fridgewise.data.AppDatabase;
+import com.example.fridgewise.data.PreferenceManager;
+import com.example.fridgewise.model.TodoItem;
+import com.example.fridgewise.ui.activities.MainActivity;
+
+import java.util.List;
+import java.util.Locale;
 
 public class NotificationHelper {
 
     public static final String CHANNEL_ID = "expiry_alerts_channel";
     public static final String CHANNEL_REMINDERS = "reminders_channel";
     public static final String CHANNEL_GENERAL = "general_channel";
+    public static final String CHANNEL_PINNED_STREAK = "pinned_streak_channel";
+
+    public static final int PINNED_STREAK_NOTIFICATION_ID = 9999;
 
     public static final String ACTION_TAKE_DOSE = "com.example.fridgewise.ACTION_TAKE_DOSE";
     public static final String ACTION_ADD_TO_SHOPPING = "com.example.fridgewise.ACTION_ADD_TO_SHOPPING";
@@ -51,6 +63,15 @@ public class NotificationHelper {
             );
             generalChannel.setDescription("Food expiry and stock alerts");
             notificationManager.createNotificationChannel(generalChannel);
+
+            // 3. Pinned Streak Channel (Low Importance - Silent, Sticky)
+            NotificationChannel pinnedStreakChannel = new NotificationChannel(
+                    CHANNEL_PINNED_STREAK,
+                    "Pinned Streak Tracker",
+                    NotificationManager.IMPORTANCE_LOW
+            );
+            pinnedStreakChannel.setDescription("Ongoing streak tracker notification");
+            notificationManager.createNotificationChannel(pinnedStreakChannel);
             
             // Cleanup old channel if necessary
             notificationManager.deleteNotificationChannel(CHANNEL_ID);
@@ -179,5 +200,75 @@ public class NotificationHelper {
         if ("TODO".equals(type)) return 20000 + itemId;
         if ("FOOD".equals(type)) return 30000 + itemId;
         return 40000 + itemId;
+    }
+
+    public static void updatePinnedStreakNotification(Context context) {
+        if (context == null) return;
+        Context appContext = context.getApplicationContext();
+
+        new Thread(() -> {
+            PreferenceManager prefManager = new PreferenceManager(appContext);
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(appContext);
+
+            if (!prefManager.isPinNotificationEnabled()) {
+                notificationManager.cancel(PINNED_STREAK_NOTIFICATION_ID);
+                return;
+            }
+
+            // Ensure channel exists
+            createNotificationChannel(appContext);
+
+            // Fetch live streak & task stats
+            int streakDays = prefManager.getStreakCount();
+            AppDatabase db = AppDatabase.getInstance(appContext);
+            List<TodoItem> allTodos = db.todoDao().getAllTodos();
+
+            int total = 0;
+            int completed = 0;
+            if (allTodos != null) {
+                for (TodoItem task : allTodos) {
+                    if (task.isCountTowardsStreak()) {
+                        total++;
+                        if (task.isCompleted()) {
+                            completed++;
+                        }
+                    }
+                }
+            }
+
+            int percent = total > 0 ? (completed * 100) / total : 0;
+            String titleText = String.format(Locale.getDefault(), "🔥 %d Day Streak Active", streakDays);
+            String messageText = String.format(Locale.getDefault(), "You're on fire! %d of %d tasks completed today.", completed, total);
+            String percentText = String.format(Locale.getDefault(), "%d%%", percent);
+
+            // Intent to navigate directly to Streak screen in MainActivity
+            Intent intent = new Intent(appContext, MainActivity.class);
+            intent.putExtra("navigate_to", "streak");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(appContext, PINNED_STREAK_NOTIFICATION_ID, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+            // Inflate Custom RemoteViews
+            RemoteViews remoteViews = new RemoteViews(appContext.getPackageName(), R.layout.notification_pinned_streak);
+            remoteViews.setTextViewText(R.id.tvNotifyStreakTitle, titleText);
+            remoteViews.setTextViewText(R.id.tvNotifyMessage, messageText);
+            remoteViews.setTextViewText(R.id.tvNotifyPercentBadge, percentText);
+            remoteViews.setProgressBar(R.id.pbNotifyStreak, 100, percent, false);
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(appContext, CHANNEL_PINNED_STREAK)
+                    .setSmallIcon(R.drawable.notify_img)
+                    .setCustomContentView(remoteViews)
+                    .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setOngoing(true)
+                    .setAutoCancel(false)
+                    .setContentIntent(pendingIntent);
+
+            try {
+                notificationManager.notify(PINNED_STREAK_NOTIFICATION_ID, builder.build());
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 }

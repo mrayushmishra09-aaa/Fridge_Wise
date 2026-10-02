@@ -51,11 +51,9 @@ public class OnboardingActivity extends AppCompatActivity {
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                if (position == 2) { // Last page (Registration / Login)
-                    // Hide the bottom controls layout entirely on the Login page
-                    findViewById(R.id.ll_bottom_controls).setVisibility(View.GONE);
+                if (position == 1) {
+                    btnNext.setText("Get Started");
                 } else {
-                    findViewById(R.id.ll_bottom_controls).setVisibility(View.VISIBLE);
                     btnNext.setText("Next");
                 }
             }
@@ -68,10 +66,11 @@ public class OnboardingActivity extends AppCompatActivity {
         });
 
         btnNext.setOnClickListener(v -> {
-            if (viewPager.getCurrentItem() < 2) {
+            if (viewPager.getCurrentItem() < 1) {
                 viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
             } else {
                 viewModel.triggerSave();
+                finishOnboarding();
             }
         });
     }
@@ -96,14 +95,13 @@ public class OnboardingActivity extends AppCompatActivity {
             switch (position) {
                 case 0: return IntroFragment.newInstance("Welcome to FridgeWise", "Your smart space to remember and manage the things that matter every day.", R.drawable.start_img01_zoom);
                 case 1: return IntroFragment.newInstance("Everything in one place", "Keep track of your items, medicines, tasks, shopping lists, and more.", "FridgeWise helps you remember what you have, what needs attention, and what comes next.", R.drawable.start_img02);
-                case 2: return new RegistrationFragment();
                 default: return new IntroFragment();
             }
         }
 
         @Override
         public int getItemCount() {
-            return 3;
+            return 2;
         }
     }
 }

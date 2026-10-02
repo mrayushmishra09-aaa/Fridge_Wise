@@ -4,6 +4,9 @@ import com.example.fridgewise.R;
 import com.example.fridgewise.model.TodoItem;
 
 import com.example.fridgewise.util.CategoryUtils;
+import com.example.fridgewise.util.HapticUtils;
+import com.example.fridgewise.util.TimeProgressUtils;
+import android.content.res.ColorStateList;
 import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,14 +15,18 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import androidx.core.content.ContextCompat;
@@ -104,6 +111,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         updateVisualState(holder, item.isCompleted());
 
         holder.cbTask.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            HapticUtils.performHaptic(buttonView);
             item.setCompleted(isChecked);
             updateVisualState(holder, isChecked);
             if (listener != null) {
@@ -140,6 +148,19 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         } else {
             holder.tvPriority.setBackgroundResource(R.drawable.bg_priority_low);
             holder.tvPriority.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.todo_priority_low_text));
+        }
+
+        // Automatic Time Progress Bar calculation
+        Long targetTimestamp = parseTargetTimestamp(item.getDate(), item.getTime());
+        TimeProgressUtils.ProgressState progressState = TimeProgressUtils.calculateState(targetTimestamp, item.getStatusChangeTime());
+        if (progressState.isVisible() && !item.isCompleted() && holder.layoutTimeProgress != null) {
+            holder.layoutTimeProgress.setVisibility(View.VISIBLE);
+            holder.tvTimeProgressLabel.setText(progressState.getLabel());
+            holder.tvTimeProgressLabel.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), progressState.getColorResId()));
+            holder.pbTimeProgress.setProgress(progressState.getProgressPercent());
+            holder.pbTimeProgress.setProgressTintList(ColorStateList.valueOf(ContextCompat.getColor(holder.itemView.getContext(), progressState.getColorResId())));
+        } else if (holder.layoutTimeProgress != null) {
+            holder.layoutTimeProgress.setVisibility(View.GONE);
         }
 
         holder.btnMore.setOnClickListener(v -> {
@@ -227,11 +248,35 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         }
     }
 
+    private Long parseTargetTimestamp(String dateStr, String timeStr) {
+        if (dateStr == null || dateStr.trim().isEmpty()) return null;
+        try {
+            String combined = dateStr.trim() + (timeStr != null && !timeStr.trim().isEmpty() ? " " + timeStr.trim() : " 23:59");
+            SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy HH:mm", Locale.getDefault());
+            Date date = sdf.parse(combined);
+            if (date == null) {
+                SimpleDateFormat sdf2 = new SimpleDateFormat("d/M/yyyy hh:mm a", Locale.getDefault());
+                date = sdf2.parse(combined);
+            }
+            return date != null ? date.getTime() : null;
+        } catch (Exception e) {
+            try {
+                SimpleDateFormat sdfDateOnly = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
+                Date dateOnly = sdfDateOnly.parse(dateStr.trim());
+                return dateOnly != null ? dateOnly.getTime() : null;
+            } catch (Exception ignored) {
+                return null;
+            }
+        }
+    }
+
     static class TodoViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvTime, tvPriority;
+        TextView tvTitle, tvTime, tvPriority, tvTimeProgressLabel;
         CheckBox cbTask;
         ImageButton btnMore;
         MaterialCardView todoCard;
+        View layoutTimeProgress;
+        ProgressBar pbTimeProgress;
 
         public TodoViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -241,6 +286,9 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
             cbTask = itemView.findViewById(R.id.cbTask);
             btnMore = itemView.findViewById(R.id.btnMore);
             todoCard = itemView.findViewById(R.id.todoCard);
+            layoutTimeProgress = itemView.findViewById(R.id.layoutTimeProgress);
+            tvTimeProgressLabel = itemView.findViewById(R.id.tvTimeProgressLabel);
+            pbTimeProgress = itemView.findViewById(R.id.pbTimeProgress);
         }
     }
 }

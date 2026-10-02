@@ -65,7 +65,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="Keep track of everything from grocery runs to meal prep. FridgeWise helps you stay organized and never forget a thing."
+        android:text="Keep track of everything from grocery runs to daily tasks. FridgeWise helps you stay organized and never forget a thing."
         android:textColor="@color/text_dark"
         android:textSize="15sp"
         android:lineSpacingExtra="4dp"
@@ -107,7 +107,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="Plan your weekly meal schedules"
+                android:text="Plan your weekly schedules and tasks"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp" />
         </LinearLayout>

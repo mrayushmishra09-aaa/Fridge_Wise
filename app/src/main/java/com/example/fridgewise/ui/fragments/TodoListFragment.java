@@ -14,6 +14,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -149,7 +150,7 @@ public class TodoListFragment extends Fragment {
 
         setupSwipeToDelete();
 
-        loadTasks();
+        setupLiveDataObservation();
 
         fabAdd.setOnClickListener(v -> {
             Navigation.findNavController(view).navigate(R.id.addTodoFragment);
@@ -167,21 +168,49 @@ public class TodoListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        filterAndDisplayTasks();
+        updateProgressHeader();
+    }
+
+    private void setupLiveDataObservation() {
+        Context context = getContext();
+        if (context == null) return;
+        AppDatabase.getInstance(context).todoDao().getAllTodosLiveData().observe(getViewLifecycleOwner(), todos -> {
+            allTasks.clear();
+            if (todos != null) {
+                allTasks.addAll(todos);
+            }
+            filterAndDisplayTasks();
+            updateProgressHeader();
+        });
+    }
+
     private void updateProgressHeader() {
         if (allTasks == null || allTasks.isEmpty()) {
-            if (progressIndicator != null) progressIndicator.setProgress(0);
+            if (progressIndicator != null) {
+                progressIndicator.setIndeterminate(false);
+                progressIndicator.setMax(100);
+                progressIndicator.setProgress(0);
+            }
             if (tvProgressStatus != null) tvProgressStatus.setText("No tasks yet");
             if (tvBannerTitle != null) tvBannerTitle.setText("Stay Organized");
             if (tvBannerSubtitle != null) tvBannerSubtitle.setText("Add tasks to track your daily progress.");
             return;
         }
 
-        String todayDate = getFormattedTodayDate();
         int totalToday = 0;
         int completedToday = 0;
 
         for (TodoItem item : allTasks) {
-            if (todayDate.equals(item.getDate())) {
+            String dateStr = item.getDate();
+            boolean hasNoDate = (dateStr == null || dateStr.trim().isEmpty());
+            boolean isToday = isTodayDate(dateStr);
+            boolean isOverdue = !isToday && !hasNoDate && isPastDate(dateStr);
+
+            if (isToday || hasNoDate || isOverdue || isCompletedToday(item)) {
                 totalToday++;
                 if (item.isCompleted()) {
                     completedToday++;
@@ -190,14 +219,28 @@ public class TodoListFragment extends Fragment {
         }
 
         if (totalToday == 0) {
-            if (progressIndicator != null) progressIndicator.setProgress(0);
+            if (progressIndicator != null) {
+                progressIndicator.setIndeterminate(false);
+                progressIndicator.setMax(100);
+                progressIndicator.setProgress(0);
+            }
             if (tvProgressStatus != null) tvProgressStatus.setText("No tasks for today");
             if (tvBannerTitle != null) tvBannerTitle.setText("Daily Goals");
             if (tvBannerSubtitle != null) tvBannerSubtitle.setText("No tasks scheduled for today.");
         } else {
             int percentage = (int) (((float) completedToday / totalToday) * 100);
-            if (progressIndicator != null) progressIndicator.setProgress(percentage, true);
-            if (tvProgressStatus != null) tvProgressStatus.setText(percentage + "% Completed (" + completedToday + "/" + totalToday + ")");
+            if (progressIndicator != null) {
+                progressIndicator.setIndeterminate(false);
+                progressIndicator.setMax(100);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    progressIndicator.setProgress(percentage, true);
+                } else {
+                    progressIndicator.setProgress(percentage);
+                }
+            }
+            if (tvProgressStatus != null) {
+                tvProgressStatus.setText(percentage + "% Completed (" + completedToday + "/" + totalToday + ")");
+            }
 
             // Dynamic messages
             if (tvBannerTitle != null && tvBannerSubtitle != null) {
@@ -216,6 +259,46 @@ public class TodoListFragment extends Fragment {
                 }
             }
         }
+    }
+
+    private boolean isTodayDate(String dateStr) {
+        if (dateStr == null || dateStr.trim().isEmpty()) {
+            return false;
+        }
+        String todayStr = getFormattedTodayDate();
+        if (todayStr.equalsIgnoreCase(dateStr.trim())) {
+            return true;
+        }
+        try {
+            SimpleDateFormat sdfStandard = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
+            Date date = sdfStandard.parse(dateStr.trim());
+            Date today = sdfStandard.parse(todayStr);
+            if (date != null && today != null) {
+                SimpleDateFormat sdfNorm = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                return sdfNorm.format(date).equals(sdfNorm.format(today));
+            }
+        } catch (Exception ignored) {
+            try {
+                SimpleDateFormat sdfIso = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                Date date = sdfIso.parse(dateStr.trim());
+                Date today = sdfIso.parse(sdfIso.format(new Date()));
+                return date != null && today != null && sdfIso.format(date).equals(sdfIso.format(today));
+            } catch (Exception ignored2) {}
+        }
+        return false;
+    }
+
+    private boolean isCompletedToday(TodoItem item) {
+        if (!item.isCompleted()) return false;
+        if (item.getStatusChangeTime() > 0) {
+            SimpleDateFormat sdfNorm = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            String completedDate = sdfNorm.format(new Date(item.getStatusChangeTime()));
+            String todayDate = sdfNorm.format(new Date());
+            if (completedDate.equals(todayDate)) {
+                return true;
+            }
+        }
+        return isTodayDate(item.getDate()) || item.getDate() == null || item.getDate().trim().isEmpty() || isPastDate(item.getDate());
     }
 
     private void setupTabs() {
@@ -355,6 +438,7 @@ public class TodoListFragment extends Fragment {
                 activity.runOnUiThread(() -> {
                     allTasks.remove(item);
                     filterAndDisplayTasks();
+                    updateProgressHeader();
                 });
             }
         }).start();
@@ -365,6 +449,7 @@ public class TodoListFragment extends Fragment {
         if (context == null) return;
         new Thread(() -> {
             AppDatabase.getInstance(context).todoDao().update(item);
+            NotificationHelper.updatePinnedStreakNotification(context);
         }).start();
     }
 

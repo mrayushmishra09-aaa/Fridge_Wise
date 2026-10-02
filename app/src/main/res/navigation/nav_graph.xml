@@ -31,8 +31,8 @@
 
     <fragment
         android:id="@+id/nav_pfp"
-        android:name="com.example.fridgewise.ui.fragments.ProfileFragment"
-        android:label="Profile"
+        android:name="com.example.fridgewise.ui.fragments.SettingsFragment"
+        android:label="Settings"
         tools:layout="@layout/fragment_profile" />
 
     <!-- Sub-fragments for Memory/Home -->

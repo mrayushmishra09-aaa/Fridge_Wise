@@ -35,6 +35,9 @@ public class PreferenceManager {
     private static final String KEY_FLOATING_BUBBLE = "floatingBubble";
     private static final String KEY_DAILY_TASK_TARGET = "dailyTaskTarget";
     private static final String KEY_HEATMAP_DATA = "heatmapData";
+    private static final String KEY_BIOMETRIC_LOCK = "biometricLock";
+    private static final String KEY_EXPIRY_THRESHOLD = "expiryThreshold";
+    private static final String KEY_HAPTIC_FEEDBACK = "hapticFeedback";
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -345,6 +348,39 @@ public class PreferenceManager {
 
     public String getHeatmapData() {
         return pref.getString(KEY_HEATMAP_DATA, "");
+    }
+
+    public void setBiometricLockEnabled(boolean enabled) {
+        if (editor != null) {
+            editor.putBoolean(KEY_BIOMETRIC_LOCK, enabled);
+            editor.apply();
+        }
+    }
+
+    public boolean isBiometricLockEnabled() {
+        return pref.getBoolean(KEY_BIOMETRIC_LOCK, false);
+    }
+
+    public void setDefaultExpiryThresholdDays(int days) {
+        if (editor != null) {
+            editor.putInt(KEY_EXPIRY_THRESHOLD, days);
+            editor.apply();
+        }
+    }
+
+    public int getDefaultExpiryThresholdDays() {
+        return pref.getInt(KEY_EXPIRY_THRESHOLD, 3);
+    }
+
+    public void setHapticFeedbackEnabled(boolean enabled) {
+        if (editor != null) {
+            editor.putBoolean(KEY_HAPTIC_FEEDBACK, enabled);
+            editor.apply();
+        }
+    }
+
+    public boolean isHapticFeedbackEnabled() {
+        return pref.getBoolean(KEY_HAPTIC_FEEDBACK, true);
     }
 
     public void clearAll() {

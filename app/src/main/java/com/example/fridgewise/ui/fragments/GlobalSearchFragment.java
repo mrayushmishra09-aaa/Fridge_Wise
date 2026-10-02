@@ -10,6 +10,7 @@ import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
 
 import com.example.fridgewise.R;
+import com.google.android.material.chip.ChipGroup;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -104,6 +105,15 @@ public class GlobalSearchFragment extends Fragment {
             if (!initialQuery.isEmpty()) {
                 searchView.setQuery(initialQuery, true);
             }
+        }
+
+        ChipGroup chipGroup = view.findViewById(R.id.chipGroupSearchFilter);
+        if (chipGroup != null) {
+            chipGroup.setOnCheckedChangeListener((group, checkedId) -> {
+                if (searchView != null) {
+                    performSearch(searchView.getQuery().toString());
+                }
+            });
         }
     }
 
@@ -319,29 +329,47 @@ public class GlobalSearchFragment extends Fragment {
 
         String q = query.toLowerCase().trim();
 
-        List<FoodItem> filteredFood = allFood.stream()
-                .filter(i -> i.getName().toLowerCase().contains(q) || i.getCategory().toLowerCase().contains(q))
-                .collect(Collectors.toList());
+        boolean showFood = true, showMed = true, showDoc = true, showShopping = true, showTodo = true, showSpace = true;
+        View viewRoot = getView();
+        if (viewRoot != null) {
+            ChipGroup chipGroup = viewRoot.findViewById(R.id.chipGroupSearchFilter);
+            if (chipGroup != null) {
+                int checkedId = chipGroup.getCheckedChipId();
+                if (checkedId == R.id.chipFood) {
+                    showMed = false; showDoc = false; showShopping = false; showTodo = false; showSpace = false;
+                } else if (checkedId == R.id.chipMedicine) {
+                    showFood = false; showDoc = false; showShopping = false; showTodo = false; showSpace = false;
+                } else if (checkedId == R.id.chipShopping) {
+                    showFood = false; showMed = false; showDoc = false; showTodo = false; showSpace = false;
+                } else if (checkedId == R.id.chipTodo) {
+                    showFood = false; showMed = false; showDoc = false; showShopping = false; showSpace = false;
+                }
+            }
+        }
 
-        List<MedicineEntity> filteredMeds = allMeds.stream()
+        List<FoodItem> filteredFood = showFood ? allFood.stream()
+                .filter(i -> i.getName().toLowerCase().contains(q) || i.getCategory().toLowerCase().contains(q))
+                .collect(Collectors.toList()) : new ArrayList<>();
+
+        List<MedicineEntity> filteredMeds = showMed ? allMeds.stream()
                 .filter(i -> i.getMedicineName().toLowerCase().contains(q) || i.getMedicineType().toLowerCase().contains(q))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()) : new ArrayList<>();
 
-        List<DocumentItem> filteredDocs = allDocs.stream()
+        List<DocumentItem> filteredDocs = showDoc ? allDocs.stream()
                 .filter(i -> i.getName().toLowerCase().contains(q) || i.getCategory().toLowerCase().contains(q))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()) : new ArrayList<>();
 
-        List<ShoppingItem> filteredShopping = allShopping.stream()
+        List<ShoppingItem> filteredShopping = showShopping ? allShopping.stream()
                 .filter(i -> i.getName().toLowerCase().contains(q))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()) : new ArrayList<>();
 
-        List<TodoItem> filteredTodos = allTodos.stream()
+        List<TodoItem> filteredTodos = showTodo ? allTodos.stream()
                 .filter(i -> i.getTitle().toLowerCase().contains(q) || i.getNote().toLowerCase().contains(q))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()) : new ArrayList<>();
 
-        List<CustomSpaceItem> filteredSpace = allSpaceItems.stream()
+        List<CustomSpaceItem> filteredSpace = showSpace ? allSpaceItems.stream()
                 .filter(i -> i.getName().toLowerCase().contains(q) || (i.getNotes() != null && i.getNotes().toLowerCase().contains(q)))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()) : new ArrayList<>();
 
         updateUI(filteredFood, filteredMeds, filteredDocs, filteredShopping, filteredTodos, filteredSpace);
     }

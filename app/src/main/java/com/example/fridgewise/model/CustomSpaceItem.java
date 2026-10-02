@@ -32,6 +32,11 @@ public class CustomSpaceItem implements Serializable {
     private String documentMimeType;
     private Long completionTimestamp; // Time when marked completed
 
+    // 2-Tier & 3-Stage Notification Fields
+    private boolean isClockAlarmEnabled;
+    private int preNotificationOffsetMinutes;
+    private int postNotificationOffsetMinutes;
+
     public CustomSpaceItem(int spaceId, String name, double quantity, String unit, String date, Long reminderTimestamp, String notes) {
         this.spaceId = spaceId;
         this.name = name;
@@ -42,7 +47,19 @@ public class CustomSpaceItem implements Serializable {
         this.notes = notes;
         this.isChecked = false;
         this.completionTimestamp = null;
+        this.isClockAlarmEnabled = false;
+        this.preNotificationOffsetMinutes = 0;
+        this.postNotificationOffsetMinutes = 0;
     }
+
+    public boolean isClockAlarmEnabled() { return isClockAlarmEnabled; }
+    public void setClockAlarmEnabled(boolean clockAlarmEnabled) { isClockAlarmEnabled = clockAlarmEnabled; }
+
+    public int getPreNotificationOffsetMinutes() { return preNotificationOffsetMinutes; }
+    public void setPreNotificationOffsetMinutes(int preNotificationOffsetMinutes) { this.preNotificationOffsetMinutes = preNotificationOffsetMinutes; }
+
+    public int getPostNotificationOffsetMinutes() { return postNotificationOffsetMinutes; }
+    public void setPostNotificationOffsetMinutes(int postNotificationOffsetMinutes) { this.postNotificationOffsetMinutes = postNotificationOffsetMinutes; }
 
     public String getDocumentMimeType() { return documentMimeType; }
     public void setDocumentMimeType(String documentMimeType) { this.documentMimeType = documentMimeType; }

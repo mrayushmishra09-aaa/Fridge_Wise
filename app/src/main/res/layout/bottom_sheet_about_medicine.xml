@@ -143,7 +143,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/recipe_img"
+                android:src="@drawable/ic_sparkle"
                 app:tint="@color/purple_primary" />
             <TextView
                 android:layout_width="wrap_content"

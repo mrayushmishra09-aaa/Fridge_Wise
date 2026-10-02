@@ -216,6 +216,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
         view.findViewById(R.id.btnMoreOptions).setOnClickListener(this::showMoreOptions);
 
         view.findViewById(R.id.fabAddItem).setOnClickListener(v -> {
+            HapticUtils.performHaptic(v);
             if (currentSpace != null) {
                 Bundle args = new Bundle();
                 args.putInt("arg_space_id", currentSpace.getId());

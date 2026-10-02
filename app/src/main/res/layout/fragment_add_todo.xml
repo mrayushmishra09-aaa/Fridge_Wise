@@ -77,6 +77,28 @@
                 android:textColor="@color/text_dark"
                 android:textSize="14sp" />
 
+            <!-- Space / Tag -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:letterSpacing="0.1"
+                android:text="SPACE / TAG"
+                android:textColor="@color/text_gray"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etSpaceName"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_edittext"
+                android:hint="e.g. General, Coding, Work..."
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/text_dark"
+                android:textSize="14sp" />
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"

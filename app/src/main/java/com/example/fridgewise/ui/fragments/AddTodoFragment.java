@@ -80,6 +80,7 @@ public class AddTodoFragment extends Fragment {
         TextView btnPriorityLow = view.findViewById(R.id.btnPriorityLow);
 
         EditText etNote = view.findViewById(R.id.etNote);
+        EditText etSpaceName = view.findViewById(R.id.etSpaceName);
         SwitchCompat switchReminder = view.findViewById(R.id.switchReminder);
         SwitchCompat switchStreakTracking = view.findViewById(R.id.switchStreakTracking);
         TextView tvTime = view.findViewById(R.id.tvTime);
@@ -89,6 +90,7 @@ public class AddTodoFragment extends Fragment {
             tvHeaderTitle.setText("Edit To-Do");
             btnSave.setText("Update To-Do");
             etTitle.setText(existingTask.getTitle());
+            etSpaceName.setText(existingTask.getSpaceName() != null ? existingTask.getSpaceName() : "General");
             selectedDate = existingTask.getDate();
             tvDate.setText(selectedDate);
             tvDate.setTextColor(getResources().getColor(R.color.text_dark));
@@ -109,6 +111,7 @@ public class AddTodoFragment extends Fragment {
         } else {
             // Set default priority selection for new task
             btnPriorityMedium.setSelected(true);
+            etSpaceName.setText("General");
         }
 
         // Handle Save button click
@@ -120,12 +123,16 @@ public class AddTodoFragment extends Fragment {
             }
 
             String note = etNote != null ? etNote.getText().toString().trim() : "";
+            String spaceName = etSpaceName != null ? etSpaceName.getText().toString().trim() : "General";
+            if (spaceName.isEmpty()) spaceName = "General";
+
             boolean isReminderSet = switchReminder != null && switchReminder.isChecked();
             boolean countTowardsStreak = switchStreakTracking != null && switchStreakTracking.isChecked();
 
             if (existingTask != null) {
                 // Update existing task
                 existingTask.setTitle(title);
+                existingTask.setSpaceName(spaceName);
                 existingTask.setDate(selectedDate);
                 existingTask.setTime(selectedTime);
                 existingTask.setPriority(selectedPriority);
@@ -152,6 +159,7 @@ public class AddTodoFragment extends Fragment {
             } else {
                 // Save new task
                 TodoItem newTask = new TodoItem(title, selectedDate, selectedTime, selectedPriority, note, isReminderSet, false);
+                newTask.setSpaceName(spaceName);
                 newTask.setCountTowardsStreak(countTowardsStreak);
                 new Thread(() -> {
                     AppDatabase db = AppDatabase.getInstance(requireContext());

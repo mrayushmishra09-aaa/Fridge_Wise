@@ -17,7 +17,7 @@ import com.example.fridgewise.model.NotificationInteraction;
 import com.example.fridgewise.model.ShoppingItem;
 import com.example.fridgewise.model.TodoItem;
 
-@Database(entities = {FoodItem.class, TodoItem.class, MedicineEntity.class, ShoppingItem.class, DocumentItem.class, CustomSpace.class, CustomSpaceItem.class, ActivityRecord.class, NotificationInteraction.class}, version = 21, exportSchema = false)
+@Database(entities = {FoodItem.class, TodoItem.class, MedicineEntity.class, ShoppingItem.class, DocumentItem.class, CustomSpace.class, CustomSpaceItem.class, ActivityRecord.class, NotificationInteraction.class}, version = 23, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract FoodItemDao foodItemDao();
@@ -37,7 +37,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "fridge_database")
-                            .addMigrations(MIGRATION_17_18, MIGRATION_18_19)
+                            .addMigrations(MIGRATION_17_18, MIGRATION_18_19, MIGRATION_21_22, MIGRATION_22_23)
                             .fallbackToDestructiveMigration()
                             .build();
                 }
@@ -57,6 +57,22 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE food_items ADD COLUMN barcode TEXT");
+        }
+    };
+
+    static final Migration MIGRATION_21_22 = new Migration(21, 22) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE shopping_items ADD COLUMN price REAL NOT NULL DEFAULT 0.0");
+        }
+    };
+
+    static final Migration MIGRATION_22_23 = new Migration(22, 23) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE custom_space_items ADD COLUMN isClockAlarmEnabled INTEGER NOT NULL DEFAULT 0");
+            database.execSQL("ALTER TABLE custom_space_items ADD COLUMN preNotificationOffsetMinutes INTEGER NOT NULL DEFAULT 0");
+            database.execSQL("ALTER TABLE custom_space_items ADD COLUMN postNotificationOffsetMinutes INTEGER NOT NULL DEFAULT 0");
         }
     };
 }

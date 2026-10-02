@@ -37,6 +37,12 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import android.widget.Toast;
+import java.util.concurrent.Executor;
+
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
@@ -54,6 +60,32 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, OnboardingActivity.class));
             finish();
             return;
+        }
+
+        if (prefManager.isBiometricLockEnabled()) {
+            BiometricManager biometricManager = BiometricManager.from(this);
+            if (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS) {
+                Executor executor = ContextCompat.getMainExecutor(this);
+                BiometricPrompt biometricPrompt = new BiometricPrompt(this, executor, new BiometricPrompt.AuthenticationCallback() {
+                    @Override
+                    public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                        super.onAuthenticationSucceeded(result);
+                    }
+                    @Override
+                    public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                        super.onAuthenticationError(errorCode, errString);
+                        Toast.makeText(MainActivity.this, "Authentication required", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                        .setTitle("FridgeWise Security Lock")
+                        .setSubtitle("Authenticate to access your kitchen assistant")
+                        .setDeviceCredentialAllowed(true)
+                        .build();
+
+                biometricPrompt.authenticate(promptInfo);
+            }
         }
 
         EdgeToEdge.enable(this);
@@ -184,6 +216,9 @@ public class MainActivity extends AppCompatActivity {
         if (intent == null) return;
         
         String target = intent.getStringExtra("target_fragment");
+        if (target == null) {
+            target = intent.getStringExtra("navigate_to");
+        }
         
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragmentContainerView2);
@@ -192,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (target == null) return;
 
-        switch (target) {
+        switch (target.toUpperCase(Locale.ROOT)) {
             case "MEDICINE":
                 navController.navigate(R.id.med_section);
                 break;
@@ -201,6 +236,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case "FOOD":
                 navController.navigate(R.id.nav_inventory);
+                break;
+            case "STREAK":
+                navController.navigate(R.id.nav_streak);
                 break;
             default:
                 navController.navigate(R.id.nav_home);

@@ -11,8 +11,6 @@ import com.example.fridgewise.ui.bottomsheet.*;
 import com.example.fridgewise.util.PermissionManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import com.example.fridgewise.R;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
@@ -63,7 +61,6 @@ import android.content.res.ColorStateList;
 public class HomeFragment extends Fragment {
 
     private HomeViewModel viewModel;
-    private RecipeAdapter recipeAdapter;
     private AttentionAdapter attentionAdapter;
     private RecentActivityAdapter recentAdapter;
 
@@ -79,10 +76,6 @@ public class HomeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-        recipeAdapter = new RecipeAdapter(recipe -> {
-            RecipeDetailsBottomSheet sheet = RecipeDetailsBottomSheet.newInstance(recipe);
-            sheet.show(getChildFragmentManager(), "recipe_details");
-        });
     }
 
     @Override
@@ -201,16 +194,6 @@ public class HomeFragment extends Fragment {
             rvAttention.setAdapter(attentionAdapter);
         }
 
-        // Setup Recipe RecyclerView
-        /*
-        RecyclerView rvRecipes = view.findViewById(R.id.rv_suggested_recipes);
-        if (rvRecipes != null) {
-            rvRecipes.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-            rvRecipes.setAdapter(recipeAdapter);
-        }
-        View llRecipesSection = view.findViewById(R.id.ll_recipes_section);
-        */
-        View llRecipesSection = null;
         View cvSmartTip = view.findViewById(R.id.cv_smart_tip);
         TextView tvSmartTip = view.findViewById(R.id.tv_smart_tip_text);
 
@@ -267,16 +250,11 @@ public class HomeFragment extends Fragment {
                 }
             }
             
-            // Update Recipes
-            if (state.suggestedRecipes != null && !state.suggestedRecipes.isEmpty() && recipeAdapter != null) {
-                if (llRecipesSection != null) llRecipesSection.setVisibility(View.VISIBLE);
-                if (cvSmartTip != null) cvSmartTip.setVisibility(View.GONE);
-                recipeAdapter.setRecipes(state.suggestedRecipes);
-            } else {
-                if (llRecipesSection != null) llRecipesSection.setVisibility(View.GONE);
-                if (cvSmartTip != null) {
-                    cvSmartTip.setVisibility(View.VISIBLE);
-                    if (tvSmartTip != null) tvSmartTip.setText(state.smartTip);
+            // Update Smart Tip
+            if (cvSmartTip != null) {
+                cvSmartTip.setVisibility(View.VISIBLE);
+                if (tvSmartTip != null && state.smartTip != null) {
+                    tvSmartTip.setText(state.smartTip);
                 }
             }
 

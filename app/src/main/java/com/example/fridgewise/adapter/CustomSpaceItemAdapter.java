@@ -5,6 +5,7 @@ import com.example.fridgewise.model.CustomSpace;
 import com.example.fridgewise.model.CustomSpaceItem;
 import com.example.fridgewise.util.CategoryUtils;
 import com.example.fridgewise.util.FileUtil;
+import com.example.fridgewise.util.TimeProgressUtils;
 import com.google.android.material.card.MaterialCardView;
 
 import android.content.res.ColorStateList;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -262,6 +264,19 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         
         itemHolder.tagsLayout.setVisibility(anyTagVisible ? View.VISIBLE : View.GONE);
 
+        // 8. Automatic Time Progress Bar Line & Label
+        Long reminderTime = item.getReminderTimestamp();
+        TimeProgressUtils.ProgressState progressState = TimeProgressUtils.calculateState(reminderTime, null);
+        if (progressState.isVisible() && !item.isChecked() && itemHolder.layoutTimeProgress != null) {
+            itemHolder.layoutTimeProgress.setVisibility(View.VISIBLE);
+            itemHolder.tvTimeProgressLabel.setText(progressState.getLabel());
+            itemHolder.tvTimeProgressLabel.setTextColor(ContextCompat.getColor(itemHolder.itemView.getContext(), progressState.getColorResId()));
+            itemHolder.pbTimeProgress.setProgress(progressState.getProgressPercent());
+            itemHolder.pbTimeProgress.setProgressTintList(ColorStateList.valueOf(ContextCompat.getColor(itemHolder.itemView.getContext(), progressState.getColorResId())));
+        } else if (itemHolder.layoutTimeProgress != null) {
+            itemHolder.layoutTimeProgress.setVisibility(View.GONE);
+        }
+
         itemHolder.itemView.setOnClickListener(v -> {
             if (isSelectionMode) {
                 listener.onItemClick(item);
@@ -301,9 +316,10 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     }
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvNotes, tvTagQuantity, tvTagDate, tvTagReminder, tvTagStatus, tvTagAttachment, tvCompletionFooter;
+        TextView tvName, tvNotes, tvTagQuantity, tvTagDate, tvTagReminder, tvTagStatus, tvTagAttachment, tvCompletionFooter, tvTimeProgressLabel;
         CheckBox checkBox;
-        View tagsLayout;
+        View tagsLayout, layoutTimeProgress;
+        ProgressBar pbTimeProgress;
         MaterialCardView cardMain;
         View tagQuantity, tagDate, tagReminder, tagStatus, tagNotesIcon, tagAttachment, btnEye;
         ImageView btnDelete;
@@ -319,6 +335,9 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             btnEye = itemView.findViewById(R.id.btnViewFullNote);
             
             tagsLayout = itemView.findViewById(R.id.tagsLayout);
+            layoutTimeProgress = itemView.findViewById(R.id.layoutTimeProgress);
+            tvTimeProgressLabel = itemView.findViewById(R.id.tvTimeProgressLabel);
+            pbTimeProgress = itemView.findViewById(R.id.pbTimeProgress);
             
             tagQuantity = itemView.findViewById(R.id.tagQuantity);
             tvTagQuantity = itemView.findViewById(R.id.tvTagQuantity);

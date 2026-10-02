@@ -16,6 +16,7 @@ public class ShoppingItem implements Serializable {
     private String quantity;
     private String unit;
     private boolean isCompleted;
+    private double price;
 
     public ShoppingItem() {
     }
@@ -25,6 +26,15 @@ public class ShoppingItem implements Serializable {
         this.quantity = quantity;
         this.unit = unit;
         this.isCompleted = isCompleted;
+        this.price = 0.0;
+    }
+
+    public ShoppingItem(@NonNull String name, String quantity, String unit, boolean isCompleted, double price) {
+        this.name = name;
+        this.quantity = quantity;
+        this.unit = unit;
+        this.isCompleted = isCompleted;
+        this.price = price;
     }
 
     public int getId() { return id; }
@@ -42,4 +52,20 @@ public class ShoppingItem implements Serializable {
 
     public boolean isCompleted() { return isCompleted; }
     public void setCompleted(boolean completed) { isCompleted = completed; }
+
+    public double getPrice() { return price; }
+    public void setPrice(double price) { this.price = price; }
+
+    public double getTotalPrice() {
+        if (price <= 0) return 0.0;
+        double qty = 1.0;
+        if (quantity != null && !quantity.trim().isEmpty()) {
+            try {
+                qty = Double.parseDouble(quantity.trim());
+            } catch (Exception ignored) {
+                qty = 1.0;
+            }
+        }
+        return price * qty;
+    }
 }

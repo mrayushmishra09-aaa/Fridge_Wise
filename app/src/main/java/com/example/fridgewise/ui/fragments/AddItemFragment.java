@@ -8,6 +8,7 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import com.example.fridgewise.ui.dialog.NoteEditorDialogFragment;
 import androidx.navigation.Navigation;
 
 import com.example.fridgewise.R;
@@ -46,7 +47,7 @@ import java.util.concurrent.Executors;
 
 public class AddItemFragment extends Fragment {
 
-    private ImageView img_01, add_item_photo, btnInfo;
+    private ImageView img_01, add_item_photo;
     private FoodItem editingItem = null; // Track if we are editing
     private ProductLookupManager lookupManager;
     private ActivityResultLauncher<Intent> scannerLauncher;
@@ -87,7 +88,6 @@ public class AddItemFragment extends Fragment {
         // --- View Initializations ---
         img_01 = view.findViewById(R.id.back_arrow);
         add_item_photo = view.findViewById(R.id.add_item_photo);
-        btnInfo = view.findViewById(R.id.btnInfo);
         itemNameEditText = view.findViewById(R.id.itemNameEditText);
         EditText quantityEditText = view.findViewById(R.id.quantityEditText);
         notesEditText = view.findViewById(R.id.notesEditText);
@@ -107,6 +107,7 @@ public class AddItemFragment extends Fragment {
 
 
         // --- Check for Edit Mode ---
+        TextInputLayout tilNotes = view.findViewById(R.id.tilNotes);
         if (getArguments() != null && getArguments().containsKey("foodItem")) {
             editingItem = (FoodItem) getArguments().getSerializable("foodItem");
             if (editingItem != null) {
@@ -120,6 +121,31 @@ public class AddItemFragment extends Fragment {
                 updateCategoryIcon(editingItem.getCategory());
                 saveButton.setText("Update Item");
             }
+        }
+
+        // --- Note Editing Dialog & Eye Preview Wiring ---
+        updateNotesEyeIcon(tilNotes, notesEditText.getText() != null ? notesEditText.getText().toString() : "");
+
+        View.OnClickListener openNoteEditor = v -> {
+            String currentNote = notesEditText.getText() != null ? notesEditText.getText().toString() : "";
+            NoteEditorDialogFragment noteDialog = NoteEditorDialogFragment.newInstance("Item Note", currentNote);
+            noteDialog.setOnNoteSavedListener(noteText -> {
+                notesEditText.setText(noteText);
+                updateNotesEyeIcon(tilNotes, noteText);
+            });
+            noteDialog.show(getParentFragmentManager(), "NoteEditorDialog");
+        };
+
+        notesEditText.setOnClickListener(openNoteEditor);
+
+        if (tilNotes != null) {
+            tilNotes.setEndIconOnClickListener(v -> {
+                String currentNote = notesEditText.getText() != null ? notesEditText.getText().toString() : "";
+                if (!currentNote.isEmpty()) {
+                    NoteDetailBottomSheet noteSheet = NoteDetailBottomSheet.newInstance("Item Note", currentNote);
+                    noteSheet.show(getParentFragmentManager(), "NoteDetailBottomSheet");
+                }
+            });
         }
 
         // --- Default Date if not editing ---
@@ -402,5 +428,12 @@ public class AddItemFragment extends Fragment {
             return "Bakery";
             
         return "others";
+    }
+
+    private void updateNotesEyeIcon(TextInputLayout tilNotes, String noteText) {
+        if (tilNotes != null) {
+            boolean hasContent = noteText != null && !noteText.trim().isEmpty();
+            tilNotes.setEndIconVisible(hasContent);
+        }
     }
 }

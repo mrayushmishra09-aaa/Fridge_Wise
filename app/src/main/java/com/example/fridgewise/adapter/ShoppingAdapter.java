@@ -2,6 +2,7 @@ package com.example.fridgewise.adapter;
 
 import com.example.fridgewise.R;
 import com.example.fridgewise.model.ShoppingItem;
+import com.example.fridgewise.util.HapticUtils;
 
 import android.graphics.Paint;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import androidx.core.content.ContextCompat;
@@ -61,11 +63,22 @@ public class ShoppingAdapter extends RecyclerView.Adapter<ShoppingAdapter.Shoppi
         ShoppingItem item = items.get(position);
         holder.tvName.setText(item.getName());
         
-        String quantityText = item.getQuantity();
+        String quantityText = item.getQuantity() != null ? item.getQuantity() : "";
         if (item.getUnit() != null && !item.getUnit().isEmpty()) {
             quantityText += " " + item.getUnit();
         }
-        holder.tvQuantity.setText(quantityText);
+        
+        double totalPrice = item.getTotalPrice();
+        if (totalPrice > 0) {
+            String priceFormatted = String.format(Locale.getDefault(), "$%.2f", totalPrice);
+            if (!quantityText.trim().isEmpty()) {
+                quantityText += " • " + priceFormatted;
+            } else {
+                quantityText = priceFormatted;
+            }
+        }
+        
+        holder.tvQuantity.setText(quantityText.isEmpty() ? "1 item" : quantityText);
 
         // --- Selection Logic (Tint Based) ---
         boolean isSelected = selectedIds.contains(item.getId());
@@ -87,6 +100,7 @@ public class ShoppingAdapter extends RecyclerView.Adapter<ShoppingAdapter.Shoppi
         updateVisualState(holder, item.isCompleted());
 
         holder.cbCompleted.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            HapticUtils.performHaptic(buttonView);
             item.setCompleted(isChecked);
             updateVisualState(holder, isChecked);
             if (listener != null) {

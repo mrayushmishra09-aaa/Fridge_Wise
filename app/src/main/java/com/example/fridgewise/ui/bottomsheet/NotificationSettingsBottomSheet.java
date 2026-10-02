@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,6 +14,9 @@ import com.example.fridgewise.R;
 import com.example.fridgewise.data.PreferenceManager;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.slider.Slider;
+
+import java.util.Locale;
 
 public class NotificationSettingsBottomSheet extends BottomSheetDialogFragment {
 
@@ -32,17 +36,29 @@ public class NotificationSettingsBottomSheet extends BottomSheetDialogFragment {
         SwitchCompat swExpiry = view.findViewById(R.id.switchExpiryNotif);
         SwitchCompat swGrocery = view.findViewById(R.id.switchGroceryNotif);
         SwitchCompat swInsights = view.findViewById(R.id.switchInsightsNotif);
+        Slider sliderThreshold = view.findViewById(R.id.sliderExpiryThreshold);
+        TextView tvThresholdLabel = view.findViewById(R.id.tvExpiryThresholdLabel);
         MaterialButton btnDone = view.findViewById(R.id.btnDoneNotif);
 
         // Set initial states
         swExpiry.setChecked(prefManager.isNotifExpiryEnabled());
         swGrocery.setChecked(prefManager.isNotifGroceryEnabled());
-        swInsights.setChecked(prefManager.isSmartFollowUpEnabled()); // Linking Smart insights to Smart follow up for now
+        swInsights.setChecked(prefManager.isSmartFollowUpEnabled());
+        
+        int currentThreshold = prefManager.getDefaultExpiryThresholdDays();
+        sliderThreshold.setValue(currentThreshold);
+        tvThresholdLabel.setText(String.format(Locale.getDefault(), "Notify %d days before expiry", currentThreshold));
+
+        sliderThreshold.addOnChangeListener((slider, value, fromUser) -> {
+            int days = (int) value;
+            tvThresholdLabel.setText(String.format(Locale.getDefault(), "Notify %d days before expiry", days));
+        });
 
         btnDone.setOnClickListener(v -> {
             prefManager.setNotifExpiryEnabled(swExpiry.isChecked());
             prefManager.setNotifGroceryEnabled(swGrocery.isChecked());
             prefManager.setSmartFollowUpEnabled(swInsights.isChecked());
+            prefManager.setDefaultExpiryThresholdDays((int) sliderThreshold.getValue());
             dismiss();
         });
     }
