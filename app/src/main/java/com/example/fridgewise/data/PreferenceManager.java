@@ -38,6 +38,7 @@ public class PreferenceManager {
     private static final String KEY_BIOMETRIC_LOCK = "biometricLock";
     private static final String KEY_EXPIRY_THRESHOLD = "expiryThreshold";
     private static final String KEY_HAPTIC_FEEDBACK = "hapticFeedback";
+    private static final String KEY_CUSTOM_SPACE_VIEW_MODE = "customSpaceViewMode";
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -381,6 +382,28 @@ public class PreferenceManager {
 
     public boolean isHapticFeedbackEnabled() {
         return pref.getBoolean(KEY_HAPTIC_FEEDBACK, true);
+    }
+
+    public void setCustomSpaceViewMode(String mode) {
+        if (editor != null) {
+            editor.putString(KEY_CUSTOM_SPACE_VIEW_MODE, mode);
+            editor.apply();
+        }
+    }
+
+    public String getCustomSpaceViewMode() {
+        return pref.getString(KEY_CUSTOM_SPACE_VIEW_MODE, "LIST");
+    }
+
+    public void setTipDismissed(boolean dismissed) {
+        if (editor != null) {
+            editor.putBoolean("tipDismissed", dismissed);
+            editor.apply();
+        }
+    }
+
+    public boolean isTipDismissed() {
+        return pref.getBoolean("tipDismissed", false);
     }
 
     public void clearAll() {

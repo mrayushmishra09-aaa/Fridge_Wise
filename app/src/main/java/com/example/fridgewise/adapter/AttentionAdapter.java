@@ -2,6 +2,8 @@ package com.example.fridgewise.adapter;
 
 import com.example.fridgewise.R;
 import com.example.fridgewise.model.AttentionItem;
+import com.example.fridgewise.util.ProgressBorderDrawable;
+import com.example.fridgewise.util.TimeProgressUtils;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -16,8 +18,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.google.android.material.card.MaterialCardView;
 
 public class AttentionAdapter extends ListAdapter<AttentionItem, AttentionAdapter.ViewHolder> {
 
@@ -39,7 +41,8 @@ public class AttentionAdapter extends ListAdapter<AttentionItem, AttentionAdapte
             public boolean areContentsTheSame(@NonNull AttentionItem oldItem, @NonNull AttentionItem newItem) {
                 return oldItem.getName().equals(newItem.getName()) &&
                        oldItem.getBadgeText().equals(newItem.getBadgeText()) &&
-                       oldItem.getHint().equals(newItem.getHint());
+                       oldItem.getHint().equals(newItem.getHint()) &&
+                       oldItem.getTargetTimestamp() == newItem.getTargetTimestamp();
             }
         });
         this.context = context;
@@ -74,8 +77,6 @@ public class AttentionAdapter extends ListAdapter<AttentionItem, AttentionAdapte
 
         if (item.getBadgeTextColor() == redColor) {
             holder.tvBadge.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_attention_badge_red));
-        } else {
-            holder.tvBadge.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_attention_badge_orange));
         }
 
         if (item.getBadgeTextColor() != 0) {
@@ -100,6 +101,39 @@ public class AttentionAdapter extends ListAdapter<AttentionItem, AttentionAdapte
             holder.ivImage.setImageTintList(null);
         }
 
+        // Dynamic Segmented Progressive Card Border Outline (3.5dp width, 3 segments: 0-50% Green, 50-85% Orange, 85-100% Red)
+        TimeProgressUtils.ProgressState progressState = TimeProgressUtils.calculateState(item.getTargetTimestamp(), item.getCreationTimestamp());
+        
+        // Dynamically set Badge background and text color according to time progress urgency
+        if (progressState.getProgressPercent() < 50) {
+            holder.tvBadge.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_chip_green));
+            holder.tvBadge.setTextColor(ContextCompat.getColor(context, R.color.green_primary));
+        } else if (progressState.getProgressPercent() < 85) {
+            holder.tvBadge.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_attention_badge_orange));
+            holder.tvBadge.setTextColor(ContextCompat.getColor(context, R.color.attention_badge_orange_text));
+        } else {
+            holder.tvBadge.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_attention_badge_red));
+            holder.tvBadge.setTextColor(ContextCompat.getColor(context, R.color.badge_red_text));
+        }
+
+        if (holder.cardView != null) {
+            float percent = progressState.isVisible() ? (progressState.getProgressPercent() / 100f) : 0f;
+            float density = context.getResources().getDisplayMetrics().density;
+            float cornerRadiusPx = 20f * density;
+            float strokeWidthPx = 2.8f * density;
+            int trackColor = ContextCompat.getColor(context, R.color.divider_color);
+            int green = ContextCompat.getColor(context, R.color.green_primary);
+            int orange = ContextCompat.getColor(context, R.color.orange_warning);
+            int red = ContextCompat.getColor(context, R.color.red_expired);
+
+            ProgressBorderDrawable borderDrawable = new ProgressBorderDrawable(
+                cornerRadiusPx, strokeWidthPx, density, trackColor, green, orange, red
+            );
+            borderDrawable.setProgress(percent);
+            holder.cardView.setForeground(borderDrawable);
+            holder.cardView.setStrokeWidth(0);
+        }
+
         holder.btnAction.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(item);
@@ -111,9 +145,11 @@ public class AttentionAdapter extends ListAdapter<AttentionItem, AttentionAdapte
         TextView tvName, tvBadge, tvLocation, tvHint, tvAction;
         ImageView ivImage, ivStatusDot, ivActionChevron;
         LinearLayout btnAction;
+        MaterialCardView cardView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            cardView = itemView.findViewById(R.id.card_view);
             tvName = itemView.findViewById(R.id.tv_item_name);
             tvBadge = itemView.findViewById(R.id.tv_badge);
             tvLocation = itemView.findViewById(R.id.tv_location);

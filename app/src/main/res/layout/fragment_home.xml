@@ -808,49 +808,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Smart Tip Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cv_smart_tip"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_24"
-                app:cardCornerRadius="@dimen/radius_large"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/card_green">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/spacing_20"
-                    android:gravity="center_vertical">
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/ic_sparkle"
-                        app:tint="@color/green_primary" />
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="@dimen/spacing_16"
-                        android:orientation="vertical">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/smart_chef_tip_title"
-                            android:textColor="@color/green_primary"
-                            style="@style/TextAppearance.App.LabelLarge" />
-                        <TextView
-                            android:id="@+id/tv_smart_tip_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/smart_chef_tip_default"
-                            style="@style/TextAppearance.App.BodyMedium"
-                            android:textColor="@color/text_primary" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+
 
             <!-- Recent Activity Section -->
             <TextView

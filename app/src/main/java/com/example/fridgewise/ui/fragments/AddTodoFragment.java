@@ -109,9 +109,12 @@ public class AddTodoFragment extends Fragment {
             btnPriorityMedium.setSelected("Medium".equalsIgnoreCase(selectedPriority));
             btnPriorityLow.setSelected("Low".equalsIgnoreCase(selectedPriority));
         } else {
-            // Set default priority selection for new task
+            // Set default priority selection and default Today date for new task
             btnPriorityMedium.setSelected(true);
             etSpaceName.setText("General");
+            selectedDate = new SimpleDateFormat("d/M/yyyy", Locale.getDefault()).format(new Date());
+            tvDate.setText(selectedDate);
+            tvDate.setTextColor(getResources().getColor(R.color.text_dark));
         }
 
         // Handle Save button click

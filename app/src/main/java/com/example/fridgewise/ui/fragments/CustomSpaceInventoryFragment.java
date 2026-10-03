@@ -35,6 +35,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -51,6 +52,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
     private RecyclerView recyclerView;
     private CustomSpaceItemAdapter adapter;
     private List<CustomSpaceItem> allItems = new ArrayList<>();
+    private boolean isGrid = false;
     
     private TextView tvBannerMsg, tvProgressPercent, tvSelectionCount;
     private LinearProgressIndicator progressOverall;
@@ -115,7 +117,15 @@ public class CustomSpaceInventoryFragment extends Fragment {
         }
 
         recyclerView = view.findViewById(R.id.rvSpaceItems);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        PreferenceManager prefManager = new PreferenceManager(requireContext());
+        String savedMode = prefManager.getCustomSpaceViewMode();
+        isGrid = "GRID".equals(savedMode);
+
+        if (isGrid) {
+            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        } else {
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        }
         
         adapter = new CustomSpaceItemAdapter(new CustomSpaceItemAdapter.OnItemClickListener() {
             @Override
@@ -163,7 +173,22 @@ public class CustomSpaceInventoryFragment extends Fragment {
                 sheet.show(getChildFragmentManager(), "note_detail");
             }
         });
+        adapter.setGridView(isGrid);
         recyclerView.setAdapter(adapter);
+
+        ImageView btnViewToggle = view.findViewById(R.id.btnViewToggle);
+        btnViewToggle.setImageResource(isGrid ? R.drawable.ic_view_list : R.drawable.ic_view_grid);
+        btnViewToggle.setOnClickListener(v -> {
+            isGrid = !isGrid;
+            prefManager.setCustomSpaceViewMode(isGrid ? "GRID" : "LIST");
+            if (isGrid) {
+                recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+            } else {
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            }
+            adapter.setGridView(isGrid);
+            btnViewToggle.setImageResource(isGrid ? R.drawable.ic_view_list : R.drawable.ic_view_grid);
+        });
 
         viewModel.getItems().observe(getViewLifecycleOwner(), items -> {
             allItems = items;

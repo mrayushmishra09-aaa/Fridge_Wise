@@ -1,7 +1,7 @@
 package com.example.fridgewise.model;
 
 public class AttentionItem {
-    public enum Type { FOOD, MEDICINE, TODO }
+    public enum Type { FOOD, MEDICINE, TODO, SPACE }
     
     private String id;
     private String name;
@@ -16,6 +16,8 @@ public class AttentionItem {
     private int badgeBgColor;
     private int badgeTextColor;
     private long priorityScore;
+    private long targetTimestamp;
+    private long creationTimestamp;
 
     public AttentionItem(String id, String name, String badgeText, String location, String hint, String actionText, Type type) {
         this.id = id;
@@ -25,6 +27,8 @@ public class AttentionItem {
         this.hint = hint;
         this.actionText = actionText;
         this.type = type;
+        this.targetTimestamp = 0;
+        this.creationTimestamp = 0;
     }
 
     // Getters and Setters
@@ -47,4 +51,8 @@ public class AttentionItem {
     public void setBadgeTextColor(int badgeTextColor) { this.badgeTextColor = badgeTextColor; }
     public long getPriorityScore() { return priorityScore; }
     public void setPriorityScore(long priorityScore) { this.priorityScore = priorityScore; }
+    public long getTargetTimestamp() { return targetTimestamp; }
+    public void setTargetTimestamp(long targetTimestamp) { this.targetTimestamp = targetTimestamp; }
+    public long getCreationTimestamp() { return creationTimestamp; }
+    public void setCreationTimestamp(long creationTimestamp) { this.creationTimestamp = creationTimestamp; }
 }

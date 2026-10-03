@@ -2,12 +2,12 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cardItem"
-    android:layout_width="match_parent"
+     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
+    android:layout_marginBottom="8dp"
     android:layout_marginHorizontal="4dp"
     app:cardBackgroundColor="@color/bg_secondary"
-    app:cardCornerRadius="20dp"
+    app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
     app:strokeColor="@color/divider_color"
     app:strokeWidth="1dp">
@@ -15,7 +15,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <CheckBox
             android:id="@+id/itemCheckBox"
@@ -74,7 +74,7 @@
             android:id="@+id/tagsLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="6dp"
             android:visibility="gone"
             app:flexWrap="wrap"
             app:justifyContent="flex_start"
@@ -87,26 +87,26 @@
                 android:id="@+id/tagQuantity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="6dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginBottom="4dp"
                 android:background="@drawable/bg_tag_gray"
                 android:backgroundTint="@color/surface_elevated"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="5dp">
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Qty: "
                     android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
                 <TextView
                     android:id="@+id/tvTagQuantity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="5 items"
                     android:textColor="@color/text_primary"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -115,26 +115,26 @@
                 android:id="@+id/tagDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="6dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginBottom="4dp"
                 android:background="@drawable/bg_tag_gray"
                 android:backgroundTint="@color/surface_elevated"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="5dp">
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Due: "
                     android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
                 <TextView
                     android:id="@+id/tvTagDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="28 Aug"
                     android:textColor="@color/text_primary"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -143,16 +143,16 @@
                 android:id="@+id/tagReminder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="6dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginBottom="4dp"
                 android:background="@drawable/bg_tag_blue"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="5dp">
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp">
                 <ImageView
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginEnd="3dp"
                     android:src="@drawable/ic_notification"
                     app:tint="@color/doc_primary" />
                 <TextView
@@ -161,7 +161,7 @@
                     android:layout_height="wrap_content"
                     android:text="6:00 PM"
                     android:textColor="@color/doc_primary"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -170,17 +170,17 @@
                 android:id="@+id/tagNotesIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="6dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginBottom="4dp"
                 android:background="@drawable/bg_tag_orange"
                 android:backgroundTint="@color/badge_orange_bg"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp">
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp">
                 <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_marginEnd="6dp"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginEnd="4dp"
                     android:src="@drawable/ic_todo_item"
                     app:tint="@color/badge_orange_text" />
                 <TextView
@@ -188,7 +188,7 @@
                     android:layout_height="wrap_content"
                     android:text="To-Do"
                     android:textColor="@color/badge_orange_text"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -197,18 +197,18 @@
                 android:id="@+id/tagAttachment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="6dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginBottom="4dp"
                 android:background="@drawable/bg_tag_purple"
                 android:backgroundTint="@color/badge_purple_bg"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="5dp">
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp">
                 <ImageView
                     android:id="@+id/ivTagAttachment"
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginEnd="3dp"
                     android:src="@drawable/v02_img_icons_doccc"
                     app:tint="@color/badge_purple_text" />
                 <TextView
@@ -217,11 +217,11 @@
                     android:layout_height="wrap_content"
                     android:text="Manual.pdf"
                     android:textColor="@color/badge_purple_text"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end"
-                    android:maxWidth="100dp"/>
+                    android:maxWidth="90dp"/>
             </LinearLayout>
 
             <!-- Status Tag -->
@@ -229,20 +229,20 @@
                 android:id="@+id/tagStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="6dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginBottom="4dp"
                 android:background="@drawable/bg_tag_green"
                 android:backgroundTint="@color/card_green"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="5dp">
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp">
                 <TextView
                     android:id="@+id/tvTagStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="✓ Completed"
                     android:textColor="@color/green_light"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </com.google.android.flexbox.FlexboxLayout>
@@ -252,7 +252,7 @@
             android:id="@+id/layoutTimeProgress"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:orientation="vertical"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="@id/tvItemName"
@@ -265,15 +265,15 @@
                 android:layout_height="wrap_content"
                 android:text="⏱️ 6 hours remaining"
                 android:textColor="@color/green_primary"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold" />
 
             <ProgressBar
                 android:id="@+id/pbTimeProgress"
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_marginTop="3dp"
+                android:layout_height="3dp"
+                android:layout_marginTop="2dp"
                 android:max="100"
                 android:progress="40"
                 android:progressDrawable="@drawable/custom_progress_bar" />

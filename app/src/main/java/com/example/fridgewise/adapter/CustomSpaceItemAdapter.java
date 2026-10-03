@@ -40,6 +40,7 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     private final OnItemClickListener listener;
     private CustomSpace parentSpace;
     private boolean isSelectionMode = false;
+    private boolean isGridView = false;
     private Set<Integer> selectedIds = new HashSet<>();
 
     public interface OnItemClickListener {
@@ -66,6 +67,11 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         notifyDataSetChanged();
     }
 
+    public void setGridView(boolean gridView) {
+        this.isGridView = gridView;
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemViewType(int position) {
         if (parentSpace != null && parentSpace.getAutoRemoveDuration() > 0 && position == items.size()) {
@@ -81,7 +87,11 @@ public class CustomSpaceItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_auto_remove_footer, parent, false);
             return new FooterViewHolder(view);
         }
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_custom_space_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(
+                isGridView ? R.layout.item_custom_space_item_grid : R.layout.item_custom_space_item,
+                parent,
+                false
+        );
         return new ItemViewHolder(view);
     }
 

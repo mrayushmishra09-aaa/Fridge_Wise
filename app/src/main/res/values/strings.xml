@@ -110,8 +110,8 @@
     <string name="insight_heading_default">Smart Insight Heading</string>
     <string name="insight_desc_default">Detailed description of what FridgeWise noticed today.</string>
 
-    <string name="smart_chef_tip_title">Smart Chef Tip</string>
-    <string name="smart_chef_tip_default">Did you know? Storing tomatoes at room temp keeps them flavorful.</string>
+    <string name="pro_tip_title">FridgeWise Pro Tip</string>
+    <string name="pro_tip_default">Discover how to organize your workflow with FridgeWise.</string>
     <string name="recent_activity_title">Recent Activity</string>
     <string name="global_search_title">Global Search</string>
     <string name="search_hint_global">Search food, meds, docs...</string>

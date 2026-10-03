@@ -12,7 +12,6 @@ public class HomeUiState {
     public final String greeting;
     public final String userName;
     public final List<ActivityRecord> recentActivities;
-    public final String smartTip;
     public final boolean hasActionableItems;
     public final boolean isLoading;
 
@@ -22,7 +21,6 @@ public class HomeUiState {
                       String greeting,
                       String userName,
                       List<ActivityRecord> recentActivities,
-                      String smartTip,
                       boolean hasActionableItems,
                       boolean isLoading) {
         this.attentionItems = attentionItems;
@@ -31,7 +29,6 @@ public class HomeUiState {
         this.greeting = greeting;
         this.userName = userName;
         this.recentActivities = recentActivities;
-        this.smartTip = smartTip;
         this.hasActionableItems = hasActionableItems;
         this.isLoading = isLoading;
     }

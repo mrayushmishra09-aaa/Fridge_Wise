@@ -194,8 +194,7 @@ public class HomeFragment extends Fragment {
             rvAttention.setAdapter(attentionAdapter);
         }
 
-        View cvSmartTip = view.findViewById(R.id.cv_smart_tip);
-        TextView tvSmartTip = view.findViewById(R.id.tv_smart_tip_text);
+
 
         View cvTodayInsight = view.findViewById(R.id.cv_today_insight);
         TextView tvInsightTitle = view.findViewById(R.id.tv_insight_title);
@@ -250,13 +249,7 @@ public class HomeFragment extends Fragment {
                 }
             }
             
-            // Update Smart Tip
-            if (cvSmartTip != null) {
-                cvSmartTip.setVisibility(View.VISIBLE);
-                if (tvSmartTip != null && state.smartTip != null) {
-                    tvSmartTip.setText(state.smartTip);
-                }
-            }
+
 
             // Update Attention Section
             if (state.attentionItems != null && !state.attentionItems.isEmpty()) {
@@ -515,56 +508,39 @@ public class HomeFragment extends Fragment {
     }
 
     private void handleAttentionClick(AttentionItem item) {
-        if (item == null) return;
+        if (item == null || !isAdded()) return;
         
-        Context context = getContext();
-        if (context == null) return;
-        
-        AppDatabase db = AppDatabase.getInstance(context);
-        Executors.newSingleThreadExecutor().execute(() -> {
-            Bundle args = new Bundle();
-            int navAction = -1;
-            
-            try {
-                int id = Integer.parseInt(item.getId());
-                switch (item.getType()) {
-                    case FOOD:
-                        FoodItem food = db.foodItemDao().getItemById(id);
-                        if (food != null) {
-                            args.putSerializable("foodItem", food);
-                            navAction = R.id.addItemFragment;
-                        }
-                        break;
-                    case MEDICINE:
-                        MedicineEntity med = db.medicineDao().getMedicineById(id);
-                        if (med != null) {
-                            args.putSerializable(MedicineAddFragment.ARG_MEDICINE, med);
-                            navAction = R.id.medicineAddFragment;
-                        }
-                        break;
-                    case TODO:
-                        TodoItem todo = db.todoDao().getTodoById(id);
-                        if (todo != null) {
-                            args.putSerializable(AddTodoFragment.ARG_TODO_ITEM, todo);
-                            navAction = R.id.addTodoFragment;
-                        }
-                        break;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        int destId = -1;
+        switch (item.getType()) {
+            case FOOD:
+                destId = R.id.nav_inventory;
+                break;
+            case MEDICINE:
+                destId = R.id.med_section;
+                break;
+            case TODO:
+                destId = R.id.todoListFragment;
+                break;
+            case SPACE:
+                destId = R.id.customSpaceInventoryFragment;
+                break;
+        }
 
-            if (navAction != -1 && isAdded()) {
-                final int finalNavAction = navAction;
-                requireActivity().runOnUiThread(() -> {
-                    try {
-                        Navigation.findNavController(requireView()).navigate(finalNavAction, args);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+        if (destId != -1) {
+            final int targetDestId = destId;
+            requireActivity().runOnUiThread(() -> {
+                try {
+                    BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottomNavigationView);
+                    if (bottomNav != null && targetDestId == R.id.nav_inventory) {
+                        bottomNav.setSelectedItemId(R.id.nav_inventory);
+                    } else {
+                        Navigation.findNavController(requireView()).navigate(targetDestId);
                     }
-                });
-            }
-        });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 
     private void setupNavigation(View view) {

@@ -43,17 +43,6 @@ public class HomeViewModel extends AndroidViewModel {
     private final Executor executor = Executors.newSingleThreadExecutor();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
     
-    private static final String[] SMART_TIPS = {
-        "Store potatoes and onions separately; they spoil faster if kept together.",
-        "Keep milk in the main part of the fridge, not the door, where it's coldest.",
-        "Store honey at room temperature; it won't spoil and crystallizes slower.",
-        "Put a paper towel with your salad greens to absorb moisture and keep them crisp.",
-        "Bread stays fresh longer on the counter than in the fridge where it dries out.",
-        "Only move avocados to the fridge once they are fully ripe.",
-        "Wrap banana stems in plastic wrap to slow down the ripening process.",
-        "Store mushrooms in a paper bag instead of plastic to keep them from getting slimy."
-    };
-    
     private List<FoodItem> currentActionableItems = new ArrayList<>();
 
     public HomeViewModel(@NonNull Application application) {
@@ -76,7 +65,7 @@ public class HomeViewModel extends AndroidViewModel {
         String userName = prefManager.getUserName();
         HomeUiState current = uiState.getValue();
         if (current == null) {
-            uiState.postValue(new HomeUiState(new ArrayList<>(), "Thinking...", "Analyzing fridge...", "Hello!", userName, new ArrayList<>(), getRandomTip(), false, true));
+            uiState.postValue(new HomeUiState(new ArrayList<>(), "Thinking...", "Analyzing fridge...", "Hello!", userName, new ArrayList<>(), false, true));
         } else {
             uiState.postValue(new HomeUiState(
                 current.attentionItems,
@@ -85,7 +74,6 @@ public class HomeViewModel extends AndroidViewModel {
                 current.greeting,
                 current.userName,
                 current.recentActivities,
-                current.smartTip,
                 current.hasActionableItems,
                 true
             ));
@@ -113,17 +101,23 @@ public class HomeViewModel extends AndroidViewModel {
                     Date expiry = dateFormat.parse(item.getExpiryDate());
                     if (expiry != null) {
                         expiry = resetTime(expiry);
+                        long targetTs = item.getExpiryTimestamp() > 0 ? item.getExpiryTimestamp() : getEndOfDayTimestamp(expiry);
                         if (expiry.before(today)) {
-                            AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expired", item.getCategory(), "Has expired!", "View", AttentionItem.Type.FOOD);
-                            ai.setPriorityScore(10);
-                            ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
-                            ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.badge_red_text));
-                            ai.setStatusColor(ContextCompat.getColor(getApplication(), R.color.red_expired));
-                            attentionItems.add(ai);
+                            long diffDays = (today.getTime() - expiry.getTime()) / (24 * 60 * 60 * 1000);
+                            if (diffDays <= 7) {
+                                AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expired", item.getCategory(), "Has expired!", "View", AttentionItem.Type.FOOD);
+                                ai.setPriorityScore(10 + (7 - (int)diffDays));
+                                ai.setTargetTimestamp(targetTs);
+                                ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
+                                ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.badge_red_text));
+                                ai.setStatusColor(ContextCompat.getColor(getApplication(), R.color.red_expired));
+                                attentionItems.add(ai);
+                            }
                         } else if (expiry.equals(today)) {
                             expiringSoonItems.add(item);
                             AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), "Expires today", item.getCategory(), "Use today!", "View", AttentionItem.Type.FOOD);
                             ai.setPriorityScore(50);
+                            ai.setTargetTimestamp(targetTs);
                             ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
                             ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.attention_badge_orange_text));
                             ai.setStatusColor(ContextCompat.getColor(getApplication(), R.color.attention_badge_orange_text));
@@ -134,6 +128,7 @@ public class HomeViewModel extends AndroidViewModel {
                             String badgeText = diff == 1 ? "Expires tomorrow" : "Expires in " + diff + " days";
                             AttentionItem ai = new AttentionItem(String.valueOf(item.getId()), item.getName(), badgeText, item.getCategory(), "Use soon.", "View", AttentionItem.Type.FOOD);
                             ai.setPriorityScore(30);
+                            ai.setTargetTimestamp(targetTs);
                             ai.setImageResId(CategoryUtils.getCategoryIcon(item.getCategory()));
                             ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.attention_badge_orange_text));
                             ai.setStatusColor(ContextCompat.getColor(getApplication(), R.color.attention_badge_orange_text));
@@ -156,6 +151,7 @@ public class HomeViewModel extends AndroidViewModel {
                 if (med.isReminderOn() && !isTaken) {
                     AttentionItem ai = new AttentionItem(String.valueOf(med.getId()), med.getMedicineName(), med.getStartTime(), "Medicine", "Time for meds.", "View", AttentionItem.Type.MEDICINE);
                     ai.setPriorityScore(100);
+                    ai.setTargetTimestamp(parseMedicineTimestamp(med.getStartTime()));
                     ai.setImageResId(med.getIconResId());
                     ai.setBadgeBgColor(ContextCompat.getColor(getApplication(), R.color.badge_purple_bg));
                     ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.badge_purple_text));
@@ -184,6 +180,13 @@ public class HomeViewModel extends AndroidViewModel {
 
                 AttentionItem ai = new AttentionItem(String.valueOf(todo.getId()), todo.getTitle(), todo.getTime() != null ? todo.getTime() : "Today", "To-Do", description, "View", AttentionItem.Type.TODO);
                 ai.setPriorityScore(score);
+                long targetTs = parseTodoTimestamp(todo.getDate(), todo.getTime());
+                long creationTs = todo.getStatusChangeTime() > 0 ? todo.getStatusChangeTime() : System.currentTimeMillis();
+                if (creationTs >= targetTs) {
+                    creationTs = targetTs - (30 * 60 * 1000L);
+                }
+                ai.setTargetTimestamp(targetTs);
+                ai.setCreationTimestamp(creationTs);
                 ai.setImageResId(CategoryUtils.getPriorityIcon(todo.getPriority()));
                 ai.setBadgeBgColor(ContextCompat.getColor(getApplication(), R.color.card_blue));
                 ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.doc_primary));
@@ -228,18 +231,13 @@ public class HomeViewModel extends AndroidViewModel {
         geminiManager.getSmartInsight(data.toString(), new GeminiManager.InsightCallback() {
             @Override
             public void onInsightGenerated(String greeting, String title, String description) {
-                uiState.postValue(new HomeUiState(attentionItems, title, description, greeting, userName, activities, getRandomTip(), hasActionable, false));
+                uiState.postValue(new HomeUiState(attentionItems, title, description, greeting, userName, activities, hasActionable, false));
             }
             @Override
             public void onError(Throwable t) {
-                uiState.postValue(new HomeUiState(attentionItems, "Fridge Insight", "Everything is looking good today!", fallbackGreeting, userName, activities, getRandomTip(), hasActionable, false));
+                uiState.postValue(new HomeUiState(attentionItems, "Fridge Insight", "Everything is looking good today!", fallbackGreeting, userName, activities, hasActionable, false));
             }
         });
-    }
-
-    private String getRandomTip() {
-        int index = (int) (Math.random() * SMART_TIPS.length);
-        return SMART_TIPS[index];
     }
 
     public void autoAddActionableToShoppingList() {
@@ -362,5 +360,73 @@ public class HomeViewModel extends AndroidViewModel {
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();
+    }
+
+    private long getEndOfDayTimestamp(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        cal.set(Calendar.MILLISECOND, 999);
+        return cal.getTimeInMillis();
+    }
+
+    private long parseMedicineTimestamp(String timeStr) {
+        if (timeStr == null || timeStr.trim().isEmpty()) return System.currentTimeMillis() + 3600000L;
+        String todayDateStr = dateFormat.format(new Date());
+        String combined = todayDateStr + " " + timeStr.trim();
+        String[] patterns = new String[] { "d/M/yyyy h:mm a", "d/M/yyyy hh:mm a", "d/M/yyyy HH:mm" };
+        for (String pattern : patterns) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
+                Date parsed = sdf.parse(combined);
+                if (parsed != null) return parsed.getTime();
+            } catch (Exception ignored) { }
+        }
+        return System.currentTimeMillis() + 3600000L;
+    }
+
+    private long parseTodoTimestamp(String dateStr, String timeStr) {
+        String trimmedDate = (dateStr == null || dateStr.trim().isEmpty()) ? dateFormat.format(new Date()) : dateStr.trim();
+        String trimmedTime = (timeStr != null && !timeStr.trim().isEmpty()) ? timeStr.trim() : "23:59";
+        String combined = trimmedDate + " " + trimmedTime;
+
+        String[] patterns = new String[] {
+            "d/M/yyyy h:mm a",
+            "d/M/yyyy hh:mm a",
+            "d/M/yyyy HH:mm",
+            "dd/MM/yyyy h:mm a",
+            "dd/MM/yyyy HH:mm",
+            "yyyy-MM-dd HH:mm",
+            "yyyy-MM-dd h:mm a"
+        };
+
+        for (String pattern : patterns) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
+                Date parsed = sdf.parse(combined);
+                if (parsed != null) {
+                    return parsed.getTime();
+                }
+            } catch (Exception ignored) { }
+        }
+
+        String[] datePatterns = new String[] { "d/M/yyyy", "dd/MM/yyyy", "yyyy-MM-dd" };
+        for (String pattern : datePatterns) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
+                Date parsedDate = sdf.parse(trimmedDate);
+                if (parsedDate != null) {
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(parsedDate);
+                    cal.set(Calendar.HOUR_OF_DAY, 23);
+                    cal.set(Calendar.MINUTE, 59);
+                    return cal.getTimeInMillis();
+                }
+            } catch (Exception ignored) { }
+        }
+
+        return System.currentTimeMillis() + 86400000L;
     }
 }
