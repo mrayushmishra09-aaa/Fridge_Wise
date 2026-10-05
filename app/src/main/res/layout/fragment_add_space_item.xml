@@ -478,16 +478,19 @@
                 <EditText
                     android:id="@+id/etNotes"
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
+                    android:layout_height="wrap_content"
+                    android:minLines="3"
+                    android:maxLines="6"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/bg_edittext"
-                    android:gravity="top"
-                    android:hint="Tap to add or edit note..."
+                    android:gravity="top|start"
+                    android:hint="Type additional notes here..."
                     android:padding="12dp"
                     android:textSize="14sp"
-                    android:focusable="false"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
                     android:clickable="true"
-                    android:inputType="none"
+                    android:inputType="textMultiLine|textCapSentences"
                     android:textColor="@color/text_primary" />
             </LinearLayout>
 

@@ -29,6 +29,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Vibrator;
 import android.content.Context;
+import android.net.Uri;
+import android.webkit.MimeTypeMap;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -53,6 +57,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
     private CustomSpaceItemAdapter adapter;
     private List<CustomSpaceItem> allItems = new ArrayList<>();
     private boolean isGrid = false;
+    private boolean isBannerCollapsed = false;
     
     private TextView tvBannerMsg, tvProgressPercent, tvSelectionCount;
     private LinearProgressIndicator progressOverall;
@@ -67,6 +72,8 @@ public class CustomSpaceInventoryFragment extends Fragment {
         return fragment;
     }
 
+    private ActivityResultLauncher<String> multiFilePickerLauncher;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +84,15 @@ public class CustomSpaceInventoryFragment extends Fragment {
         if (currentSpace != null) {
             viewModel.setSpaceId(currentSpace.getId());
         }
+
+        multiFilePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetMultipleContents(),
+            uris -> {
+                if (uris != null && !uris.isEmpty()) {
+                    importMultipleSpaceFiles(uris);
+                }
+            }
+        );
     }
 
     @Nullable
@@ -101,6 +117,24 @@ public class CustomSpaceInventoryFragment extends Fragment {
         }
 
         tvTitle.setText(currentSpace.getName());
+
+        ImageView btnToggleBanner = view.findViewById(R.id.btnToggleBanner);
+        ImageView ivBannerIllustration = view.findViewById(R.id.ivBannerIllustration);
+        btnToggleBanner.setOnClickListener(v -> {
+            isBannerCollapsed = !isBannerCollapsed;
+            if (getView() != null) {
+                androidx.transition.TransitionManager.beginDelayedTransition((ViewGroup) getView());
+            }
+            int visibility = isBannerCollapsed ? View.GONE : View.VISIBLE;
+            if (currentSpace != null && currentSpace.isHasCheckbox()) {
+                progressOverall.setVisibility(visibility);
+                tvProgressPercent.setVisibility(visibility);
+            }
+            if (ivBannerIllustration != null) {
+                ivBannerIllustration.setVisibility(visibility);
+            }
+            btnToggleBanner.setRotation(isBannerCollapsed ? 90f : 270f);
+        });
         
         // Professional Polish: Set banner color based on space theme
         if (currentSpace.getColorCode() != 0) {
@@ -122,7 +156,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
         isGrid = "GRID".equals(savedMode);
 
         if (isGrid) {
-            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
         } else {
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         }
@@ -177,18 +211,25 @@ public class CustomSpaceInventoryFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         ImageView btnViewToggle = view.findViewById(R.id.btnViewToggle);
-        btnViewToggle.setImageResource(isGrid ? R.drawable.ic_view_list : R.drawable.ic_view_grid);
-        btnViewToggle.setOnClickListener(v -> {
-            isGrid = !isGrid;
-            prefManager.setCustomSpaceViewMode(isGrid ? "GRID" : "LIST");
-            if (isGrid) {
-                recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        if (btnViewToggle != null) {
+            if (currentSpace != null && currentSpace.isHasCheckbox()) {
+                btnViewToggle.setVisibility(View.GONE);
             } else {
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                btnViewToggle.setVisibility(View.VISIBLE);
+                btnViewToggle.setImageResource(isGrid ? R.drawable.ic_view_list : R.drawable.ic_view_grid);
+                btnViewToggle.setOnClickListener(v -> {
+                    isGrid = !isGrid;
+                    prefManager.setCustomSpaceViewMode(isGrid ? "GRID" : "LIST");
+                    if (isGrid) {
+                        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+                    } else {
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                    }
+                    adapter.setGridView(isGrid);
+                    btnViewToggle.setImageResource(isGrid ? R.drawable.ic_view_list : R.drawable.ic_view_grid);
+                });
             }
-            adapter.setGridView(isGrid);
-            btnViewToggle.setImageResource(isGrid ? R.drawable.ic_view_list : R.drawable.ic_view_grid);
-        });
+        }
 
         viewModel.getItems().observe(getViewLifecycleOwner(), items -> {
             allItems = items;
@@ -243,9 +284,26 @@ public class CustomSpaceInventoryFragment extends Fragment {
         view.findViewById(R.id.fabAddItem).setOnClickListener(v -> {
             HapticUtils.performHaptic(v);
             if (currentSpace != null) {
-                Bundle args = new Bundle();
-                args.putInt("arg_space_id", currentSpace.getId());
-                Navigation.findNavController(v).navigate(R.id.addSpaceItemFragment, args);
+                if (currentSpace.isHasAttachments()) {
+                    String[] options = {"⚡ Quick Import Multiple Files / Photos", "📝 Add Item Details / Form"};
+                    new AlertDialog.Builder(requireContext())
+                            .setTitle("Add to " + currentSpace.getName())
+                            .setItems(options, (dialog, which) -> {
+                                if (which == 0) {
+                                    multiFilePickerLauncher.launch("*/*");
+                                } else {
+                                    Bundle args = new Bundle();
+                                    args.putInt("arg_space_id", currentSpace.getId());
+                                    Navigation.findNavController(v).navigate(R.id.addSpaceItemFragment, args);
+                                }
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                } else {
+                    Bundle args = new Bundle();
+                    args.putInt("arg_space_id", currentSpace.getId());
+                    Navigation.findNavController(v).navigate(R.id.addSpaceItemFragment, args);
+                }
             }
         });
 
@@ -467,5 +525,57 @@ public class CustomSpaceInventoryFragment extends Fragment {
                     if (position >= 0) adapter.notifyItemChanged(position);
                 })
                 .show();
+    }
+
+    private void importMultipleSpaceFiles(List<Uri> uris) {
+        Context context = getContext();
+        if (context == null || currentSpace == null || uris == null || uris.isEmpty()) return;
+
+        Toast.makeText(context, "Importing " + uris.size() + " files...", Toast.LENGTH_SHORT).show();
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(context);
+            int count = 0;
+            for (Uri uri : uris) {
+                try {
+                    String localPath = FileUtil.saveToInternalStorage(context, uri);
+                    String fileName = getFileNameFromUri(context, uri);
+                    CustomSpaceItem item = new CustomSpaceItem(currentSpace.getId(), fileName, 1.0, "file", "", null, "Imported file");
+                    item.setDocumentUri(localPath);
+                    item.setDocumentName(fileName);
+                    item.setDocumentMimeType(context.getContentResolver().getType(uri));
+                    db.customSpaceDao().insertItem(item);
+                    count++;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            final int imported = count;
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    Toast.makeText(getContext(), "Imported " + imported + " files successfully!", Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+
+    private String getFileNameFromUri(Context context, Uri uri) {
+        String result = null;
+        if ("content".equals(uri.getScheme())) {
+            try (android.database.Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int index = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                    if (index != -1) result = cursor.getString(index);
+                }
+            } catch (Exception ignored) {}
+        }
+        if (result == null) {
+            result = uri.getPath();
+            if (result != null) {
+                int cut = result.lastIndexOf('/');
+                if (cut != -1) result = result.substring(cut + 1);
+            }
+        }
+        return (result != null && !result.isEmpty()) ? result : "Space_Item_" + System.currentTimeMillis();
     }
 }

@@ -164,8 +164,8 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cv_home_search"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginVertical="@dimen/spacing_16"
+                android:layout_height="52dp"
+                android:layout_marginVertical="@dimen/spacing_12"
                 app:cardBackgroundColor="@color/bg_secondary"
                 app:cardCornerRadius="@dimen/radius_pill"
                 app:cardElevation="0dp"
@@ -691,7 +691,7 @@
                 android:id="@+id/tv_insight_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_24"
+                android:layout_marginTop="@dimen/spacing_16"
                 android:text="@string/todays_insights"
                 style="@style/TextAppearance.App.TitleMedium" />
 
@@ -707,7 +707,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_insight_gradient"
-                    android:padding="@dimen/spacing_24">
+                    android:padding="@dimen/spacing_16">
 
                     <LinearLayout
                         android:id="@+id/ll_insight_tag"
@@ -810,24 +810,7 @@
 
 
 
-            <!-- Recent Activity Section -->
-            <TextView
-                android:id="@+id/textView8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_24"
-                android:text="@string/recent_activity_title"
-                style="@style/TextAppearance.App.TitleMedium"
-                android:visibility="gone"
-                tools:visibility="visible" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_recent_activity"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_8"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_recent_activity" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

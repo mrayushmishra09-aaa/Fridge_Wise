@@ -123,20 +123,21 @@ public class AddItemFragment extends Fragment {
             }
         }
 
-        // --- Note Editing Dialog & Eye Preview Wiring ---
+        // --- Direct In-Line Note Typing & Eye Preview Wiring ---
         updateNotesEyeIcon(tilNotes, notesEditText.getText() != null ? notesEditText.getText().toString() : "");
 
-        View.OnClickListener openNoteEditor = v -> {
-            String currentNote = notesEditText.getText() != null ? notesEditText.getText().toString() : "";
-            NoteEditorDialogFragment noteDialog = NoteEditorDialogFragment.newInstance("Item Note", currentNote);
-            noteDialog.setOnNoteSavedListener(noteText -> {
-                notesEditText.setText(noteText);
-                updateNotesEyeIcon(tilNotes, noteText);
-            });
-            noteDialog.show(getParentFragmentManager(), "NoteEditorDialog");
-        };
+        notesEditText.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-        notesEditText.setOnClickListener(openNoteEditor);
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateNotesEyeIcon(tilNotes, s != null ? s.toString() : "");
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        });
 
         if (tilNotes != null) {
             tilNotes.setEndIconOnClickListener(v -> {

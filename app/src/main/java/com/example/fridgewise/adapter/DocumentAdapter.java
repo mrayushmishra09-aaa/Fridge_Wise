@@ -42,6 +42,7 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
     private final OnDocumentClickListener listener;
     private final Set<Integer> selectedIds = new HashSet<>();
     private boolean isSelectionMode = false;
+    private boolean isGrid = false;
 
     public DocumentAdapter(OnDocumentClickListener listener) {
         this.listener = listener;
@@ -52,10 +53,25 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocVie
         notifyDataSetChanged();
     }
 
+    public void setGrid(boolean grid) {
+        this.isGrid = grid;
+        notifyDataSetChanged();
+    }
+
+    public boolean isGrid() {
+        return isGrid;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return isGrid ? 1 : 0;
+    }
+
     @NonNull
     @Override
     public DocViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_document, parent, false);
+        int layoutRes = (viewType == 1) ? R.layout.item_document_grid : R.layout.item_document;
+        View view = LayoutInflater.from(parent.getContext()).inflate(layoutRes, parent, false);
         return new DocViewHolder(view);
     }
 

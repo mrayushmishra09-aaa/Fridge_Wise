@@ -42,7 +42,8 @@ public class AttentionAdapter extends ListAdapter<AttentionItem, AttentionAdapte
                 return oldItem.getName().equals(newItem.getName()) &&
                        oldItem.getBadgeText().equals(newItem.getBadgeText()) &&
                        oldItem.getHint().equals(newItem.getHint()) &&
-                       oldItem.getTargetTimestamp() == newItem.getTargetTimestamp();
+                       oldItem.getTargetTimestamp() == newItem.getTargetTimestamp() &&
+                       oldItem.getCreationTimestamp() == newItem.getCreationTimestamp();
             }
         });
         this.context = context;

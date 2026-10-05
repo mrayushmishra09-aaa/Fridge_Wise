@@ -9,8 +9,11 @@ import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.net.Uri;
+import com.google.android.material.chip.ChipGroup;
+import java.util.Locale;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +47,10 @@ import android.os.Build;
 import android.os.Environment;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.webkit.MimeTypeMap;
+import android.widget.ImageView;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.recyclerview.widget.GridLayoutManager;
 
 public class DocumentListFragment extends Fragment {
 
@@ -55,6 +62,22 @@ public class DocumentListFragment extends Fragment {
     private RecyclerView rvDocuments;
     private FloatingActionButton fab;
     private List<DocumentItem> currentDocuments = new ArrayList<>();
+    private List<DocumentItem> allLoadedDocuments = new ArrayList<>();
+    private ActivityResultLauncher<String> multiFilePickerLauncher;
+    private String activeFilterKeyword = null;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        multiFilePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetMultipleContents(),
+            uris -> {
+                if (uris != null && !uris.isEmpty()) {
+                    importMultipleFiles(uris);
+                }
+            }
+        );
+    }
 
     @Nullable
     @Override
@@ -65,9 +88,58 @@ public class DocumentListFragment extends Fragment {
         View btnBack = view.findViewById(R.id.btnBack);
         if (btnBack != null) btnBack.setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
 
-        // --- FAB to Add Screen ---
+        // --- View Toggle Button (List <-> 3-Column Compact Square Grid) ---
+        ImageView btnToggleView = view.findViewById(R.id.btnToggleView);
+        if (btnToggleView != null) {
+            btnToggleView.setOnClickListener(v -> {
+                boolean newGridState = !adapter.isGrid();
+                adapter.setGrid(newGridState);
+                if (newGridState) {
+                    rvDocuments.setLayoutManager(new GridLayoutManager(requireContext(), 3));
+                    btnToggleView.setImageResource(R.drawable.ic_view_list);
+                } else {
+                    rvDocuments.setLayoutManager(new LinearLayoutManager(requireContext()));
+                    btnToggleView.setImageResource(R.drawable.ic_view_grid);
+                }
+            });
+        }
+
+        // --- Quick Category Filter Chips (Including Appointments & Workouts) ---
+        ChipGroup cgCategories = view.findViewById(R.id.cgDocCategories);
+        if (cgCategories != null) {
+            cgCategories.setOnCheckedStateChangeListener((group, checkedIds) -> {
+                if (checkedIds.isEmpty() || checkedIds.contains(R.id.chipFilterAll)) {
+                    filterDocuments(null);
+                } else if (checkedIds.contains(R.id.chipFilterAppointments)) {
+                    filterDocuments("Appointment");
+                } else if (checkedIds.contains(R.id.chipFilterWorkouts)) {
+                    filterDocuments("Workout");
+                } else if (checkedIds.contains(R.id.chipFilterMedical)) {
+                    filterDocuments("Medical");
+                } else if (checkedIds.contains(R.id.chipFilterFinance)) {
+                    filterDocuments("Finance");
+                }
+            });
+        }
+
+        // --- FAB Action Sheet (Quick Batch Import vs Detailed Form) ---
         fab = view.findViewById(R.id.fabAddDoc);
-        if (fab != null) fab.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.addDocumentFragment));
+        if (fab != null) {
+            fab.setOnClickListener(v -> {
+                String[] options = {"⚡ Quick Import Multiple Files / Photos", "📷 Take Photo / Detailed Form"};
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Add Document")
+                        .setItems(options, (dialog, which) -> {
+                            if (which == 0) {
+                                multiFilePickerLauncher.launch("*/*");
+                            } else {
+                                Navigation.findNavController(v).navigate(R.id.addDocumentFragment);
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            });
+        }
 
         // Initialize UI Elements
         rvDocuments = view.findViewById(R.id.rvDocuments);
@@ -192,24 +264,46 @@ public class DocumentListFragment extends Fragment {
             List<DocumentItem> documents = AppDatabase.getInstance(requireContext()).documentDao().getAllDocuments();
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    currentDocuments = documents;
-                    if (adapter != null) adapter.setDocs(documents);
-                    if (tvDocCount != null) {
-                        String countText = getResources().getQuantityString(R.plurals.documents_count, documents.size(), documents.size());
-                        tvDocCount.setText(countText);
-                    }
-                    if (llEmptyState != null && rvDocuments != null) {
-                        if (documents.isEmpty()) {
-                            llEmptyState.setVisibility(View.VISIBLE);
-                            rvDocuments.setVisibility(View.GONE);
-                        } else {
-                            llEmptyState.setVisibility(View.GONE);
-                            rvDocuments.setVisibility(View.VISIBLE);
-                        }
-                    }
+                    allLoadedDocuments = documents != null ? documents : new ArrayList<>();
+                    filterDocuments(activeFilterKeyword);
                 });
             }
         }).start();
+    }
+
+    private void filterDocuments(String keyword) {
+        this.activeFilterKeyword = keyword;
+        if (allLoadedDocuments == null) return;
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            currentDocuments = new ArrayList<>(allLoadedDocuments);
+        } else {
+            List<DocumentItem> filtered = new ArrayList<>();
+            String lowerKw = keyword.toLowerCase(Locale.getDefault());
+            for (DocumentItem doc : allLoadedDocuments) {
+                String cat = doc.getCategory() != null ? doc.getCategory().toLowerCase(Locale.getDefault()) : "";
+                String name = doc.getName() != null ? doc.getName().toLowerCase(Locale.getDefault()) : "";
+                if (cat.contains(lowerKw) || name.contains(lowerKw)) {
+                    filtered.add(doc);
+                }
+            }
+            currentDocuments = filtered;
+        }
+
+        if (adapter != null) adapter.setDocs(currentDocuments);
+        if (tvDocCount != null) {
+            String countText = getResources().getQuantityString(R.plurals.documents_count, currentDocuments.size(), currentDocuments.size());
+            tvDocCount.setText(countText);
+        }
+        if (llEmptyState != null && rvDocuments != null) {
+            if (currentDocuments.isEmpty()) {
+                llEmptyState.setVisibility(View.VISIBLE);
+                rvDocuments.setVisibility(View.GONE);
+            } else {
+                llEmptyState.setVisibility(View.GONE);
+                rvDocuments.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     private void enterSelectionMode() {
@@ -371,5 +465,70 @@ public class DocumentListFragment extends Fragment {
                 if (file.exists()) file.delete();
             } catch (Exception ignored) {}
         }
+    }
+
+    private void importMultipleFiles(List<Uri> uris) {
+        Context context = getContext();
+        if (context == null || uris == null || uris.isEmpty()) return;
+
+        Toast.makeText(context, "Importing " + uris.size() + " files...", Toast.LENGTH_SHORT).show();
+
+        new Thread(() -> {
+            int importedCount = 0;
+            AppDatabase db = AppDatabase.getInstance(context);
+
+            for (Uri uri : uris) {
+                try {
+                    String localPath = FileUtil.saveToInternalStorage(context, uri);
+                    String mimeType = context.getContentResolver().getType(uri);
+                    if (mimeType == null) {
+                        String ext = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
+                        if (ext != null) mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.toLowerCase());
+                    }
+
+                    String fileName = getFileNameFromUri(context, uri);
+                    String category = "General";
+                    if (mimeType != null) {
+                        if (mimeType.startsWith("image/")) category = "Photos";
+                        else if (mimeType.contains("pdf")) category = "PDF Docs";
+                    }
+
+                    DocumentItem doc = new DocumentItem(fileName, category, localPath);
+                    doc.setMimeType(mimeType);
+                    db.documentDao().insert(doc);
+                    importedCount++;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            final int count = importedCount;
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    Toast.makeText(requireContext(), "Successfully imported " + count + " documents!", Toast.LENGTH_SHORT).show();
+                    loadDocuments();
+                });
+            }
+        }).start();
+    }
+
+    private String getFileNameFromUri(Context context, Uri uri) {
+        String result = null;
+        if ("content".equals(uri.getScheme())) {
+            try (android.database.Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int index = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                    if (index != -1) result = cursor.getString(index);
+                }
+            } catch (Exception ignored) {}
+        }
+        if (result == null) {
+            result = uri.getPath();
+            if (result != null) {
+                int cut = result.lastIndexOf('/');
+                if (cut != -1) result = result.substring(cut + 1);
+            }
+        }
+        return (result != null && !result.isEmpty()) ? result : "Imported_Doc_" + System.currentTimeMillis();
     }
 }

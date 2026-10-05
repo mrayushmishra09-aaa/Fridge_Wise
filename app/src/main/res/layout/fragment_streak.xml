@@ -1,0 +1,765 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/streak_bg"
+    android:fillViewport="true"
+    tools:context=".ui.fragments.StreakFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Top Bar Header -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                android:padding="4dp"
+                android:src="@drawable/ic_back"
+                app:tint="@color/streak_text_primary" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvHeaderTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Streak"
+                    android:textColor="@color/streak_text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvHeaderSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Small steps. Big progress."
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/btnSettings"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Settings"
+                android:padding="4dp"
+                android:src="@drawable/ic_palette"
+                app:tint="@color/streak_text_primary" />
+        </RelativeLayout>
+
+        <!-- Category Filter Chips -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/llCategoryChipsContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+
+        <!-- Current Streak Banner Card -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_streak_banner"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/ivFlameIcon"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:contentDescription="Flame"
+                android:src="@drawable/ic_flame" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:layout_toEndOf="@id/ivFlameIcon"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Current Streak"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvStreakDays"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="7 Days"
+                    android:textColor="@color/streak_text_primary"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="You're on fire! Keep it up!"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+        <!-- Today's Progress Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_streak_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Today's Progress"
+                    android:textColor="@color/streak_text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTaskCountRatio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="8 / 10 tasks"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="13sp" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tvProgressPercent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="82%"
+                android:textColor="@color/streak_text_primary"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <!-- Progress Bar -->
+            <ProgressBar
+                android:id="@+id/pbStreakToday"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:layout_marginTop="10dp"
+                android:max="100"
+                android:progress="82"
+                android:progressDrawable="@drawable/custom_progress_bar_streak" />
+
+            <!-- Sub Stats Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvStatCompleted"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_stat_pill"
+                    android:gravity="center"
+                    android:paddingVertical="6dp"
+                    android:text="✓  8 completed"
+                    android:textColor="@color/streak_text_primary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/tvStatRemaining"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_stat_pill"
+                    android:gravity="center"
+                    android:paddingVertical="6dp"
+                    android:text="🕒  2 remaining"
+                    android:textColor="@color/streak_text_primary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/tvStatEnds"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_stat_pill"
+                    android:gravity="center"
+                    android:paddingVertical="6dp"
+                    android:text="📅  Ends 10:00 PM"
+                    android:textColor="@color/streak_text_primary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Streak Activity Section (Heatmap) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_streak_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Streak Activity"
+                    android:textColor="@color/streak_text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvMonthFilter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp"
+                    android:text="This Month ⌄"
+                    android:textColor="@color/streak_chip_selected_bg"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <!-- Day Headers Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="28dp"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Mon"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Tue"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Wed"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Thu"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Fri"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Sat"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Sun"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- Row W1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="28dp"
+                    android:layout_height="wrap_content"
+                    android:text="W1"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <View
+                    android:id="@+id/cell_w1_1"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_1" />
+
+                <View
+                    android:id="@+id/cell_w1_2"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_2" />
+
+                <View
+                    android:id="@+id/cell_w1_3"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_3" />
+
+                <View
+                    android:id="@+id/cell_w1_4"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_2" />
+
+                <View
+                    android:id="@+id/cell_w1_5"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_2" />
+
+                <View
+                    android:id="@+id/cell_w1_6"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_3" />
+
+                <View
+                    android:id="@+id/cell_w1_7"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_0" />
+            </LinearLayout>
+
+            <!-- Row W2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="28dp"
+                    android:layout_height="wrap_content"
+                    android:text="W2"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <View
+                    android:id="@+id/cell_w2_1"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_2" />
+
+                <View
+                    android:id="@+id/cell_w2_2"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_3" />
+
+                <View
+                    android:id="@+id/cell_w2_3"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_2" />
+
+                <View
+                    android:id="@+id/cell_w2_4"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_3" />
+
+                <View
+                    android:id="@+id/cell_w2_5"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_4" />
+
+                <View
+                    android:id="@+id/cell_w2_6"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_3" />
+
+                <View
+                    android:id="@+id/cell_w2_7"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_4" />
+            </LinearLayout>
+
+            <!-- Row W3 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="28dp"
+                    android:layout_height="wrap_content"
+                    android:text="W3"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <View
+                    android:id="@+id/cell_w3_1"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_1" />
+
+                <View
+                    android:id="@+id/cell_w3_2"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_2" />
+
+                <View
+                    android:id="@+id/cell_w3_3"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_4" />
+
+                <View
+                    android:id="@+id/cell_w3_4"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_3" />
+
+                <View
+                    android:id="@+id/cell_w3_5"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_4" />
+
+                <View
+                    android:id="@+id/cell_w3_6"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_2" />
+
+                <View
+                    android:id="@+id/cell_w3_7"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_3" />
+            </LinearLayout>
+
+            <!-- Row W4 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="28dp"
+                    android:layout_height="wrap_content"
+                    android:text="W4"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <View
+                    android:id="@+id/cell_w4_1"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_0" />
+
+                <View
+                    android:id="@+id/cell_w4_2"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_2" />
+
+                <View
+                    android:id="@+id/cell_w4_3"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_4" />
+
+                <View
+                    android:id="@+id/cell_w4_4"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_3" />
+
+                <View
+                    android:id="@+id/cell_w4_5"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_2" />
+
+                <View
+                    android:id="@+id/cell_w4_6"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_3" />
+
+                <View
+                    android:id="@+id/cell_w4_7"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_heatmap_cell_1" />
+            </LinearLayout>
+
+            <!-- Legend Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/bg_heatmap_cell_0" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="0–29%"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <View
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_heatmap_cell_1" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="30–49%"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <View
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_heatmap_cell_2" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="50–69%"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <View
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_heatmap_cell_3" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="70–84%"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+
+                <View
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_heatmap_cell_4" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="85–100%"
+                    android:textColor="@color/streak_text_secondary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+
+
+        <!-- Today's Tasks Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📋  Today's Tasks"
+                    android:textColor="@color/streak_text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btnManageTasks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="Manage"
+                    android:textColor="@color/streak_chip_selected_bg"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvStreakTasks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_streak_task" />
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

@@ -132,7 +132,7 @@ public class AddDocumentFragment extends Fragment {
         TextView tvTitle = view.findViewById(R.id.tvAddDocTitle);
 
         // --- Category Dropdown ---
-        String[] categories = {"Medical", "Personal", "Home", "Finance", "Other"};
+        String[] categories = {"Medical", "Appointments", "Workouts", "Finance", "Personal", "Home", "Other"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, categories);
         actvCategory.setAdapter(adapter);
 

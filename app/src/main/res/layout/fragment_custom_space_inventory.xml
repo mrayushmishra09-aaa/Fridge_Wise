@@ -125,7 +125,7 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cvBanner"
             android:layout_width="match_parent"
-            android:layout_height="140dp"
+            android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/screen_padding"
             android:layout_marginBottom="@dimen/spacing_24"
             app:cardCornerRadius="@dimen/radius_large"
@@ -137,16 +137,32 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_banner_gradient"
                 android:padding="@dimen/spacing_20">
+
                 <TextView
                     android:id="@+id/tvBannerMsg"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="100dp"
+                    android:layout_marginEnd="@dimen/spacing_8"
                     android:text="Keep tracking your items to stay organized!"
                     android:textColor="@color/white"
                     style="@style/TextAppearance.App.TitleMedium"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/btnToggleBanner"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/btnToggleBanner"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp"
+                    android:src="@drawable/outline_chevron_right_24"
+                    android:rotation="270"
+                    app:tint="@color/white"
+                    android:contentDescription="@string/toggle_quick_actions_desc"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
                 <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/progressOverall"
@@ -171,7 +187,8 @@
                     android:textColor="@color/white"
                     style="@style/TextAppearance.App.LabelLarge"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/progressOverall" />
+                    app:layout_constraintTop_toBottomOf="@id/progressOverall"
+                    app:layout_constraintBottom_toBottomOf="parent" />
                 <ImageView
                     android:id="@+id/ivBannerIllustration"
                     android:layout_width="100dp"

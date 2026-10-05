@@ -173,17 +173,18 @@ public class AddSpaceItemFragment extends Fragment {
 
         updateNotesEye.run();
 
-        View.OnClickListener openNoteEditor = v -> {
-            String currentNote = etNotes.getText() != null ? etNotes.getText().toString() : "";
-            NoteEditorDialogFragment noteDialog = NoteEditorDialogFragment.newInstance("Space Item Note", currentNote);
-            noteDialog.setOnNoteSavedListener(noteText -> {
-                etNotes.setText(noteText);
-                updateNotesEye.run();
-            });
-            noteDialog.show(getParentFragmentManager(), "NoteEditorDialog");
-        };
+        etNotes.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-        etNotes.setOnClickListener(openNoteEditor);
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateNotesEye.run();
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        });
 
         if (ivNotesEye != null) {
             ivNotesEye.setOnClickListener(v -> {

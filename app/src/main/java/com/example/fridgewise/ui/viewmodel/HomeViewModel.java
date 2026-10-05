@@ -15,6 +15,8 @@ import com.example.fridgewise.data.GeminiManager;
 import com.example.fridgewise.data.PreferenceManager;
 import com.example.fridgewise.model.ActivityRecord;
 import com.example.fridgewise.model.AttentionItem;
+import com.example.fridgewise.model.CustomSpace;
+import com.example.fridgewise.model.CustomSpaceItem;
 import com.example.fridgewise.model.FoodItem;
 import com.example.fridgewise.model.HomeUiState;
 import com.example.fridgewise.model.MedicineEntity;
@@ -192,6 +194,61 @@ public class HomeViewModel extends AndroidViewModel {
                 ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.doc_primary));
                 ai.setStatusColor(ContextCompat.getColor(getApplication(), R.color.doc_primary));
                 attentionItems.add(ai);
+            }
+
+            // Custom Spaces Items
+            try {
+                List<CustomSpaceItem> spaceItems = db.customSpaceDao().getAllCustomSpaceItemsSync();
+                for (CustomSpaceItem spaceItem : spaceItems) {
+                    if (spaceItem.isChecked()) continue;
+
+                    CustomSpace parentSpace = db.customSpaceDao().getSpaceByIdSync(spaceItem.getSpaceId());
+                    String spaceName = parentSpace != null ? parentSpace.getName() : "Custom Space";
+
+                    Long targetTs = spaceItem.getReminderTimestamp();
+                    String badgeText = "Space";
+                    String hintText = spaceItem.getNotes() != null && !spaceItem.getNotes().isEmpty() ? spaceItem.getNotes() : "Space Item";
+
+                    SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                    if (targetTs != null && targetTs > 0) {
+                        badgeText = timeFmt.format(new Date(targetTs));
+                    } else if (spaceItem.getDate() != null && !spaceItem.getDate().trim().isEmpty()) {
+                        targetTs = parseTodoTimestamp(spaceItem.getDate(), "23:59");
+                        badgeText = spaceItem.getDate();
+                    }
+
+                    if (targetTs != null && targetTs > 0) {
+                        long now = System.currentTimeMillis();
+                        long diffDays = (targetTs - now) / (24 * 60 * 60 * 1000L);
+                        if (targetTs <= now || diffDays <= 3) {
+                            AttentionItem ai = new AttentionItem(
+                                parentSpace != null ? parentSpace.getId() + "_" + spaceItem.getId() : String.valueOf(spaceItem.getId()),
+                                spaceItem.getName(),
+                                badgeText,
+                                spaceName,
+                                hintText,
+                                "View",
+                                AttentionItem.Type.SPACE
+                            );
+                            ai.setPriorityScore(70);
+                            ai.setTargetTimestamp(targetTs);
+                            long creationTs = spaceItem.getCompletionTimestamp() != null && spaceItem.getCompletionTimestamp() > 0 
+                                ? spaceItem.getCompletionTimestamp() 
+                                : System.currentTimeMillis();
+                            if (creationTs >= targetTs) {
+                                creationTs = targetTs - (30 * 60 * 1000L);
+                            }
+                            ai.setCreationTimestamp(creationTs);
+                            ai.setImageResId(R.drawable.ic_nav_spaces);
+                            ai.setBadgeBgColor(ContextCompat.getColor(getApplication(), R.color.badge_purple_bg));
+                            ai.setBadgeTextColor(ContextCompat.getColor(getApplication(), R.color.badge_purple_text));
+                            ai.setStatusColor(ContextCompat.getColor(getApplication(), R.color.purple_primary));
+                            attentionItems.add(ai);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
             int shoppingCount = db.shoppingDao().getAllItems().size();

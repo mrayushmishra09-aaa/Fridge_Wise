@@ -216,11 +216,14 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/notesEditText"
                             android:layout_width="match_parent"
-                            android:layout_height="100dp"
-                            android:gravity="top"
-                            android:focusable="false"
+                            android:layout_height="wrap_content"
+                            android:minLines="3"
+                            android:maxLines="6"
+                            android:gravity="top|start"
+                            android:focusable="true"
+                            android:focusableInTouchMode="true"
                             android:clickable="true"
-                            android:inputType="none" />
+                            android:inputType="textMultiLine" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
