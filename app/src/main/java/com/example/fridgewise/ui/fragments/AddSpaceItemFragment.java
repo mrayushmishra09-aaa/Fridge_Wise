@@ -33,6 +33,7 @@ import android.widget.Toast;
 import android.os.Build;
 
 import androidx.activity.result.ActivityResultLauncher;
+import java.util.List;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -372,6 +373,30 @@ public class AddSpaceItemFragment extends Fragment {
             } else {
                 rowId = db.customSpaceDao().insertItem(item);
                 db.activityDao().insert(new ActivityRecord("Custom Space", "Added", name, System.currentTimeMillis(), R.drawable.ic_sparkle));
+            }
+
+            if (parentSpace != null && parentSpace.isStreakEnabled()) {
+                List<TodoItem> todos = db.todoDao().getAllTodos();
+                TodoItem matching = null;
+                for (TodoItem t : todos) {
+                    if (t.getSpaceName() != null && t.getSpaceName().equalsIgnoreCase(parentSpace.getName()) &&
+                        t.getTitle() != null && t.getTitle().equalsIgnoreCase(name)) {
+                        matching = t;
+                        break;
+                    }
+                }
+                if (matching == null) {
+                    matching = new TodoItem();
+                    matching.setTitle(name);
+                    matching.setSpaceName(parentSpace.getName());
+                    matching.setCountTowardsStreak(true);
+                }
+                matching.setCompleted(item.isChecked());
+                if (matching.getId() == 0) {
+                    db.todoDao().insert(matching);
+                } else {
+                    db.todoDao().update(matching);
+                }
             }
 
             if (selectedReminderTimestamp != null && selectedReminderTimestamp > System.currentTimeMillis()) {

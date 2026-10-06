@@ -10,6 +10,7 @@ import androidx.lifecycle.Transformations;
 import com.example.fridgewise.data.AppDatabase;
 import com.example.fridgewise.model.CustomSpace;
 import com.example.fridgewise.model.CustomSpaceItem;
+import com.example.fridgewise.model.TodoItem;
 import com.example.fridgewise.util.NotificationHelper;
 
 import java.util.ArrayList;
@@ -107,6 +108,15 @@ public class CustomSpaceViewModel extends AndroidViewModel {
         if (idsToDelete == null || idsToDelete.isEmpty()) return;
         
         executor.execute(() -> {
+            Integer sId = spaceId.getValue();
+            if (sId != null) {
+                List<CustomSpaceItem> allItems = db.customSpaceDao().getItemsForSpaceSync(sId);
+                for (CustomSpaceItem item : allItems) {
+                    if (idsToDelete.contains(item.getId())) {
+                        removeSyncedTodoItem(item);
+                    }
+                }
+            }
             // Cancel notifications before deleting
             for (Integer id : idsToDelete) {
                 int notificationId = NotificationHelper.generateId("SPACE", id);
@@ -126,15 +136,60 @@ public class CustomSpaceViewModel extends AndroidViewModel {
     }
 
     public void updateItem(CustomSpaceItem item) {
-        executor.execute(() -> db.customSpaceDao().updateItem(item));
+        executor.execute(() -> {
+            db.customSpaceDao().updateItem(item);
+            syncTodoItem(item);
+        });
     }
 
     public void deleteItem(CustomSpaceItem item) {
         executor.execute(() -> {
             db.customSpaceDao().deleteItem(item);
+            removeSyncedTodoItem(item);
             int notificationId = NotificationHelper.generateId("SPACE", item.getId());
             NotificationHelper.cancelNotification(getApplication(), notificationId);
         });
+    }
+
+    private void syncTodoItem(CustomSpaceItem item) {
+        CustomSpace space = currentSpace.getValue();
+        if (space != null && space.isStreakEnabled()) {
+            List<TodoItem> todos = db.todoDao().getAllTodos();
+            TodoItem matching = null;
+            for (TodoItem t : todos) {
+                if (t.getSpaceName() != null && t.getSpaceName().equalsIgnoreCase(space.getName()) &&
+                    t.getTitle() != null && t.getTitle().equalsIgnoreCase(item.getName())) {
+                    matching = t;
+                    break;
+                }
+            }
+            if (matching == null) {
+                matching = new TodoItem();
+                matching.setTitle(item.getName());
+                matching.setSpaceName(space.getName());
+                matching.setCountTowardsStreak(true);
+            }
+            matching.setCompleted(item.isChecked());
+            if (matching.getId() == 0) {
+                db.todoDao().insert(matching);
+            } else {
+                db.todoDao().update(matching);
+            }
+        }
+    }
+
+    private void removeSyncedTodoItem(CustomSpaceItem item) {
+        CustomSpace space = currentSpace.getValue();
+        if (space != null && space.isStreakEnabled()) {
+            List<TodoItem> todos = db.todoDao().getAllTodos();
+            for (TodoItem t : todos) {
+                if (t.getSpaceName() != null && t.getSpaceName().equalsIgnoreCase(space.getName()) &&
+                    t.getTitle() != null && t.getTitle().equalsIgnoreCase(item.getName())) {
+                    db.todoDao().delete(t);
+                    break;
+                }
+            }
+        }
     }
 
     public void deleteSpace(CustomSpace space) {

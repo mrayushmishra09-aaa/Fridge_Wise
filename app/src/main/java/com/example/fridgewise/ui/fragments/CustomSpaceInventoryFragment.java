@@ -233,23 +233,19 @@ public class CustomSpaceInventoryFragment extends Fragment {
 
         ImageView btnViewToggle = view.findViewById(R.id.btnViewToggle);
         if (btnViewToggle != null) {
-            if (currentSpace != null && currentSpace.isHasCheckbox()) {
-                btnViewToggle.setVisibility(View.GONE);
-            } else {
-                btnViewToggle.setVisibility(View.VISIBLE);
+            btnViewToggle.setVisibility(View.VISIBLE);
+            btnViewToggle.setImageResource(isGrid ? R.drawable.ic_view_list : R.drawable.ic_view_grid);
+            btnViewToggle.setOnClickListener(v -> {
+                isGrid = !isGrid;
+                prefManager.setCustomSpaceViewMode(isGrid ? "GRID" : "LIST");
+                if (isGrid) {
+                    recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+                } else {
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                }
+                adapter.setGridView(isGrid);
                 btnViewToggle.setImageResource(isGrid ? R.drawable.ic_view_list : R.drawable.ic_view_grid);
-                btnViewToggle.setOnClickListener(v -> {
-                    isGrid = !isGrid;
-                    prefManager.setCustomSpaceViewMode(isGrid ? "GRID" : "LIST");
-                    if (isGrid) {
-                        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
-                    } else {
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                    }
-                    adapter.setGridView(isGrid);
-                    btnViewToggle.setImageResource(isGrid ? R.drawable.ic_view_list : R.drawable.ic_view_grid);
-                });
-            }
+            });
         }
 
         viewModel.getItems().observe(getViewLifecycleOwner(), items -> {
