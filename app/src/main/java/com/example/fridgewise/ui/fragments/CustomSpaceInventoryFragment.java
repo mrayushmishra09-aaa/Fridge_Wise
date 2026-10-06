@@ -8,6 +8,7 @@ import com.example.fridgewise.util.*;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import com.example.fridgewise.ui.dialog.SecurityAuthDialog;
 
 import com.example.fridgewise.R;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -117,6 +118,26 @@ public class CustomSpaceInventoryFragment extends Fragment {
         }
 
         tvTitle.setText(currentSpace.getName());
+
+        if (currentSpace.isProtected()) {
+            com.example.fridgewise.util.SecurityManager sec = com.example.fridgewise.util.SecurityManager.getInstance(requireContext());
+            if (!sec.isSpaceUnlockedInSession(currentSpace.getId())) {
+                SecurityAuthDialog authDialog = SecurityAuthDialog.newInstance(currentSpace, new SecurityAuthDialog.AuthCallback() {
+                    @Override
+                    public void onAuthenticated() {
+                        sec.unlockSpaceSession(currentSpace.getId());
+                    }
+
+                    @Override
+                    public void onCanceled() {
+                        if (isAdded()) {
+                            Navigation.findNavController(view).popBackStack();
+                        }
+                    }
+                });
+                authDialog.show(getParentFragmentManager(), "inventory_auth_dialog");
+            }
+        }
 
         ImageView btnToggleBanner = view.findViewById(R.id.btnToggleBanner);
         ImageView ivBannerIllustration = view.findViewById(R.id.ivBannerIllustration);

@@ -5,9 +5,11 @@ import com.example.fridgewise.data.*;
 import com.example.fridgewise.model.*;
 import com.example.fridgewise.adapter.*;
 import com.example.fridgewise.util.*;
+import com.example.fridgewise.util.SecurityManager;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import com.example.fridgewise.ui.dialog.*;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -29,94 +31,51 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.card.MaterialCardView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Memory#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class Memory extends Fragment {
 
-    MaterialCardView cardTodo;
+    private MaterialCardView cardTodo;
     private RecyclerView rvCustomSpaces;
     private CustomSpaceAdapter customSpaceAdapter;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private boolean isHiddenSpacesRevealed = false;
 
     public Memory() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment chefassistentFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Memory newInstance(String param1, String param2) {
-        Memory fragment = new Memory();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+    public static Memory newInstance() {
+        return new Memory();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_memory, container, false );
-        
-        // 1. Medicine section click listener
+        View view = inflater.inflate(R.layout.fragment_memory, container, false);
+
         CardView cardMedicine = view.findViewById(R.id.cardMedicine);
         cardMedicine.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.med_section));
 
-        // 2. Todo section click listener
         cardTodo = view.findViewById(R.id.cardTodo);
         cardTodo.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.todoListFragment));
 
-        // 3. Shopping List section click listener
         CardView cardShopping = view.findViewById(R.id.cardShopping);
         cardShopping.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.shoppingListFragment));
 
-        // 4. Documents section click listener
         CardView cardDocs = view.findViewById(R.id.cardDocs);
         cardDocs.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.documentListFragment));
 
-        // Custom Spaces Setup
         rvCustomSpaces = view.findViewById(R.id.rvCustomSpaces);
         rvCustomSpaces.setLayoutManager(new LinearLayoutManager(getContext()));
         customSpaceAdapter = new CustomSpaceAdapter(new CustomSpaceAdapter.OnSpaceClickListener() {
             @Override
             public void onSpaceClick(CustomSpace space) {
-                // Open Custom Space Inventory
-                Bundle args = new Bundle();
-                args.putSerializable("space", space);
-                Navigation.findNavController(view).navigate(R.id.customSpaceInventoryFragment, args);
+                openSpaceWithSecurity(space, view);
             }
 
             @Override
@@ -126,7 +85,6 @@ public class Memory extends Fragment {
         });
         rvCustomSpaces.setAdapter(customSpaceAdapter);
 
-        // Add Collection Button click listener
         View addCollectionBtn = view.findViewById(R.id.addCollectionBtn);
         addCollectionBtn.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.createSpaceFragment));
 
@@ -145,20 +103,51 @@ public class Memory extends Fragment {
         }
     }
 
+    private void openSpaceWithSecurity(CustomSpace space, View view) {
+        SecurityManager sec = SecurityManager.getInstance(requireContext());
+        if (space.isProtected() && !sec.isSpaceUnlockedInSession(space.getId())) {
+            SecurityAuthDialog authDialog = SecurityAuthDialog.newInstance(space, new SecurityAuthDialog.AuthCallback() {
+                @Override
+                public void onAuthenticated() {
+                    sec.unlockSpaceSession(space.getId());
+                    navigateToSpace(space, view);
+                }
+
+                @Override
+                public void onCanceled() {}
+            });
+            authDialog.show(getParentFragmentManager(), "auth_space_dialog");
+        } else {
+            navigateToSpace(space, view);
+        }
+    }
+
+    private void navigateToSpace(CustomSpace space, View view) {
+        Bundle args = new Bundle();
+        args.putSerializable("space", space);
+        Navigation.findNavController(view).navigate(R.id.customSpaceInventoryFragment, args);
+    }
+
     private void loadCustomSpaces() {
         executor.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
-            List<CustomSpace> spaces = db.customSpaceDao().getAllSpacesSync();
-            // Fetch counts for each space
+            List<CustomSpace> allSpaces = db.customSpaceDao().getAllSpacesSync();
+            
+            List<CustomSpace> displaySpaces = new ArrayList<>();
             SparseIntArray counts = new SparseIntArray();
-            for (CustomSpace space : spaces) {
+
+            for (CustomSpace space : allSpaces) {
+                if (space.isHidden() && !isHiddenSpacesRevealed) {
+                    continue; // Filter out hidden spaces unless explicitly revealed
+                }
+                displaySpaces.add(space);
                 int count = db.customSpaceDao().getItemCountForSpace(space.getId());
                 counts.put(space.getId(), count);
             }
             
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
-                    customSpaceAdapter.setSpaces(spaces, counts);
+                    customSpaceAdapter.setSpaces(displaySpaces, counts);
                 });
             }
         });
@@ -167,6 +156,8 @@ public class Memory extends Fragment {
     private void showSpaceOptions(CustomSpace space, View v) {
         PopupMenu popup = new PopupMenu(getContext(), v);
         popup.getMenu().add("Edit");
+        popup.getMenu().add(space.isProtected() ? "Unprotect Space 🔓" : "Protect Space 🔒");
+        popup.getMenu().add(space.isHidden() ? "Unhide Space 👁" : "Hide Space 👁");
         popup.getMenu().add("Delete");
 
         popup.setOnMenuItemClickListener(item -> {
@@ -175,28 +166,81 @@ public class Memory extends Fragment {
                 Bundle args = new Bundle();
                 args.putSerializable("custom_space", space);
                 Navigation.findNavController(v).navigate(R.id.createSpaceFragment, args);
+            } else if (title.startsWith("Unprotect")) {
+                space.setProtected(false);
+                space.setProtectionType("NONE");
+                updateSpaceInDb(space, "Space unprotected");
+            } else if (title.startsWith("Protect")) {
+                SecurityManager sec = SecurityManager.getInstance(requireContext());
+                if (!sec.isMasterLockEnabled()) {
+                    SetupPinDialog dialog = SetupPinDialog.newInstance("Set Master PIN to Protect Space", new SetupPinDialog.SetupPinCallback() {
+                        @Override
+                        public void onPinCreated(String pin, String salt, String hash) {
+                            sec.setupMasterPin(pin);
+                            space.setProtected(true);
+                            space.setProtectionType("MASTER_PIN");
+                            updateSpaceInDb(space, "Space protected");
+                        }
+
+                        @Override
+                        public void onCanceled() {}
+                    });
+                    dialog.show(getParentFragmentManager(), "setup_pin_dialog");
+                } else {
+                    space.setProtected(true);
+                    space.setProtectionType("MASTER_PIN");
+                    updateSpaceInDb(space, "Space protected");
+                }
+            } else if (title.startsWith("Unhide")) {
+                space.setHidden(false);
+                updateSpaceInDb(space, "Space unhidden");
+            } else if (title.startsWith("Hide")) {
+                space.setHidden(true);
+                updateSpaceInDb(space, "Space hidden");
             } else if ("Delete".equals(title)) {
-                deleteSpace(space);
+                if (space.isProtected()) {
+                    SecurityAuthDialog authDialog = SecurityAuthDialog.newInstance(space, new SecurityAuthDialog.AuthCallback() {
+                        @Override
+                        public void onAuthenticated() {
+                            deleteSpace(space);
+                        }
+
+                        @Override
+                        public void onCanceled() {}
+                    });
+                    authDialog.show(getParentFragmentManager(), "auth_delete_space");
+                } else {
+                    deleteSpace(space);
+                }
             }
             return true;
         });
         popup.show();
     }
 
+    private void updateSpaceInDb(CustomSpace space, String message) {
+        executor.execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            db.customSpaceDao().updateSpace(space);
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                    loadCustomSpaces();
+                });
+            }
+        });
+    }
+
     private void deleteSpace(CustomSpace space) {
         executor.execute(() -> {
             Context context = requireContext();
             AppDatabase db = AppDatabase.getInstance(context);
-            // Delete all items in the space first
             List<CustomSpaceItem> items = db.customSpaceDao().getItemsForSpaceSync(space.getId());
             for (CustomSpaceItem item : items) {
                 db.customSpaceDao().deleteItem(item);
-                
-                // Cancel scheduled alarm
                 int notificationId = NotificationHelper.generateId("SPACE", item.getId());
                 NotificationHelper.cancelNotification(context, notificationId);
             }
-            // Delete the space itself
             db.customSpaceDao().deleteSpace(space);
             
             if (isAdded()) {

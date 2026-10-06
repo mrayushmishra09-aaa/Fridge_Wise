@@ -17,7 +17,7 @@ import com.example.fridgewise.model.NotificationInteraction;
 import com.example.fridgewise.model.ShoppingItem;
 import com.example.fridgewise.model.TodoItem;
 
-@Database(entities = {FoodItem.class, TodoItem.class, MedicineEntity.class, ShoppingItem.class, DocumentItem.class, CustomSpace.class, CustomSpaceItem.class, ActivityRecord.class, NotificationInteraction.class}, version = 23, exportSchema = false)
+@Database(entities = {FoodItem.class, TodoItem.class, MedicineEntity.class, ShoppingItem.class, DocumentItem.class, CustomSpace.class, CustomSpaceItem.class, ActivityRecord.class, NotificationInteraction.class}, version = 24, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract FoodItemDao foodItemDao();
@@ -37,7 +37,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "fridge_database")
-                            .addMigrations(MIGRATION_17_18, MIGRATION_18_19, MIGRATION_21_22, MIGRATION_22_23)
+                            .addMigrations(MIGRATION_17_18, MIGRATION_18_19, MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24)
                             .fallbackToDestructiveMigration()
                             .build();
                 }
@@ -73,6 +73,18 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("ALTER TABLE custom_space_items ADD COLUMN isClockAlarmEnabled INTEGER NOT NULL DEFAULT 0");
             database.execSQL("ALTER TABLE custom_space_items ADD COLUMN preNotificationOffsetMinutes INTEGER NOT NULL DEFAULT 0");
             database.execSQL("ALTER TABLE custom_space_items ADD COLUMN postNotificationOffsetMinutes INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    static final Migration MIGRATION_23_24 = new Migration(23, 24) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE custom_spaces ADD COLUMN isProtected INTEGER NOT NULL DEFAULT 0");
+            database.execSQL("ALTER TABLE custom_spaces ADD COLUMN isHidden INTEGER NOT NULL DEFAULT 0");
+            database.execSQL("ALTER TABLE custom_spaces ADD COLUMN isArchived INTEGER NOT NULL DEFAULT 0");
+            database.execSQL("ALTER TABLE custom_spaces ADD COLUMN pinHash TEXT");
+            database.execSQL("ALTER TABLE custom_spaces ADD COLUMN pinSalt TEXT");
+            database.execSQL("ALTER TABLE custom_spaces ADD COLUMN protectionType TEXT DEFAULT 'NONE'");
         }
     };
 }

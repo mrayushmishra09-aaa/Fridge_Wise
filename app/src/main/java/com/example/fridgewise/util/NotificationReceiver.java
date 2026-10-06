@@ -101,6 +101,18 @@ public class NotificationReceiver extends BroadcastReceiver {
         int iconResId = intent.getIntExtra("iconResId", 0);
         String groupKey = intent.getStringExtra("groupKey");
 
+        if ("SPACE".equals(actionType)) {
+            int spaceId = intent.getIntExtra("space_id", 0);
+            if (spaceId > 0) {
+                AppDatabase db = AppDatabase.getInstance(context);
+                com.example.fridgewise.model.CustomSpace space = db.customSpaceDao().getSpaceByIdSync(spaceId);
+                if (space != null && space.isProtected()) {
+                    title = space.getName() + " 🔒";
+                    message = "Private reminder";
+                }
+            }
+        }
+
         if (shouldBundle) {
             title = "A few things are waiting for you 💭";
             message = "You have multiple reminders to check.";

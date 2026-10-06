@@ -24,6 +24,15 @@ public interface CustomSpaceDao {
     @Query("SELECT * FROM custom_spaces")
     LiveData<List<CustomSpace>> getAllSpaces();
 
+    @Query("SELECT * FROM custom_spaces WHERE isHidden = 0 AND isArchived = 0")
+    LiveData<List<CustomSpace>> getVisibleSpaces();
+
+    @Query("SELECT * FROM custom_spaces WHERE isHidden = 1 AND isArchived = 0")
+    LiveData<List<CustomSpace>> getHiddenSpaces();
+
+    @Query("SELECT * FROM custom_spaces WHERE isArchived = 1")
+    LiveData<List<CustomSpace>> getArchivedSpaces();
+
     @Query("SELECT * FROM custom_spaces")
     List<CustomSpace> getAllSpacesSync();
 

@@ -27,6 +27,14 @@ public class CustomSpace implements Serializable {
     // Completion behavior
     private int autoRemoveDuration; // 0: Never, 1: 24h, 7: 7 days
 
+    // Security & Visibility State
+    private boolean isProtected;
+    private boolean isHidden;
+    private boolean isArchived;
+    private String pinHash;
+    private String pinSalt;
+    private String protectionType; // "NONE", "MASTER_PIN", "CUSTOM_PIN"
+
     public CustomSpace(String name, int iconResId, String imageUri) {
         this.name = name;
         this.iconResId = iconResId;
@@ -42,6 +50,12 @@ public class CustomSpace implements Serializable {
         this.hasAttachments = false;
         this.isStreakEnabled = true;
         this.autoRemoveDuration = 0;
+        this.isProtected = false;
+        this.isHidden = false;
+        this.isArchived = false;
+        this.pinHash = null;
+        this.pinSalt = null;
+        this.protectionType = "NONE";
     }
 
     public int getId() { return id; }
@@ -88,4 +102,22 @@ public class CustomSpace implements Serializable {
 
     public int getAutoRemoveDuration() { return autoRemoveDuration; }
     public void setAutoRemoveDuration(int autoRemoveDuration) { this.autoRemoveDuration = autoRemoveDuration; }
+
+    public boolean isProtected() { return isProtected; }
+    public void setProtected(boolean aProtected) { isProtected = aProtected; }
+
+    public boolean isHidden() { return isHidden; }
+    public void setHidden(boolean hidden) { isHidden = hidden; }
+
+    public boolean isArchived() { return isArchived; }
+    public void setArchived(boolean archived) { isArchived = archived; }
+
+    public String getPinHash() { return pinHash; }
+    public void setPinHash(String pinHash) { this.pinHash = pinHash; }
+
+    public String getPinSalt() { return pinSalt; }
+    public void setPinSalt(String pinSalt) { this.pinSalt = pinSalt; }
+
+    public String getProtectionType() { return protectionType; }
+    public void setProtectionType(String protectionType) { this.protectionType = protectionType; }
 }

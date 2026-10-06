@@ -4,16 +4,17 @@ import com.example.fridgewise.R;
 import com.example.fridgewise.data.*;
 import com.example.fridgewise.model.*;
 import com.example.fridgewise.adapter.*;
-import com.example.fridgewise.util.*;
+import com.example.fridgewise.util.SecurityManager;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
+import com.example.fridgewise.ui.dialog.*;
 import androidx.navigation.Navigation;
 
-import com.example.fridgewise.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputLayout;
+import androidx.appcompat.widget.SwitchCompat;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -47,10 +48,10 @@ public class CreateSpaceFragment extends Fragment {
     private MaterialCardView cardOptCheckbox, cardOptReminder, cardOptNotes, cardOptQuantity, cardOptDate, cardOptAttachments, cardOptStreak;
     private boolean hasCheckbox, hasReminder, hasNotes, hasQuantity, hasDate, hasAttachments, isStreakEnabled = true;
     private Spinner spinnerAutoRemove;
+    private SwitchCompat switchProtectedSpace, switchHiddenSpace;
     private TextInputLayout tilSpaceName;
     private int selectedIconRes = R.drawable.round_camera_alt_24;
     private int selectedColor = Color.parseColor("#2D6A4F"); // Default Green
-    private String privacyStatus = "Private";
     private String customImageUri = null;
     private CustomSpace editingSpace = null;
 
@@ -98,6 +99,7 @@ public class CreateSpaceFragment extends Fragment {
         setupColorPicker(view);
         setupCharacterCounters();
         setupAdvancedToggle(view);
+        setupProtectionSwitches();
 
         if (editingSpace != null) {
             populateEditingData(view);
@@ -132,12 +134,42 @@ public class CreateSpaceFragment extends Fragment {
         cardOptDate = view.findViewById(R.id.cardOptDate);
         cardOptAttachments = view.findViewById(R.id.cardOptAttachments);
         cardOptStreak = view.findViewById(R.id.cardOptStreak);
+
+        switchProtectedSpace = view.findViewById(R.id.switchProtectedSpace);
+        switchHiddenSpace = view.findViewById(R.id.switchHiddenSpace);
         
         tilSpaceName = view.findViewById(R.id.tilSpaceName);
         
         setupCapabilityButtons();
         
         spinnerAutoRemove = view.findViewById(R.id.spinnerAutoRemove);
+    }
+
+    private void setupProtectionSwitches() {
+        if (switchProtectedSpace != null) {
+            switchProtectedSpace.setOnClickListener(v -> {
+                if (switchProtectedSpace.isChecked()) {
+                    com.example.fridgewise.util.SecurityManager sec = com.example.fridgewise.util.SecurityManager.getInstance(requireContext());
+                    if (!sec.isMasterLockEnabled()) {
+                        switchProtectedSpace.setChecked(false);
+                        SetupPinDialog dialog = SetupPinDialog.newInstance("Set Master PIN for Protection", new SetupPinDialog.SetupPinCallback() {
+                            @Override
+                            public void onPinCreated(String pin, String salt, String hash) {
+                                sec.setupMasterPin(pin);
+                                switchProtectedSpace.setChecked(true);
+                                Toast.makeText(requireContext(), "Master PIN set up and space protected", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onCanceled() {
+                                switchProtectedSpace.setChecked(false);
+                            }
+                        });
+                        dialog.show(getParentFragmentManager(), "setup_pin_create_space");
+                    }
+                }
+            });
+        }
     }
 
     private void setupCapabilityButtons() {
@@ -158,7 +190,14 @@ public class CreateSpaceFragment extends Fragment {
             case "quantity": hasQuantity = !hasQuantity; updateButtonState(btnOptQuantity, hasQuantity); break;
             case "date": hasDate = !hasDate; updateButtonState(btnOptDate, hasDate); break;
             case "attachments": hasAttachments = !hasAttachments; updateButtonState(btnOptAttachments, hasAttachments); break;
-            case "streak": isStreakEnabled = !isStreakEnabled; updateButtonState(btnOptStreak, isStreakEnabled); break;
+            case "streak": 
+                isStreakEnabled = !isStreakEnabled; 
+                if (isStreakEnabled && !hasCheckbox) {
+                    hasCheckbox = true;
+                    updateButtonState(btnOptCheckbox, true);
+                }
+                updateButtonState(btnOptStreak, isStreakEnabled); 
+                break;
         }
     }
 
@@ -167,7 +206,6 @@ public class CreateSpaceFragment extends Fragment {
         view.setAlpha(active ? 1.0f : 0.5f);
         view.animate().scaleX(active ? 1.05f : 1.0f).scaleY(active ? 1.05f : 1.0f).setDuration(200).start();
         
-        // Polish: Highlight the card stroke
         MaterialCardView card = null;
         if (view.getId() == R.id.btnOptCheckbox) card = cardOptCheckbox;
         else if (view.getId() == R.id.btnOptReminder) card = cardOptReminder;
@@ -277,6 +315,9 @@ public class CreateSpaceFragment extends Fragment {
         hasDate = editingSpace.isHasDate();
         hasAttachments = editingSpace.isHasAttachments();
         isStreakEnabled = editingSpace.isStreakEnabled();
+
+        if (switchProtectedSpace != null) switchProtectedSpace.setChecked(editingSpace.isProtected());
+        if (switchHiddenSpace != null) switchHiddenSpace.setChecked(editingSpace.isHidden());
         
         updateButtonState(btnOptCheckbox, hasCheckbox);
         updateButtonState(btnOptReminder, hasReminder);
@@ -318,6 +359,13 @@ public class CreateSpaceFragment extends Fragment {
         if (selection == 1) autoRemoveDuration = 1;
         else if (selection == 2) autoRemoveDuration = 7;
 
+        if (isStreakEnabled) {
+            hasCheckbox = true;
+        }
+
+        boolean isProtected = switchProtectedSpace != null && switchProtectedSpace.isChecked();
+        boolean isHidden = switchHiddenSpace != null && switchHiddenSpace.isChecked();
+
         int finalAutoRemoveDuration = autoRemoveDuration;
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
@@ -332,6 +380,11 @@ public class CreateSpaceFragment extends Fragment {
                 space.setHasAttachments(hasAttachments);
                 space.setStreakEnabled(isStreakEnabled);
                 space.setAutoRemoveDuration(finalAutoRemoveDuration);
+
+                space.setProtected(isProtected);
+                space.setHidden(isHidden);
+                space.setProtectionType(isProtected ? "MASTER_PIN" : "NONE");
+
                 db.customSpaceDao().insertSpace(space);
             } else {
                 editingSpace.setName(name);
@@ -346,6 +399,15 @@ public class CreateSpaceFragment extends Fragment {
                 editingSpace.setHasAttachments(hasAttachments);
                 editingSpace.setStreakEnabled(isStreakEnabled);
                 editingSpace.setAutoRemoveDuration(finalAutoRemoveDuration);
+
+                editingSpace.setProtected(isProtected);
+                editingSpace.setHidden(isHidden);
+                if (isProtected && "NONE".equals(editingSpace.getProtectionType())) {
+                    editingSpace.setProtectionType("MASTER_PIN");
+                } else if (!isProtected) {
+                    editingSpace.setProtectionType("NONE");
+                }
+
                 db.customSpaceDao().updateSpace(editingSpace);
             }
 

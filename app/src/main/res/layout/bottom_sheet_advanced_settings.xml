@@ -30,6 +30,7 @@
         android:textColor="@color/profile_text_secondary"
         android:textSize="14sp" />
 
+    <!-- Master PIN Lock Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -46,7 +47,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Biometric App Lock"
+                android:text="Master PIN Lock"
                 android:textColor="@color/profile_text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -54,7 +55,58 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Require fingerprint or face unlock on startup"
+                android:text="Protect custom spaces &amp; app settings"
+                android:textColor="@color/profile_text_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchMasterLock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnChangeMasterPin"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Change Master PIN"
+        android:textColor="@color/green_primary"
+        android:visibility="gone" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="16dp"
+        android:background="@color/divider_color" />
+
+    <!-- Biometric Unlock Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Biometric Unlock"
+                android:textColor="@color/profile_text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Unlock protected spaces using fingerprint"
                 android:textColor="@color/profile_text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -64,6 +116,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="16dp"
+        android:background="@color/divider_color" />
+
+    <!-- Manage Hidden Spaces Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnManageHiddenSpaces"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="Manage Hidden Spaces 👁"
+        android:textAllCaps="false"
+        android:textColor="@color/profile_text_primary"
+        app:strokeColor="@color/divider_color"
+        app:cornerRadius="14dp" />
 
     <View
         android:layout_width="match_parent"

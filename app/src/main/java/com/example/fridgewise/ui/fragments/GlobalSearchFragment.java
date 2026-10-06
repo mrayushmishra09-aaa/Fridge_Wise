@@ -5,65 +5,83 @@ import com.example.fridgewise.data.*;
 import com.example.fridgewise.model.*;
 import com.example.fridgewise.adapter.*;
 import com.example.fridgewise.util.*;
+import com.example.fridgewise.util.SecurityManager;
 import com.example.fridgewise.ui.viewmodel.*;
 import com.example.fridgewise.ui.activities.*;
 import com.example.fridgewise.ui.bottomsheet.*;
 
-import com.example.fridgewise.R;
-import com.google.android.material.chip.ChipGroup;
-
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.navigation.Navigation;
+
+import com.google.android.material.chip.ChipGroup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class GlobalSearchFragment extends Fragment {
 
+    private SearchView searchView;
     private RecyclerView rvFood, rvMed, rvDoc, rvShopping, rvTodo, rvSpace;
+    private TextView tvFoodHeader, tvMedHeader, tvDocHeader, tvShoppingHeader, tvTodoHeader, tvSpaceHeader, tvEmptyMessage;
+    private LinearLayout llEmptyState;
+
     private FoodAdapter foodAdapter;
     private MedicineAdapter medAdapter;
     private DocumentAdapter docAdapter;
     private ShoppingAdapter shoppingAdapter;
     private TodoAdapter todoAdapter;
     private CustomSpaceItemAdapter spaceAdapter;
-    private SearchView searchView;
-    
-    private TextView tvFoodHeader, tvMedHeader, tvDocHeader, tvShoppingHeader, tvTodoHeader, tvSpaceHeader, tvEmptyMessage;
-    private View llEmptyState;
-    
+
     private List<FoodItem> allFood = new ArrayList<>();
     private List<MedicineEntity> allMeds = new ArrayList<>();
     private List<DocumentItem> allDocs = new ArrayList<>();
     private List<ShoppingItem> allShopping = new ArrayList<>();
     private List<TodoItem> allTodos = new ArrayList<>();
     private List<CustomSpaceItem> allSpaceItems = new ArrayList<>();
-    private List<CustomSpace> allSpaces = new ArrayList<>();
+    private Map<Integer, CustomSpace> spaceMap = new HashMap<>();
+
+    public GlobalSearchFragment() {
+        // Required empty public constructor
+    }
+
+    public static GlobalSearchFragment newInstance() {
+        return new GlobalSearchFragment();
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_global_search, container, false);
-    }
+        View view = inflater.inflate(R.layout.fragment_global_search, container, false);
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        searchView = view.findViewById(R.id.searchView);
+        rvFood = view.findViewById(R.id.rvFoodResults);
+        rvMed = view.findViewById(R.id.rvMedResults);
+        rvDoc = view.findViewById(R.id.rvDocResults);
+        rvShopping = view.findViewById(R.id.rvShoppingResults);
+        rvTodo = view.findViewById(R.id.rvTodoResults);
+        rvSpace = view.findViewById(R.id.rvSpaceResults);
 
-        // Header Views
         tvFoodHeader = view.findViewById(R.id.tvFoodHeader);
         tvMedHeader = view.findViewById(R.id.tvMedHeader);
         tvDocHeader = view.findViewById(R.id.tvDocHeader);
@@ -73,48 +91,12 @@ public class GlobalSearchFragment extends Fragment {
         tvEmptyMessage = view.findViewById(R.id.tvEmptyMessage);
         llEmptyState = view.findViewById(R.id.llEmptyState);
 
-        // RecyclerViews
-        rvFood = view.findViewById(R.id.rvFoodResults);
-        rvMed = view.findViewById(R.id.rvMedResults);
-        rvDoc = view.findViewById(R.id.rvDocResults);
-        rvShopping = view.findViewById(R.id.rvShoppingResults);
-        rvTodo = view.findViewById(R.id.rvTodoResults);
-        rvSpace = view.findViewById(R.id.rvSpaceResults);
-
         setupAdapters();
+        setupSearchListeners(view);
 
         view.findViewById(R.id.btnBack).setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
 
-        searchView = view.findViewById(R.id.searchView);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                performSearch(query);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                performSearch(newText);
-                return true;
-            }
-        });
-
-        if (getArguments() != null) {
-            String initialQuery = getArguments().getString("search_query", "");
-            if (!initialQuery.isEmpty()) {
-                searchView.setQuery(initialQuery, true);
-            }
-        }
-
-        ChipGroup chipGroup = view.findViewById(R.id.chipGroupSearchFilter);
-        if (chipGroup != null) {
-            chipGroup.setOnCheckedChangeListener((group, checkedId) -> {
-                if (searchView != null) {
-                    performSearch(searchView.getQuery().toString());
-                }
-            });
-        }
+        return view;
     }
 
     @Override
@@ -124,172 +106,70 @@ public class GlobalSearchFragment extends Fragment {
     }
 
     private void setupAdapters() {
-        // Food Adapter
         foodAdapter = new FoodAdapter(new FoodAdapter.onItemClickListener() {
             @Override
-            public void onEditClick(FoodItem foodItem) {
-                navigateToEdit(foodItem);
-            }
-
+            public void onEditClick(FoodItem foodItem) { navigateToEdit(foodItem); }
             @Override
-            public void onDeleteClick(FoodItem foodItem) {
-                navigateToEdit(foodItem);
-            }
-
+            public void onDeleteClick(FoodItem foodItem) { navigateToEdit(foodItem); }
             @Override
             public void onInfoClick(FoodItem foodItem) {
                 FoodInfoBottomSheet sheet = FoodInfoBottomSheet.newInstance(foodItem);
                 sheet.show(getChildFragmentManager(), "food_info");
             }
-
-            @Override
-            public void onSelectionModeChanged(boolean isSelectionMode) {
-            }
-
-            @Override
-            public void onSelectionCountChanged(int count) {
-            }
+            @Override public void onSelectionModeChanged(boolean isSelectionMode) {}
+            @Override public void onSelectionCountChanged(int count) {}
         });
         rvFood.setLayoutManager(new LinearLayoutManager(getContext()));
         rvFood.setAdapter(foodAdapter);
 
-        // Medicine Adapter
         medAdapter = new MedicineAdapter(new ArrayList<>(), new MedicineAdapter.OnMedicineClickListener() {
-            @Override
-            public void onReminderToggle(MedicineEntity medicine, boolean isChecked) {
-                medicine.setReminderOn(isChecked);
-                updateMedicine(medicine);
-            }
-
-            @Override
-            public void onTakeDose(MedicineEntity medicine) {
-            }
-
-            @Override
-            public void onEditClick(MedicineEntity medicine) {
-                navigateToEditMed(medicine);
-            }
-
-            @Override
-            public void onDeleteClick(MedicineEntity medicine) {
-                navigateToEditMed(medicine);
-            }
+            @Override public void onReminderToggle(MedicineEntity medicine, boolean isChecked) { medicine.setReminderOn(isChecked); updateMedicine(medicine); }
+            @Override public void onTakeDose(MedicineEntity medicine) {}
+            @Override public void onEditClick(MedicineEntity medicine) { navigateToEditMed(medicine); }
+            @Override public void onDeleteClick(MedicineEntity medicine) { navigateToEditMed(medicine); }
         });
         rvMed.setLayoutManager(new LinearLayoutManager(getContext()));
         rvMed.setAdapter(medAdapter);
 
-        // Document Adapter
         docAdapter = new DocumentAdapter(new DocumentAdapter.OnDocumentClickListener() {
-            @Override
-            public void onEditClick(DocumentItem document) {
-                navigateToEditDoc(document);
-            }
-
-            @Override
-            public void onDeleteClick(DocumentItem document) {
-                navigateToEditDoc(document);
-            }
-
-            @Override
-            public void onDownloadClick(DocumentItem document) {
-            }
-
-            @Override
-            public void onSelectionModeChanged(boolean isSelectionMode) {
-            }
-
-            @Override
-            public void onSelectionCountChanged(int count) {
-            }
+            @Override public void onEditClick(DocumentItem document) { navigateToEditDoc(document); }
+            @Override public void onDeleteClick(DocumentItem document) { navigateToEditDoc(document); }
+            @Override public void onDownloadClick(DocumentItem document) {}
+            @Override public void onSelectionModeChanged(boolean isSelectionMode) {}
+            @Override public void onSelectionCountChanged(int count) {}
         });
         rvDoc.setLayoutManager(new LinearLayoutManager(getContext()));
         rvDoc.setAdapter(docAdapter);
 
-        // Shopping Adapter
         shoppingAdapter = new ShoppingAdapter();
         shoppingAdapter.setOnItemClickListener(new ShoppingAdapter.OnItemClickListener() {
-            @Override
-            public void onEditClick(ShoppingItem item) {
-                Navigation.findNavController(getView()).navigate(R.id.shoppingListFragment);
-            }
-
-            @Override
-            public void onDeleteClick(ShoppingItem item) {
-                Navigation.findNavController(getView()).navigate(R.id.shoppingListFragment);
-            }
-
-            @Override
-            public void onStatusChange(ShoppingItem item, boolean isCompleted) {
-                updateShopping(item);
-            }
-
-            @Override
-            public void onSelectionModeChanged(boolean isSelectionMode) {
-            }
-
-            @Override
-            public void onSelectionCountChanged(int count) {
-            }
+            @Override public void onEditClick(ShoppingItem item) { Navigation.findNavController(getView()).navigate(R.id.shoppingListFragment); }
+            @Override public void onDeleteClick(ShoppingItem item) { Navigation.findNavController(getView()).navigate(R.id.shoppingListFragment); }
+            @Override public void onStatusChange(ShoppingItem item, boolean isCompleted) { updateShopping(item); }
+            @Override public void onSelectionModeChanged(boolean isSelectionMode) {}
+            @Override public void onSelectionCountChanged(int count) {}
         });
         rvShopping.setLayoutManager(new LinearLayoutManager(getContext()));
         rvShopping.setAdapter(shoppingAdapter);
 
-        // Todo Adapter
         todoAdapter = new TodoAdapter(new ArrayList<>());
         todoAdapter.setOnTodoItemClickListener(new TodoAdapter.OnTodoItemClickListener() {
-            @Override
-            public void onEditClick(TodoItem item) {
-                Navigation.findNavController(getView()).navigate(R.id.todoListFragment);
-            }
-
-            @Override
-            public void onDeleteClick(TodoItem item) {
-                Navigation.findNavController(getView()).navigate(R.id.todoListFragment);
-            }
-
-            @Override
-            public void onStatusChange(TodoItem item, boolean isCompleted) {
-                updateTodo(item, isCompleted);
-            }
-
-            @Override
-            public void onSelectionModeChanged(boolean isSelectionMode) {
-            }
-
-            @Override
-            public void onSelectionCountChanged(int count) {
-            }
+            @Override public void onEditClick(TodoItem item) { Navigation.findNavController(getView()).navigate(R.id.todoListFragment); }
+            @Override public void onDeleteClick(TodoItem item) { Navigation.findNavController(getView()).navigate(R.id.todoListFragment); }
+            @Override public void onStatusChange(TodoItem item, boolean isCompleted) { updateTodo(item, isCompleted); }
+            @Override public void onSelectionModeChanged(boolean isSelectionMode) {}
+            @Override public void onSelectionCountChanged(int count) {}
         });
         rvTodo.setLayoutManager(new LinearLayoutManager(getContext()));
         rvTodo.setAdapter(todoAdapter);
 
-        // Custom Space Adapter
         spaceAdapter = new CustomSpaceItemAdapter(new CustomSpaceItemAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(CustomSpaceItem item) {
-                navigateToEditSpaceItem(item);
-            }
-
-            @Override
-            public void onDeleteClick(CustomSpaceItem item) {
-                deleteSpaceItem(item);
-            }
-
-            @Override
-            public void onCheckChanged(CustomSpaceItem item, boolean isChecked) {
-                item.setChecked(isChecked);
-                updateSpaceItem(item);
-            }
-
-            @Override
-            public void onLongClick(CustomSpaceItem item) {
-                // Not implemented in search
-            }
-
-            @Override
-            public void onEyeClick(CustomSpaceItem item) {
-                NoteDetailBottomSheet sheet =
-                    NoteDetailBottomSheet.newInstance(item.getName(), item.getNotes());
+            @Override public void onItemClick(CustomSpaceItem item) { navigateToEditSpaceItem(item); }
+            @Override public void onDeleteClick(CustomSpaceItem item) { deleteSpaceItem(item); }
+            @Override public void onCheckChanged(CustomSpaceItem item, boolean isChecked) { item.setChecked(isChecked); updateSpaceItem(item); }
+            @Override public void onLongClick(CustomSpaceItem item) {}
+            @Override public void onEyeClick(CustomSpaceItem item) {
+                NoteDetailBottomSheet sheet = NoteDetailBottomSheet.newInstance(item.getName(), item.getNotes());
                 sheet.show(getChildFragmentManager(), "note_detail");
             }
         });
@@ -306,8 +186,12 @@ public class GlobalSearchFragment extends Fragment {
             allShopping = db.shoppingDao().getAllItems();
             allTodos = db.todoDao().getAllTodos();
             allSpaceItems = db.customSpaceDao().getAllCustomSpaceItemsSync();
-            // We don't use observe here, just a sync load for search
-            // allSpaces = db.customSpaceDao().getAllSpacesSync(); // Need to add this to DAO
+
+            List<CustomSpace> spaces = db.customSpaceDao().getAllSpacesSync();
+            spaceMap.clear();
+            for (CustomSpace s : spaces) {
+                spaceMap.put(s.getId(), s);
+            }
 
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
@@ -328,6 +212,7 @@ public class GlobalSearchFragment extends Fragment {
         }
 
         String q = query.toLowerCase().trim();
+        SecurityManager sec = SecurityManager.getInstance(requireContext());
 
         boolean showFood = true, showMed = true, showDoc = true, showShopping = true, showTodo = true, showSpace = true;
         View viewRoot = getView();
@@ -368,7 +253,18 @@ public class GlobalSearchFragment extends Fragment {
                 .collect(Collectors.toList()) : new ArrayList<>();
 
         List<CustomSpaceItem> filteredSpace = showSpace ? allSpaceItems.stream()
-                .filter(i -> i.getName().toLowerCase().contains(q) || (i.getNotes() != null && i.getNotes().toLowerCase().contains(q)))
+                .filter(i -> {
+                    CustomSpace parent = spaceMap.get(i.getSpaceId());
+                    if (parent != null) {
+                        if (parent.isHidden() && !sec.isSpaceUnlockedInSession(parent.getId())) {
+                            return false;
+                        }
+                        if (parent.isProtected() && !sec.isSpaceUnlockedInSession(parent.getId())) {
+                            return false;
+                        }
+                    }
+                    return i.getName().toLowerCase().contains(q) || (i.getNotes() != null && i.getNotes().toLowerCase().contains(q));
+                })
                 .collect(Collectors.toList()) : new ArrayList<>();
 
         updateUI(filteredFood, filteredMeds, filteredDocs, filteredShopping, filteredTodos, filteredSpace);
@@ -399,83 +295,78 @@ public class GlobalSearchFragment extends Fragment {
 
         tvSpaceHeader.setVisibility(spaces.isEmpty() ? View.GONE : View.VISIBLE);
         rvSpace.setVisibility(spaces.isEmpty() ? View.GONE : View.VISIBLE);
-        spaceAdapter.setItems(spaces, null); // Pass null for parentSpace to use generic style
+        spaceAdapter.setItems(spaces, null);
 
-        llEmptyState.setVisibility(hasResults ? View.GONE : View.VISIBLE);
-        if (!hasResults) {
-            tvEmptyMessage.setText(R.string.no_results_found);
+        if (hasResults) {
+            llEmptyState.setVisibility(View.GONE);
+        } else {
+            llEmptyState.setVisibility(View.VISIBLE);
+            tvEmptyMessage.setText(R.string.no_items_found);
         }
     }
 
     private void hideAll() {
-        tvFoodHeader.setVisibility(View.GONE);
-        rvFood.setVisibility(View.GONE);
-        tvMedHeader.setVisibility(View.GONE);
-        rvMed.setVisibility(View.GONE);
-        tvDocHeader.setVisibility(View.GONE);
-        rvDoc.setVisibility(View.GONE);
-        tvShoppingHeader.setVisibility(View.GONE);
-        rvShopping.setVisibility(View.GONE);
-        tvTodoHeader.setVisibility(View.GONE);
-        rvTodo.setVisibility(View.GONE);
-        tvSpaceHeader.setVisibility(View.GONE);
-        rvSpace.setVisibility(View.GONE);
+        tvFoodHeader.setVisibility(View.GONE); rvFood.setVisibility(View.GONE);
+        tvMedHeader.setVisibility(View.GONE); rvMed.setVisibility(View.GONE);
+        tvDocHeader.setVisibility(View.GONE); rvDoc.setVisibility(View.GONE);
+        tvShoppingHeader.setVisibility(View.GONE); rvShopping.setVisibility(View.GONE);
+        tvTodoHeader.setVisibility(View.GONE); rvTodo.setVisibility(View.GONE);
+        tvSpaceHeader.setVisibility(View.GONE); rvSpace.setVisibility(View.GONE);
     }
 
-    private void updateMedicine(MedicineEntity medicine) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            AppDatabase.getInstance(requireContext()).medicineDao().update(medicine);
+    private void setupSearchListeners(View view) {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override public boolean onQueryTextSubmit(String query) { performSearch(query); return true; }
+            @Override public boolean onQueryTextChange(String newText) { performSearch(newText); return true; }
         });
+
+        ChipGroup chipGroup = view.findViewById(R.id.chipGroupSearchFilter);
+        if (chipGroup != null) {
+            chipGroup.setOnCheckedChangeListener((group, checkedId) -> performSearch(searchView.getQuery().toString()));
+        }
+    }
+
+    private void navigateToEdit(FoodItem food) {
+        Bundle args = new Bundle(); args.putSerializable("foodItem", food);
+        Navigation.findNavController(getView()).navigate(R.id.addItemFragment, args);
+    }
+
+    private void navigateToEditMed(MedicineEntity med) {
+        Bundle args = new Bundle(); args.putSerializable("medicine", med);
+        Navigation.findNavController(getView()).navigate(R.id.medicineAddFragment, args);
+    }
+
+    private void navigateToEditDoc(DocumentItem doc) {
+        Bundle args = new Bundle(); args.putSerializable("document", doc);
+        Navigation.findNavController(getView()).navigate(R.id.addDocumentFragment, args);
+    }
+
+    private void navigateToEditSpaceItem(CustomSpaceItem item) {
+        Bundle args = new Bundle(); args.putSerializable("space_item", item);
+        Navigation.findNavController(getView()).navigate(R.id.addSpaceItemFragment, args);
+    }
+
+    private void updateMedicine(MedicineEntity med) {
+        Executors.newSingleThreadExecutor().execute(() -> AppDatabase.getInstance(requireContext()).medicineDao().update(med));
     }
 
     private void updateShopping(ShoppingItem item) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            AppDatabase.getInstance(requireContext()).shoppingDao().update(item);
-        });
+        Executors.newSingleThreadExecutor().execute(() -> AppDatabase.getInstance(requireContext()).shoppingDao().update(item));
     }
 
-    private void updateTodo(TodoItem item, boolean isDone) {
-        item.setCompleted(isDone);
-        Executors.newSingleThreadExecutor().execute(() -> {
-            AppDatabase.getInstance(requireContext()).todoDao().update(item);
-        });
+    private void updateTodo(TodoItem item, boolean isCompleted) {
+        item.setCompleted(isCompleted);
+        Executors.newSingleThreadExecutor().execute(() -> AppDatabase.getInstance(requireContext()).todoDao().update(item));
     }
 
     private void updateSpaceItem(CustomSpaceItem item) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            AppDatabase.getInstance(requireContext()).customSpaceDao().updateItem(item);
-        });
+        Executors.newSingleThreadExecutor().execute(() -> AppDatabase.getInstance(requireContext()).customSpaceDao().updateItem(item));
     }
 
     private void deleteSpaceItem(CustomSpaceItem item) {
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase.getInstance(requireContext()).customSpaceDao().deleteItem(item);
-            loadAllData();
+            if (isAdded()) requireActivity().runOnUiThread(() -> loadAllData());
         });
-    }
-
-    private void navigateToEdit(FoodItem item) {
-        Bundle args = new Bundle();
-        args.putSerializable("foodItem", item);
-        Navigation.findNavController(getView()).navigate(R.id.addItemFragment, args);
-    }
-
-    private void navigateToEditMed(MedicineEntity med) {
-        Bundle args = new Bundle();
-        args.putSerializable(MedicineAddFragment.ARG_MEDICINE, med);
-        Navigation.findNavController(getView()).navigate(R.id.medicineAddFragment, args);
-    }
-
-    private void navigateToEditDoc(DocumentItem doc) {
-        Bundle args = new Bundle();
-        args.putSerializable("document", doc);
-        Navigation.findNavController(getView()).navigate(R.id.addDocumentFragment, args);
-    }
-
-    private void navigateToEditSpaceItem(CustomSpaceItem item) {
-        Bundle args = new Bundle();
-        args.putInt("arg_space_id", item.getSpaceId());
-        args.putSerializable("arg_item", item);
-        Navigation.findNavController(getView()).navigate(R.id.addSpaceItemFragment, args);
     }
 }

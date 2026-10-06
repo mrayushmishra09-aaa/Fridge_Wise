@@ -53,6 +53,12 @@ public class CustomSpaceAdapter extends RecyclerView.Adapter<CustomSpaceAdapter.
         
         int itemCount = spaceItemCounts.get(space.getId(), 0);
         holder.tvCount.setText(itemCount + (itemCount == 1 ? " item" : " items"));
+
+        if (space.isProtected()) {
+            holder.ivLockBadge.setVisibility(View.VISIBLE);
+        } else {
+            holder.ivLockBadge.setVisibility(View.GONE);
+        }
         
         // Theme Polish: Apply space color
         if (space.getColorCode() != 0) {
@@ -62,7 +68,6 @@ public class CustomSpaceAdapter extends RecyclerView.Adapter<CustomSpaceAdapter.
             holder.icon.setImageTintList(ColorStateList.valueOf(color));
             holder.iconContainer.setStrokeColor(ColorStateList.valueOf(color));
             
-            // Subtle background tint
             int alphaColor = (color & 0x00FFFFFF) | 0x1A000000; // 10% alpha
             holder.iconContainer.setCardBackgroundColor(alphaColor);
         } else {
@@ -96,7 +101,7 @@ public class CustomSpaceAdapter extends RecyclerView.Adapter<CustomSpaceAdapter.
     }
 
     static class SpaceViewHolder extends RecyclerView.ViewHolder {
-        ImageView icon;
+        ImageView icon, ivLockBadge;
         TextView tvName, tvCount;
         View viewColorAccent;
         MaterialCardView iconContainer;
@@ -104,6 +109,7 @@ public class CustomSpaceAdapter extends RecyclerView.Adapter<CustomSpaceAdapter.
         public SpaceViewHolder(@NonNull View itemView) {
             super(itemView);
             icon = itemView.findViewById(R.id.iconSpace);
+            ivLockBadge = itemView.findViewById(R.id.ivLockBadge);
             tvName = itemView.findViewById(R.id.tvSpaceName);
             tvCount = itemView.findViewById(R.id.tvSpaceItemCount);
             viewColorAccent = itemView.findViewById(R.id.viewColorAccent);
