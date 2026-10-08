@@ -5,10 +5,6 @@
         android:icon="@drawable/ic_home_selector"
         android:title="@string/home"/>
     <item
-        android:id="@+id/nav_inventory"
-        android:icon="@drawable/ic_inventory_selector"
-        android:title="@string/inventory"/>
-    <item
         android:id="@+id/nav_memory"
         android:icon="@drawable/ic_spaces_selector"
         android:title="@string/memory"/>

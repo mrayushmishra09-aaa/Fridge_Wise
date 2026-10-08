@@ -64,6 +64,9 @@ public class Memory extends Fragment {
         cardTodo = view.findViewById(R.id.cardTodo);
         cardTodo.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.todoListFragment));
 
+        CardView cardInventory = view.findViewById(R.id.cardInventory);
+        cardInventory.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.nav_inventory));
+
         CardView cardShopping = view.findViewById(R.id.cardShopping);
         cardShopping.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.shoppingListFragment));
 

@@ -58,6 +58,30 @@
                     android:src="@drawable/ic_view_grid"
                     app:tint="@color/text_primary"
                     android:contentDescription="Toggle View Mode" />
+
+                <ImageView
+                    android:id="@+id/btnBarcodeScanner"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_toStartOf="@id/btnViewToggle"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_barcode_scan"
+                    app:tint="@color/green_primary"
+                    android:contentDescription="Barcode Scanner Mode" />
+
+                <ImageView
+                    android:id="@+id/btnEyeScanner"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_toStartOf="@id/btnBarcodeScanner"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_eye"
+                    app:tint="@color/text_primary"
+                    android:contentDescription="Eye Scanner Preview Mode" />
             </RelativeLayout>
 
             <RelativeLayout

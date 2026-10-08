@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -46,6 +47,7 @@ public class SettingsFragment extends Fragment {
         View btnNotifications = view.findViewById(R.id.btnNotifications);
         View btnAppearance = view.findViewById(R.id.btn_appearance);
         View btnAdvanced = view.findViewById(R.id.btn_advanced_settings);
+        View btnAiConnector = view.findViewById(R.id.btn_ai_connector);
         View btnHelp = view.findViewById(R.id.btnHelp);
         View rowPersonalDetails = view.findViewById(R.id.row_personal_details);
         View btnLogout = view.findViewById(R.id.pfp_logout_txt);
@@ -63,6 +65,11 @@ public class SettingsFragment extends Fragment {
         if (btnAdvanced != null) {
             btnAdvanced.setOnClickListener(v -> 
                 new AdvancedSettingsBottomSheet().show(getParentFragmentManager(), "advanced_settings"));
+        }
+
+        if (btnAiConnector != null) {
+            btnAiConnector.setOnClickListener(v -> 
+                Navigation.findNavController(v).navigate(R.id.nav_ai_connector));
         }
 
         if (btnHelp != null) {

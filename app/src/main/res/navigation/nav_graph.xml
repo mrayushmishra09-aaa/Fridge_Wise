@@ -12,10 +12,16 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
+        android:id="@+id/nav_ai_connector"
+        android:name="com.example.fridgewise.ui.fragments.AiConnectorFragment"
+        android:label="AI Connector"
+        tools:layout="@layout/fragment_ai_connector" />
+
+    <fragment
         android:id="@+id/nav_inventory"
         android:name="com.example.fridgewise.ui.fragments.InventoryFragment"
         android:label="Inventory"
-        tools:layout="@layout/fragment_inventory" />
+        tools:layout="@layout/fragment_inventoryu" />
 
     <fragment
         android:id="@+id/nav_memory"

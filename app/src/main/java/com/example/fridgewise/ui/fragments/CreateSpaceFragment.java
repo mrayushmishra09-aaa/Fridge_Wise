@@ -184,17 +184,35 @@ public class CreateSpaceFragment extends Fragment {
 
     private void toggleCapability(String type) {
         switch (type) {
-            case "checkbox": hasCheckbox = !hasCheckbox; updateButtonState(btnOptCheckbox, hasCheckbox); break;
+            case "checkbox": 
+                hasCheckbox = !hasCheckbox; 
+                if (hasCheckbox) {
+                    hasAttachments = false;
+                    updateButtonState(btnOptAttachments, false);
+                }
+                updateButtonState(btnOptCheckbox, hasCheckbox); 
+                break;
             case "reminder": hasReminder = !hasReminder; updateButtonState(btnOptReminder, hasReminder); break;
             case "notes": hasNotes = !hasNotes; updateButtonState(btnOptNotes, hasNotes); break;
             case "quantity": hasQuantity = !hasQuantity; updateButtonState(btnOptQuantity, hasQuantity); break;
             case "date": hasDate = !hasDate; updateButtonState(btnOptDate, hasDate); break;
-            case "attachments": hasAttachments = !hasAttachments; updateButtonState(btnOptAttachments, hasAttachments); break;
+            case "attachments": 
+                hasAttachments = !hasAttachments; 
+                if (hasAttachments) {
+                    hasCheckbox = false;
+                    isStreakEnabled = false;
+                    updateButtonState(btnOptCheckbox, false);
+                    updateButtonState(btnOptStreak, false);
+                }
+                updateButtonState(btnOptAttachments, hasAttachments); 
+                break;
             case "streak": 
                 isStreakEnabled = !isStreakEnabled; 
-                if (isStreakEnabled && !hasCheckbox) {
+                if (isStreakEnabled) {
                     hasCheckbox = true;
+                    hasAttachments = false;
                     updateButtonState(btnOptCheckbox, true);
+                    updateButtonState(btnOptAttachments, false);
                 }
                 updateButtonState(btnOptStreak, isStreakEnabled); 
                 break;

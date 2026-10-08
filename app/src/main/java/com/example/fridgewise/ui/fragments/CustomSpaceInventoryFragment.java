@@ -248,6 +248,25 @@ public class CustomSpaceInventoryFragment extends Fragment {
             });
         }
 
+        ImageView btnBarcodeScanner = view.findViewById(R.id.btnBarcodeScanner);
+        if (btnBarcodeScanner != null) {
+            btnBarcodeScanner.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), BarcodeScannerActivity.class);
+                startActivity(intent);
+                Toast.makeText(getContext(), "Barcode Scanner Activated: Locking other options.", Toast.LENGTH_SHORT).show();
+                if (btnViewToggle != null) btnViewToggle.setEnabled(false);
+                View btnMore = view.findViewById(R.id.btnMoreOptions);
+                if (btnMore != null) btnMore.setEnabled(false);
+            });
+        }
+
+        ImageView btnEyeScanner = view.findViewById(R.id.btnEyeScanner);
+        if (btnEyeScanner != null) {
+            btnEyeScanner.setOnClickListener(v -> {
+                Toast.makeText(getContext(), "Eye Scanner Preview Mode Active", Toast.LENGTH_SHORT).show();
+            });
+        }
+
         viewModel.getItems().observe(getViewLifecycleOwner(), items -> {
             allItems = items;
             adapter.setItems(items, currentSpace);

@@ -78,6 +78,11 @@ public class InventoryFragment extends Fragment {
         tvSelectionCount = view.findViewById(R.id.tvSelectionCount);
         cbSelectAll = view.findViewById(R.id.cbSelectAll);
 
+        View btnBack = view.findViewById(R.id.btnBackInventory);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> Navigation.findNavController(v).popBackStack());
+        }
+
         view.findViewById(R.id.btnCloseSelection).setOnClickListener(v -> exitSelectionMode());
         view.findViewById(R.id.btnBulkDelete).setOnClickListener(v -> bulkDelete());
         View btnBulkShare = view.findViewById(R.id.btnBulkShare);
