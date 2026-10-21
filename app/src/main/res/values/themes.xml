@@ -24,14 +24,18 @@
         <item name="colorOutline">@color/divider_color</item>
 
         <!-- Typography -->
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.App.HeadlineLarge</item>
         <item name="textAppearanceTitleLarge">@style/TextAppearance.App.TitleLarge</item>
         <item name="textAppearanceTitleMedium">@style/TextAppearance.App.TitleMedium</item>
         <item name="textAppearanceBodyLarge">@style/TextAppearance.App.BodyLarge</item>
         <item name="textAppearanceBodyMedium">@style/TextAppearance.App.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.App.BodySmall</item>
         <item name="textAppearanceLabelLarge">@style/TextAppearance.App.LabelLarge</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.App.LabelSmall</item>
 
         <!-- Component Styles -->
         <item name="floatingActionButtonStyle">@style/Widget.App.FloatingActionButton</item>
+        <item name="materialCardViewStyle">@style/Widget.App.CardView</item>
     </style>
 
     <style name="Theme.FridgeWise" parent="Base.Theme.FridgeWise" />
@@ -44,6 +48,13 @@
     </style>
 
     <!-- Typography Styles -->
+    <style name="TextAppearance.App.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">-0.03</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
     <style name="TextAppearance.App.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/text_primary</item>
@@ -70,10 +81,23 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
+    <style name="TextAppearance.App.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
     <style name="TextAppearance.App.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
         <item name="android:textColor">@color/green_primary</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:letterSpacing">0.01</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.App.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.04</item>
         <item name="android:includeFontPadding">false</item>
     </style>
 

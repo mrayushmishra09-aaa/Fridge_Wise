@@ -5,12 +5,13 @@ import androidx.room.Update;
 import androidx.room.Insert;
 import androidx.room.Delete;
 import androidx.room.Query;
+import androidx.room.OnConflictStrategy;
 import com.example.fridgewise.model.FoodItem;
 import java.util.List;
 
 @Dao
 public interface FoodItemDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert(FoodItem item);
 
     @Update

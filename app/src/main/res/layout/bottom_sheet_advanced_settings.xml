@@ -17,7 +17,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Advanced Settings"
+        android:text="Advanced &amp; Security Settings"
         android:textColor="@color/profile_text_primary"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Security, backups, and preferences"
+        android:text="Master PIN lock, biometrics, and local backups"
         android:textColor="@color/profile_text_secondary"
         android:textSize="14sp" />
 
@@ -47,7 +47,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Master PIN Lock"
+                android:text="Master PIN Protection"
                 android:textColor="@color/profile_text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -55,7 +55,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Protect custom spaces &amp; app settings"
+                android:text="Secure private custom spaces &amp; settings"
                 android:textColor="@color/profile_text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -66,15 +66,31 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnChangeMasterPin"
-        style="@style/Widget.Material3.Button.TextButton"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Change Master PIN"
-        android:textColor="@color/green_primary"
-        android:visibility="gone" />
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnChangeMasterPin"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change Master PIN"
+            android:textColor="@color/green_primary"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewRecoveryKey"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="View Recovery Key"
+            android:textColor="@color/profile_text_secondary"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"

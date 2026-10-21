@@ -23,6 +23,8 @@ public class CustomSpace implements Serializable {
     private boolean hasDate;
     private boolean hasAttachments;
     private boolean isStreakEnabled;
+    private boolean hasBarcode;
+    private boolean hasQuickInput;
 
     // Completion behavior
     private int autoRemoveDuration; // 0: Never, 1: 24h, 7: 7 days
@@ -49,6 +51,8 @@ public class CustomSpace implements Serializable {
         this.hasDate = false;
         this.hasAttachments = false;
         this.isStreakEnabled = true;
+        this.hasBarcode = false;
+        this.hasQuickInput = false;
         this.autoRemoveDuration = 0;
         this.isProtected = false;
         this.isHidden = false;
@@ -99,6 +103,12 @@ public class CustomSpace implements Serializable {
 
     public boolean isStreakEnabled() { return isStreakEnabled; }
     public void setStreakEnabled(boolean streakEnabled) { this.isStreakEnabled = streakEnabled; }
+
+    public boolean isHasBarcode() { return hasBarcode; }
+    public void setHasBarcode(boolean hasBarcode) { this.hasBarcode = hasBarcode; }
+
+    public boolean isHasQuickInput() { return hasQuickInput; }
+    public void setHasQuickInput(boolean hasQuickInput) { this.hasQuickInput = hasQuickInput; }
 
     public int getAutoRemoveDuration() { return autoRemoveDuration; }
     public void setAutoRemoveDuration(int autoRemoveDuration) { this.autoRemoveDuration = autoRemoveDuration; }

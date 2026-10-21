@@ -2,38 +2,53 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="320dp"
+    android:layout_width="340dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    app:cardCornerRadius="28dp"
-    app:cardElevation="12dp"
-    app:cardBackgroundColor="#1A222A">
+    app:cardCornerRadius="36dp"
+    app:cardElevation="24dp"
+    app:cardBackgroundColor="#121D26"
+    app:strokeWidth="1.5dp"
+    app:strokeColor="#253848">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:padding="24dp">
+        android:paddingHorizontal="24dp"
+        android:paddingTop="28dp"
+        android:paddingBottom="24dp">
 
-        <!-- Icon Header -->
-        <ImageView
-            android:id="@+id/ivSecurityIcon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_lock"
-            app:tint="@color/green_primary" />
+        <!-- Glassmorphic Icon Header attached above title -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#162531"
+            app:strokeWidth="1.5dp"
+            app:strokeColor="@color/green_primary">
+
+            <ImageView
+                android:id="@+id/ivSecurityIcon"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lock"
+                app:tint="@color/green_primary" />
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Title -->
         <TextView
             android:id="@+id/tvAuthTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="14dp"
             android:gravity="center"
             android:text="Protected Space"
-            android:textColor="@color/text_primary"
-            android:textSize="20sp"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
             android:textStyle="bold" />
 
         <!-- Subtitle -->
@@ -44,15 +59,15 @@
             android:layout_marginTop="4dp"
             android:gravity="center"
             android:text="Enter PIN to unlock contents"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:textColor="#8A9BA8"
+            android:textSize="14sp" />
 
-        <!-- PIN Entry Dots Indicator -->
+        <!-- PIN Entry Dots Indicator with generous breathing room -->
         <LinearLayout
             android:id="@+id/llPinDots"
             android:layout_width="wrap_content"
-            android:layout_height="24dp"
-            android:layout_marginTop="16dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="18dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -60,37 +75,37 @@
                 android:id="@+id/dot1"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_margin="6dp"
+                android:layout_margin="10dp"
                 android:background="@drawable/bg_pin_dot_empty" />
 
             <View
                 android:id="@+id/dot2"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_margin="6dp"
+                android:layout_margin="10dp"
                 android:background="@drawable/bg_pin_dot_empty" />
 
             <View
                 android:id="@+id/dot3"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_margin="6dp"
+                android:layout_margin="10dp"
                 android:background="@drawable/bg_pin_dot_empty" />
 
             <View
                 android:id="@+id/dot4"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_margin="6dp"
+                android:layout_margin="10dp"
                 android:background="@drawable/bg_pin_dot_empty" />
         </LinearLayout>
 
-        <!-- Keypad Grid -->
+        <!-- Keypad Grid with optimal 70dp touch targets -->
         <GridLayout
             android:id="@+id/gridKeypad"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="16dp"
             android:columnCount="3"
             android:rowCount="4"
             android:alignmentMode="alignMargins">
@@ -98,169 +113,206 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKey1"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="6dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_margin="7dp"
                 android:text="1"
                 android:textColor="@android:color/white"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                app:backgroundTint="#25323E"
-                app:cornerRadius="32dp" />
+                app:backgroundTint="#192734"
+                app:cornerRadius="35dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#243748" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKey2"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="6dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_margin="7dp"
                 android:text="2"
                 android:textColor="@android:color/white"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                app:backgroundTint="#25323E"
-                app:cornerRadius="32dp" />
+                app:backgroundTint="#192734"
+                app:cornerRadius="35dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#243748" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKey3"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="6dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_margin="7dp"
                 android:text="3"
                 android:textColor="@android:color/white"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                app:backgroundTint="#25323E"
-                app:cornerRadius="32dp" />
+                app:backgroundTint="#192734"
+                app:cornerRadius="35dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#243748" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKey4"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="6dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_margin="7dp"
                 android:text="4"
                 android:textColor="@android:color/white"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                app:backgroundTint="#25323E"
-                app:cornerRadius="32dp" />
+                app:backgroundTint="#192734"
+                app:cornerRadius="35dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#243748" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKey5"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="6dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_margin="7dp"
                 android:text="5"
                 android:textColor="@android:color/white"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                app:backgroundTint="#25323E"
-                app:cornerRadius="32dp" />
+                app:backgroundTint="#192734"
+                app:cornerRadius="35dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#243748" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKey6"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="6dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_margin="7dp"
                 android:text="6"
                 android:textColor="@android:color/white"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                app:backgroundTint="#25323E"
-                app:cornerRadius="32dp" />
+                app:backgroundTint="#192734"
+                app:cornerRadius="35dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#243748" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKey7"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="6dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_margin="7dp"
                 android:text="7"
                 android:textColor="@android:color/white"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                app:backgroundTint="#25323E"
-                app:cornerRadius="32dp" />
+                app:backgroundTint="#192734"
+                app:cornerRadius="35dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#243748" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKey8"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="6dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_margin="7dp"
                 android:text="8"
                 android:textColor="@android:color/white"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                app:backgroundTint="#25323E"
-                app:cornerRadius="32dp" />
+                app:backgroundTint="#192734"
+                app:cornerRadius="35dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#243748" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKey9"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="6dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_margin="7dp"
                 android:text="9"
                 android:textColor="@android:color/white"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                app:backgroundTint="#25323E"
-                app:cornerRadius="32dp" />
+                app:backgroundTint="#192734"
+                app:cornerRadius="35dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#243748" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnBiometric"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="6dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_margin="7dp"
                 app:icon="@drawable/ic_fingerprint"
                 app:iconTint="@color/green_primary"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp"
-                app:backgroundTint="#25323E"
-                app:cornerRadius="32dp" />
+                app:backgroundTint="#192734"
+                app:cornerRadius="35dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#243748" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKey0"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="6dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_margin="7dp"
                 android:text="0"
                 android:textColor="@android:color/white"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                app:backgroundTint="#25323E"
-                app:cornerRadius="32dp" />
+                app:backgroundTint="#192734"
+                app:cornerRadius="35dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#243748" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKeyBackspace"
                 style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="6dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_margin="7dp"
                 app:icon="@drawable/ic_backspace"
-                app:iconTint="@color/white"
+                app:iconTint="@android:color/white"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp"
-                app:backgroundTint="#25323E"
-                app:cornerRadius="32dp" />
+                app:backgroundTint="#192734"
+                app:cornerRadius="35dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#243748" />
         </GridLayout>
 
-        <!-- Cancel / Negative Button -->
+        <!-- Forgot PIN Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnForgotPin"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Forgot PIN?"
+            android:textColor="@color/green_primary"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <!-- Cancel Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAuthCancel"
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="4dp"
             android:text="Cancel"
-            android:textColor="@color/text_secondary" />
+            android:textColor="#8A9BA8"
+            android:textSize="15sp" />
 
     </LinearLayout>
 

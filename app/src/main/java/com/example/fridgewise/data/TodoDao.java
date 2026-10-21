@@ -7,13 +7,14 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import androidx.room.OnConflictStrategy;
 import com.example.fridgewise.model.TodoItem;
 import java.util.List;
 
 @Dao
 public interface TodoDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert(TodoItem todoItem);
 
     @Update

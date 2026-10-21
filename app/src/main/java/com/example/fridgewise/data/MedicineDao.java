@@ -6,11 +6,12 @@ import androidx.room.Insert;
 import androidx.room.Update;
 import androidx.room.Delete;
 import androidx.room.Query;
+import androidx.room.OnConflictStrategy;
 import com.example.fridgewise.model.MedicineEntity;
 import java.util.List;
 @Dao
 public interface MedicineDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert (MedicineEntity medicine);
     @Delete
     void delete (MedicineEntity medicine);

@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         PreferenceManager prefManager = new PreferenceManager(this);
-        if (!prefManager.isLoggedIn() && (prefManager.isFirstTimeLaunch() || !prefManager.isGuest())) {
+        if (prefManager.isFirstTimeLaunch()) {
             startActivity(new Intent(this, OnboardingActivity.class));
             finish();
             return;

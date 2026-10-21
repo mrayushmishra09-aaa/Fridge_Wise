@@ -44,9 +44,9 @@ public class CreateSpaceFragment extends Fragment {
     private TextView tvNameCount;
     private ImageView ivSelectedIcon, ivCustomPhoto, ivAdvancedChevron;
     private MaterialCardView layoutAdvanced;
-    private View btnOptCheckbox, btnOptReminder, btnOptNotes, btnOptQuantity, btnOptDate, btnOptAttachments, btnOptStreak;
-    private MaterialCardView cardOptCheckbox, cardOptReminder, cardOptNotes, cardOptQuantity, cardOptDate, cardOptAttachments, cardOptStreak;
-    private boolean hasCheckbox, hasReminder, hasNotes, hasQuantity, hasDate, hasAttachments, isStreakEnabled = true;
+    private View btnOptCheckbox, btnOptReminder, btnOptNotes, btnOptQuantity, btnOptDate, btnOptAttachments, btnOptStreak, btnOptBarcode, btnOptQuickInput;
+    private MaterialCardView cardOptCheckbox, cardOptReminder, cardOptNotes, cardOptQuantity, cardOptDate, cardOptAttachments, cardOptStreak, cardOptBarcode, cardOptQuickInput;
+    private boolean hasCheckbox, hasReminder, hasNotes, hasQuantity, hasDate, hasAttachments, hasBarcode, hasQuickInput, isStreakEnabled = true;
     private Spinner spinnerAutoRemove;
     private SwitchCompat switchProtectedSpace, switchHiddenSpace;
     private TextInputLayout tilSpaceName;
@@ -126,6 +126,8 @@ public class CreateSpaceFragment extends Fragment {
         btnOptDate = view.findViewById(R.id.btnOptDate);
         btnOptAttachments = view.findViewById(R.id.btnOptAttachments);
         btnOptStreak = view.findViewById(R.id.btnOptStreak);
+        btnOptBarcode = view.findViewById(R.id.btnOptBarcode);
+        btnOptQuickInput = view.findViewById(R.id.btnOptQuickInput);
         
         cardOptCheckbox = view.findViewById(R.id.cardOptCheckbox);
         cardOptReminder = view.findViewById(R.id.cardOptReminder);
@@ -134,6 +136,8 @@ public class CreateSpaceFragment extends Fragment {
         cardOptDate = view.findViewById(R.id.cardOptDate);
         cardOptAttachments = view.findViewById(R.id.cardOptAttachments);
         cardOptStreak = view.findViewById(R.id.cardOptStreak);
+        cardOptBarcode = view.findViewById(R.id.cardOptBarcode);
+        cardOptQuickInput = view.findViewById(R.id.cardOptQuickInput);
 
         switchProtectedSpace = view.findViewById(R.id.switchProtectedSpace);
         switchHiddenSpace = view.findViewById(R.id.switchHiddenSpace);
@@ -180,6 +184,8 @@ public class CreateSpaceFragment extends Fragment {
         if (btnOptDate != null) btnOptDate.setOnClickListener(v -> toggleCapability("date"));
         if (btnOptAttachments != null) btnOptAttachments.setOnClickListener(v -> toggleCapability("attachments"));
         if (btnOptStreak != null) btnOptStreak.setOnClickListener(v -> toggleCapability("streak"));
+        if (btnOptBarcode != null) btnOptBarcode.setOnClickListener(v -> toggleCapability("barcode"));
+        if (btnOptQuickInput != null) btnOptQuickInput.setOnClickListener(v -> toggleCapability("quickInput"));
     }
 
     private void toggleCapability(String type) {
@@ -216,6 +222,14 @@ public class CreateSpaceFragment extends Fragment {
                 }
                 updateButtonState(btnOptStreak, isStreakEnabled); 
                 break;
+            case "barcode":
+                hasBarcode = !hasBarcode;
+                updateButtonState(btnOptBarcode, hasBarcode);
+                break;
+            case "quickInput":
+                hasQuickInput = !hasQuickInput;
+                updateButtonState(btnOptQuickInput, hasQuickInput);
+                break;
         }
     }
 
@@ -232,6 +246,8 @@ public class CreateSpaceFragment extends Fragment {
         else if (view.getId() == R.id.btnOptDate) card = cardOptDate;
         else if (view.getId() == R.id.btnOptAttachments) card = cardOptAttachments;
         else if (view.getId() == R.id.btnOptStreak) card = cardOptStreak;
+        else if (view.getId() == R.id.btnOptBarcode) card = cardOptBarcode;
+        else if (view.getId() == R.id.btnOptQuickInput) card = cardOptQuickInput;
         
         if (card != null) {
             card.setStrokeWidth(active ? 4 : 1);
@@ -333,6 +349,8 @@ public class CreateSpaceFragment extends Fragment {
         hasDate = editingSpace.isHasDate();
         hasAttachments = editingSpace.isHasAttachments();
         isStreakEnabled = editingSpace.isStreakEnabled();
+        hasBarcode = editingSpace.isHasBarcode();
+        hasQuickInput = editingSpace.isHasQuickInput();
 
         if (switchProtectedSpace != null) switchProtectedSpace.setChecked(editingSpace.isProtected());
         if (switchHiddenSpace != null) switchHiddenSpace.setChecked(editingSpace.isHidden());
@@ -344,6 +362,8 @@ public class CreateSpaceFragment extends Fragment {
         updateButtonState(btnOptDate, hasDate);
         updateButtonState(btnOptAttachments, hasAttachments);
         updateButtonState(btnOptStreak, isStreakEnabled);
+        updateButtonState(btnOptBarcode, hasBarcode);
+        updateButtonState(btnOptQuickInput, hasQuickInput);
         
         int duration = editingSpace.getAutoRemoveDuration();
         if (duration == 0) spinnerAutoRemove.setSelection(0);
@@ -397,6 +417,8 @@ public class CreateSpaceFragment extends Fragment {
                 space.setHasDate(hasDate);
                 space.setHasAttachments(hasAttachments);
                 space.setStreakEnabled(isStreakEnabled);
+                space.setHasBarcode(hasBarcode);
+                space.setHasQuickInput(hasQuickInput);
                 space.setAutoRemoveDuration(finalAutoRemoveDuration);
 
                 space.setProtected(isProtected);
@@ -416,6 +438,8 @@ public class CreateSpaceFragment extends Fragment {
                 editingSpace.setHasDate(hasDate);
                 editingSpace.setHasAttachments(hasAttachments);
                 editingSpace.setStreakEnabled(isStreakEnabled);
+                editingSpace.setHasBarcode(hasBarcode);
+                editingSpace.setHasQuickInput(hasQuickInput);
                 editingSpace.setAutoRemoveDuration(finalAutoRemoveDuration);
 
                 editingSpace.setProtected(isProtected);

@@ -27,6 +27,8 @@ public class SecurityManager {
 
     private static final String KEY_MASTER_PIN_HASH = "master_pin_hash";
     private static final String KEY_MASTER_PIN_SALT = "master_pin_salt";
+    private static final String KEY_RECOVERY_KEY_HASH = "recovery_key_hash";
+    private static final String KEY_RECOVERY_KEY_SALT = "recovery_key_salt";
     private static final String KEY_MASTER_LOCK_ENABLED = "master_lock_enabled";
     private static final String KEY_BIOMETRIC_LOCK_ENABLED = "biometric_lock_enabled";
     private static final String KEY_FAILED_ATTEMPTS = "failed_attempts";
@@ -118,12 +120,64 @@ public class SecurityManager {
 
     public boolean disableMasterLock(String currentPin) {
         if (verifyMasterPin(currentPin)) {
-            prefs.edit()
-                    .putBoolean(KEY_MASTER_LOCK_ENABLED, false)
-                    .apply();
+            clearMasterPin();
             return true;
         }
         return false;
+    }
+
+    public String generateAndStoreRecoveryKey() {
+        String rawKey = "FW-" + generateRandomBlock() + "-" + generateRandomBlock() + "-" + generateRandomBlock();
+        String salt = generateSalt();
+        String hash = hashPin(rawKey, salt);
+        if (hash != null) {
+            prefs.edit()
+                    .putString(KEY_RECOVERY_KEY_HASH, hash)
+                    .putString(KEY_RECOVERY_KEY_SALT, salt)
+                    .apply();
+            return rawKey;
+        }
+        return null;
+    }
+
+    private String generateRandomBlock() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[2];
+        random.nextBytes(bytes);
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X", b));
+        }
+        return sb.toString();
+    }
+
+    public boolean verifyRecoveryKey(String recoveryKey) {
+        if (recoveryKey == null) return false;
+        String savedHash = prefs.getString(KEY_RECOVERY_KEY_HASH, null);
+        String savedSalt = prefs.getString(KEY_RECOVERY_KEY_SALT, null);
+        if (savedHash == null || savedSalt == null) return false;
+        String computedHash = hashPin(recoveryKey.trim(), savedSalt);
+        return savedHash.equals(computedHash);
+    }
+
+    public boolean resetMasterPinWithRecoveryKey(String newPin, String recoveryKey) {
+        if (verifyRecoveryKey(recoveryKey)) {
+            return setupMasterPin(newPin);
+        }
+        return false;
+    }
+
+    public void clearMasterPin() {
+        prefs.edit()
+                .remove(KEY_MASTER_PIN_HASH)
+                .remove(KEY_MASTER_PIN_SALT)
+                .remove(KEY_RECOVERY_KEY_HASH)
+                .remove(KEY_RECOVERY_KEY_SALT)
+                .putBoolean(KEY_MASTER_LOCK_ENABLED, false)
+                .putBoolean(KEY_BIOMETRIC_LOCK_ENABLED, false)
+                .putInt(KEY_FAILED_ATTEMPTS, 0)
+                .putLong(KEY_LOCKOUT_UNTIL, 0)
+                .apply();
     }
 
     // --- Space-Specific PIN Helper Methods ---

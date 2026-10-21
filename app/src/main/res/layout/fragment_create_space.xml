@@ -607,6 +607,72 @@
                                     android:textColor="@color/text_primary"/>
                             </LinearLayout>
 
+                            <!-- Barcode Option -->
+                            <LinearLayout
+                                android:id="@+id/btnOptBarcode"
+                                android:layout_width="80dp"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:alpha="0.5">
+                                <com.google.android.material.card.MaterialCardView
+                                    android:id="@+id/cardOptBarcode"
+                                    android:layout_width="50dp"
+                                    android:layout_height="50dp"
+                                    app:cardCornerRadius="14dp"
+                                    app:cardElevation="0dp"
+                                    app:cardBackgroundColor="#E8F5E9"
+                                    app:strokeWidth="1dp"
+                                    app:strokeColor="#2E7D32">
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_barcode_scan"
+                                        app:tint="#2E7D32"/>
+                                </com.google.android.material.card.MaterialCardView>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:text="Barcode"
+                                    android:textSize="11sp"
+                                    android:textColor="@color/text_primary"/>
+                            </LinearLayout>
+
+                            <!-- Quick Input Option -->
+                            <LinearLayout
+                                android:id="@+id/btnOptQuickInput"
+                                android:layout_width="80dp"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:alpha="0.5">
+                                <com.google.android.material.card.MaterialCardView
+                                    android:id="@+id/cardOptQuickInput"
+                                    android:layout_width="50dp"
+                                    android:layout_height="50dp"
+                                    app:cardCornerRadius="14dp"
+                                    app:cardElevation="0dp"
+                                    app:cardBackgroundColor="#E1F5FE"
+                                    app:strokeWidth="1dp"
+                                    app:strokeColor="#0288D1">
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_add"
+                                        app:tint="#0288D1"/>
+                                </com.google.android.material.card.MaterialCardView>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:text="Quick Add +"
+                                    android:textSize="11sp"
+                                    android:textColor="@color/text_primary"/>
+                            </LinearLayout>
+
                         </LinearLayout>
                     </HorizontalScrollView>
 

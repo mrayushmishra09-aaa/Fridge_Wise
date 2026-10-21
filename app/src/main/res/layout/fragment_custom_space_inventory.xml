@@ -58,30 +58,6 @@
                     android:src="@drawable/ic_view_grid"
                     app:tint="@color/text_primary"
                     android:contentDescription="Toggle View Mode" />
-
-                <ImageView
-                    android:id="@+id/btnBarcodeScanner"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_toStartOf="@id/btnViewToggle"
-                    android:layout_centerVertical="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="12dp"
-                    android:src="@drawable/ic_barcode_scan"
-                    app:tint="@color/green_primary"
-                    android:contentDescription="Barcode Scanner Mode" />
-
-                <ImageView
-                    android:id="@+id/btnEyeScanner"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_toStartOf="@id/btnBarcodeScanner"
-                    android:layout_centerVertical="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="12dp"
-                    android:src="@drawable/ic_eye"
-                    app:tint="@color/text_primary"
-                    android:contentDescription="Eye Scanner Preview Mode" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -244,6 +220,52 @@
                 android:iconifiedByDefault="false"
                 android:queryBackground="@android:color/transparent"
                 android:queryHint="Search items..." />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Quick Shopping Input with Plus Bar -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/layoutQuickAdd"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="@dimen/screen_padding"
+            android:layout_marginBottom="@dimen/spacing_12"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/surface_card"
+            app:cardCornerRadius="@dimen/radius_pill"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/green_primary">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
+
+                <EditText
+                    android:id="@+id/etQuickInputName"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="Quick add item..."
+                    android:imeOptions="actionDone"
+                    android:inputType="textCapSentences"
+                    android:maxLines="1"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/btnQuickAddPlus"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_badge_member"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_add"
+                    app:tint="@color/white"
+                    android:contentDescription="Quick Add +" />
+            </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <androidx.recyclerview.widget.RecyclerView

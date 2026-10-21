@@ -1,12 +1,14 @@
 package com.example.fridgewise.ui.bottomsheet;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
@@ -22,7 +24,6 @@ import com.example.fridgewise.util.SecurityManager;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -31,6 +32,52 @@ public class AdvancedSettingsBottomSheet extends BottomSheetDialogFragment {
 
     private PreferenceManager prefManager;
     private SecurityManager secManager;
+
+    private final ActivityResultLauncher<Intent> exportLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
+                    android.net.Uri uri = result.getData().getData();
+                    if (uri != null) {
+                        Executors.newSingleThreadExecutor().execute(() -> {
+                            boolean success = BackupManager.exportToUri(requireContext(), uri);
+                            if (isAdded()) {
+                                requireActivity().runOnUiThread(() -> {
+                                    if (success) {
+                                        Toast.makeText(requireContext(), "Backup exported successfully!", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Toast.makeText(requireContext(), "Failed to export backup", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+    );
+
+    private final ActivityResultLauncher<Intent> restoreLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
+                    android.net.Uri uri = result.getData().getData();
+                    if (uri != null) {
+                        Executors.newSingleThreadExecutor().execute(() -> {
+                            boolean success = BackupManager.restoreFromUri(requireContext(), uri);
+                            if (isAdded()) {
+                                requireActivity().runOnUiThread(() -> {
+                                    if (success) {
+                                        Toast.makeText(requireContext(), "Backup restored successfully!", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Toast.makeText(requireContext(), "Failed to restore backup", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+    );
 
     @Nullable
     @Override
@@ -46,6 +93,7 @@ public class AdvancedSettingsBottomSheet extends BottomSheetDialogFragment {
 
         SwitchCompat switchMasterLock = view.findViewById(R.id.switchMasterLock);
         MaterialButton btnChangeMasterPin = view.findViewById(R.id.btnChangeMasterPin);
+        MaterialButton btnViewRecoveryKey = view.findViewById(R.id.btnViewRecoveryKey);
         SwitchCompat switchBiometric = view.findViewById(R.id.switchBiometricLock);
         MaterialButton btnManageHiddenSpaces = view.findViewById(R.id.btnManageHiddenSpaces);
         SwitchCompat switchHaptic = view.findViewById(R.id.switchHaptic);
@@ -57,6 +105,7 @@ public class AdvancedSettingsBottomSheet extends BottomSheetDialogFragment {
         boolean masterLockEnabled = secManager.isMasterLockEnabled();
         switchMasterLock.setChecked(masterLockEnabled);
         btnChangeMasterPin.setVisibility(masterLockEnabled ? View.VISIBLE : View.GONE);
+        btnViewRecoveryKey.setVisibility(masterLockEnabled ? View.VISIBLE : View.GONE);
 
         switchBiometric.setChecked(secManager.isBiometricEnabled());
         switchHaptic.setChecked(prefManager.isHapticFeedbackEnabled());
@@ -73,6 +122,7 @@ public class AdvancedSettingsBottomSheet extends BottomSheetDialogFragment {
                         if (success) {
                             switchMasterLock.setChecked(true);
                             btnChangeMasterPin.setVisibility(View.VISIBLE);
+                            btnViewRecoveryKey.setVisibility(View.VISIBLE);
                             Toast.makeText(requireContext(), "Master PIN enabled", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(requireContext(), "Failed to set Master PIN", Toast.LENGTH_SHORT).show();
@@ -91,10 +141,11 @@ public class AdvancedSettingsBottomSheet extends BottomSheetDialogFragment {
                 SecurityAuthDialog authDialog = SecurityAuthDialog.newInstance(new SecurityAuthDialog.AuthCallback() {
                     @Override
                     public void onAuthenticated() {
-                        secManager.setBiometricEnabled(false);
+                        secManager.clearMasterPin();
                         switchBiometric.setChecked(false);
                         switchMasterLock.setChecked(false);
                         btnChangeMasterPin.setVisibility(View.GONE);
+                        btnViewRecoveryKey.setVisibility(View.GONE);
                         Toast.makeText(requireContext(), "Master PIN disabled", Toast.LENGTH_SHORT).show();
                     }
 
@@ -128,6 +179,30 @@ public class AdvancedSettingsBottomSheet extends BottomSheetDialogFragment {
                 public void onCanceled() {}
             });
             authDialog.show(getParentFragmentManager(), "auth_dialog");
+        });
+
+        btnViewRecoveryKey.setOnClickListener(v -> {
+            SecurityAuthDialog authDialog = SecurityAuthDialog.newInstance(new SecurityAuthDialog.AuthCallback() {
+                @Override
+                public void onAuthenticated() {
+                    String key = secManager.generateAndStoreRecoveryKey();
+                    new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                            .setTitle("Emergency Recovery Key 🔑")
+                            .setMessage("Your Emergency Recovery Key:\n\n" + key + "\n\nStore this key safely. If you ever forget your PIN, this is required to reset it.")
+                            .setPositiveButton("Copy to Clipboard", (d, w) -> {
+                                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                                android.content.ClipData clip = android.content.ClipData.newPlainText("Recovery Key", key);
+                                if (clipboard != null) clipboard.setPrimaryClip(clip);
+                                Toast.makeText(requireContext(), "Recovery Key copied!", Toast.LENGTH_SHORT).show();
+                            })
+                            .setNegativeButton("Close", null)
+                            .show();
+                }
+
+                @Override
+                public void onCanceled() {}
+            });
+            authDialog.show(getParentFragmentManager(), "auth_view_recovery");
         });
 
         switchBiometric.setOnClickListener(v -> {
@@ -212,27 +287,18 @@ public class AdvancedSettingsBottomSheet extends BottomSheetDialogFragment {
         });
 
         btnExport.setOnClickListener(v -> {
-            File backupFile = new File(requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "fridgewise_backup.json");
-            boolean success = BackupManager.exportToFile(requireContext(), backupFile);
-            if (success) {
-                Toast.makeText(requireContext(), "Backup exported to: " + backupFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(requireContext(), "Failed to export backup", Toast.LENGTH_SHORT).show();
-            }
+            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/json");
+            intent.putExtra(Intent.EXTRA_TITLE, "fridgewise_backup_" + System.currentTimeMillis() + ".json");
+            exportLauncher.launch(intent);
         });
 
         btnRestore.setOnClickListener(v -> {
-            File backupFile = new File(requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "fridgewise_backup.json");
-            if (!backupFile.exists()) {
-                Toast.makeText(requireContext(), "No backup file found in Documents", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            boolean success = BackupManager.restoreFromFile(requireContext(), backupFile);
-            if (success) {
-                Toast.makeText(requireContext(), "Backup restored successfully!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(requireContext(), "Failed to restore backup", Toast.LENGTH_SHORT).show();
-            }
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/json");
+            restoreLauncher.launch(intent);
         });
 
         btnSave.setOnClickListener(v -> {

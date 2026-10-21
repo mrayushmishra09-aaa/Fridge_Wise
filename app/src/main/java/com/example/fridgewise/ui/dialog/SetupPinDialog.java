@@ -57,6 +57,15 @@ public class SetupPinDialog extends DialogFragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.88);
+            getDialog().getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -140,14 +149,26 @@ public class SetupPinDialog extends DialogFragment {
             String confirmPin = currentPin.toString();
             if (firstPin.equals(confirmPin)) {
                 SecurityManager sec = SecurityManager.getInstance(requireContext());
-                String salt = sec.createSaltForSpace();
-                String hash = sec.hashPinForSpace(confirmPin, salt);
+                sec.setupMasterPin(confirmPin);
+                String recoveryKey = sec.generateAndStoreRecoveryKey();
 
                 HapticUtils.performHaptic(llSetupPinDots);
-                if (callback != null) {
-                    callback.onPinCreated(confirmPin, salt, hash);
-                }
-                dismiss();
+
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Emergency Recovery Key 🔑")
+                        .setMessage("Your Master PIN is successfully set!\n\nPlease save your Emergency Recovery Key somewhere safe. If you ever forget your PIN, this key is the ONLY way to reset your access:\n\n" + recoveryKey)
+                        .setPositiveButton("Copy & Done", (d, w) -> {
+                            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                            android.content.ClipData clip = android.content.ClipData.newPlainText("Recovery Key", recoveryKey);
+                            if (clipboard != null) clipboard.setPrimaryClip(clip);
+                            Toast.makeText(requireContext(), "Recovery Key copied to clipboard!", Toast.LENGTH_SHORT).show();
+                            if (callback != null) {
+                                callback.onPinCreated(confirmPin, "", "");
+                            }
+                            dismiss();
+                        })
+                        .setCancelable(false)
+                        .show();
             } else {
                 Toast.makeText(requireContext(), "PINs do not match. Try again.", Toast.LENGTH_SHORT).show();
                 resetToStepOneWithShake();

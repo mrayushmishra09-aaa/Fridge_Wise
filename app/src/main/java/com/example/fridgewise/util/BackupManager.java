@@ -112,4 +112,67 @@ public class BackupManager {
             return false;
         }
     }
+
+    public static boolean exportToUri(Context context, android.net.Uri uri) {
+        String json = exportToJson(context);
+        if (json == null) return false;
+        try (java.io.OutputStream os = context.getContentResolver().openOutputStream(uri);
+             java.io.OutputStreamWriter writer = new java.io.OutputStreamWriter(os)) {
+            writer.write(json);
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "Error writing backup to URI", e);
+            return false;
+        }
+    }
+
+    public static boolean restoreFromUri(Context context, android.net.Uri uri) {
+        try (java.io.InputStream is = context.getContentResolver().openInputStream(uri);
+             java.io.InputStreamReader reader = new java.io.InputStreamReader(is)) {
+            Gson gson = new Gson();
+            DatabaseBackup backup = gson.fromJson(reader, DatabaseBackup.class);
+            if (backup == null) return false;
+
+            AppDatabase db = AppDatabase.getInstance(context);
+            if (backup.foodItems != null) {
+                for (FoodItem item : backup.foodItems) {
+                    db.foodItemDao().insert(item);
+                }
+            }
+            if (backup.todoItems != null) {
+                for (TodoItem item : backup.todoItems) {
+                    db.todoDao().insert(item);
+                }
+            }
+            if (backup.medicines != null) {
+                for (MedicineEntity item : backup.medicines) {
+                    db.medicineDao().insert(item);
+                }
+            }
+            if (backup.shoppingItems != null) {
+                for (ShoppingItem item : backup.shoppingItems) {
+                    db.shoppingDao().insert(item);
+                }
+            }
+            if (backup.documents != null) {
+                for (DocumentItem item : backup.documents) {
+                    db.documentDao().insert(item);
+                }
+            }
+            if (backup.customSpaces != null) {
+                for (CustomSpace item : backup.customSpaces) {
+                    db.customSpaceDao().insertSpace(item);
+                }
+            }
+            if (backup.customSpaceItems != null) {
+                for (CustomSpaceItem item : backup.customSpaceItems) {
+                    db.customSpaceDao().insertItem(item);
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "Error restoring backup from URI", e);
+            return false;
+        }
+    }
 }

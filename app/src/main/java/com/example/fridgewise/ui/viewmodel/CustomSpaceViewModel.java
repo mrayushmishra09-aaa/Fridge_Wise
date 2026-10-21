@@ -53,6 +53,10 @@ public class CustomSpaceViewModel extends AndroidViewModel {
         return currentSpace;
     }
 
+    public void insertItem(CustomSpaceItem item) {
+        executor.execute(() -> db.customSpaceDao().insertItem(item));
+    }
+
     public LiveData<Set<Integer>> getSelectedIds() {
         return selectedIds;
     }

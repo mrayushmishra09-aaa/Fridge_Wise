@@ -5,6 +5,7 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
+import androidx.room.OnConflictStrategy;
 import com.example.fridgewise.model.DocumentItem;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public interface DocumentDao {
     List<DocumentItem> getAllDocuments();
 
     // 2. Insert a new document
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(DocumentItem document);
 
     // 3. Update an existing document (e.g., changing its name)

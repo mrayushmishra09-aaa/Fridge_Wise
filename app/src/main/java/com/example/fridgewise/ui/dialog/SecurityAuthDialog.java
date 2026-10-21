@@ -1,5 +1,6 @@
 package com.example.fridgewise.ui.dialog;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -59,6 +60,15 @@ public class SecurityAuthDialog extends DialogFragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.88);
+            getDialog().getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -96,6 +106,53 @@ public class SecurityAuthDialog extends DialogFragment {
             if (callback != null) callback.onCanceled();
             dismiss();
         });
+
+        MaterialButton btnForgotPin = view.findViewById(R.id.btnForgotPin);
+        if (targetSpace == null) {
+            btnForgotPin.setVisibility(View.VISIBLE);
+            btnForgotPin.setOnClickListener(v -> showRecoveryDialog());
+        } else {
+            btnForgotPin.setVisibility(View.GONE);
+        }
+    }
+
+    private void showRecoveryDialog() {
+        Context context = requireContext();
+        Context appContext = context.getApplicationContext();
+        android.widget.EditText input = new android.widget.EditText(context);
+        input.setHint("Enter Recovery Key (e.g. FW-XXXX)");
+        input.setTextColor(Color.WHITE);
+        input.setHintTextColor(Color.GRAY);
+        input.setPadding(40, 30, 40, 30);
+
+        new androidx.appcompat.app.AlertDialog.Builder(context)
+                .setTitle("Reset Master PIN")
+                .setMessage("Enter your Emergency Recovery Key to reset your Master PIN.")
+                .setView(input)
+                .setPositiveButton("Verify & Reset", (d, w) -> {
+                    String key = input.getText().toString();
+                    SecurityManager sec = SecurityManager.getInstance(appContext);
+                    if (sec.verifyRecoveryKey(key)) {
+                        Toast.makeText(appContext, "Recovery Key verified! Set your new PIN.", Toast.LENGTH_SHORT).show();
+                        dismiss();
+                        SetupPinDialog setupDialog = SetupPinDialog.newInstance("New Master PIN", new SetupPinDialog.SetupPinCallback() {
+                            @Override
+                            public void onPinCreated(String pin, String salt, String hash) {
+                                sec.setupMasterPin(pin);
+                                Toast.makeText(appContext, "Master PIN successfully reset!", Toast.LENGTH_SHORT).show();
+                                if (callback != null) callback.onAuthenticated();
+                            }
+
+                            @Override
+                            public void onCanceled() {}
+                        });
+                        setupDialog.show(getParentFragmentManager(), "reset_pin_dialog");
+                    } else {
+                        Toast.makeText(appContext, "Invalid Recovery Key", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void setupKeypad(View root) {
@@ -188,18 +245,20 @@ public class SecurityAuthDialog extends DialogFragment {
     }
 
     private void triggerBiometricPrompt() {
+        Context context = requireContext();
+        Context appContext = context.getApplicationContext();
         BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
                 .setTitle("Unlock " + (targetSpace != null ? targetSpace.getName() : "FridgeWise"))
                 .setSubtitle("Use your fingerprint or face to authenticate")
                 .setNegativeButtonText("Use PIN")
                 .build();
 
-        BiometricPrompt prompt = new BiometricPrompt(this, ContextCompat.getMainExecutor(requireContext()),
+        BiometricPrompt prompt = new BiometricPrompt(this, ContextCompat.getMainExecutor(context),
                 new BiometricPrompt.AuthenticationCallback() {
                     @Override
                     public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                         super.onAuthenticationSucceeded(result);
-                        SecurityManager sec = SecurityManager.getInstance(requireContext());
+                        SecurityManager sec = SecurityManager.getInstance(appContext);
                         if (targetSpace != null) {
                             sec.unlockSpaceSession(targetSpace.getId());
                         }

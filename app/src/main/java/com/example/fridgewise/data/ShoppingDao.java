@@ -6,12 +6,13 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import androidx.room.OnConflictStrategy;
 import com.example.fridgewise.model.ShoppingItem;
 import java.util.List;
 
 @Dao
 public interface ShoppingDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(ShoppingItem item);
 
     @Update

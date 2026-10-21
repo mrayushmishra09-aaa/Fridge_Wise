@@ -13,6 +13,7 @@ import com.example.fridgewise.ui.dialog.SecurityAuthDialog;
 import com.example.fridgewise.R;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
@@ -23,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
@@ -74,6 +76,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
     }
 
     private ActivityResultLauncher<String> multiFilePickerLauncher;
+    private ActivityResultLauncher<Intent> barcodeLauncher;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,6 +94,28 @@ public class CustomSpaceInventoryFragment extends Fragment {
             uris -> {
                 if (uris != null && !uris.isEmpty()) {
                     importMultipleSpaceFiles(uris);
+                }
+            }
+        );
+
+        barcodeLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
+                    String barcode = result.getData().getStringExtra("BARCODE_RESULT");
+                    if (barcode != null && currentSpace != null) {
+                        CustomSpaceItem newItem = new CustomSpaceItem(
+                            currentSpace.getId(),
+                            "Scanned Card [" + barcode + "]",
+                            1.0,
+                            "pcs",
+                            "",
+                            null,
+                            "Barcode: " + barcode
+                        );
+                        viewModel.insertItem(newItem);
+                        Toast.makeText(getContext(), "Scanned & Created Custom Card!", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         );
@@ -248,24 +273,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
             });
         }
 
-        ImageView btnBarcodeScanner = view.findViewById(R.id.btnBarcodeScanner);
-        if (btnBarcodeScanner != null) {
-            btnBarcodeScanner.setOnClickListener(v -> {
-                Intent intent = new Intent(requireContext(), BarcodeScannerActivity.class);
-                startActivity(intent);
-                Toast.makeText(getContext(), "Barcode Scanner Activated: Locking other options.", Toast.LENGTH_SHORT).show();
-                if (btnViewToggle != null) btnViewToggle.setEnabled(false);
-                View btnMore = view.findViewById(R.id.btnMoreOptions);
-                if (btnMore != null) btnMore.setEnabled(false);
-            });
-        }
-
-        ImageView btnEyeScanner = view.findViewById(R.id.btnEyeScanner);
-        if (btnEyeScanner != null) {
-            btnEyeScanner.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "Eye Scanner Preview Mode Active", Toast.LENGTH_SHORT).show();
-            });
-        }
+        setupQuickInputBar(view);
 
         viewModel.getItems().observe(getViewLifecycleOwner(), items -> {
             allItems = items;
@@ -507,6 +515,7 @@ public class CustomSpaceInventoryFragment extends Fragment {
         PopupMenu popup = new PopupMenu(getContext(), v);
         popup.getMenu().add("Edit Space");
         popup.getMenu().add("Delete Space");
+        popup.getMenu().add("Scan Barcode & Create Custom Card");
 
         popup.setOnMenuItemClickListener(item -> {
             String title = item.getTitle() != null ? item.getTitle().toString() : "";
@@ -516,10 +525,56 @@ public class CustomSpaceInventoryFragment extends Fragment {
                 Navigation.findNavController(v).navigate(R.id.createSpaceFragment, args);
             } else if ("Delete Space".equals(title)) {
                 deleteSpace();
+            } else if ("Scan Barcode & Create Custom Card".equals(title)) {
+                Intent intent = new Intent(requireContext(), BarcodeScannerActivity.class);
+                barcodeLauncher.launch(intent);
             }
             return true;
         });
         popup.show();
+    }
+
+    private void setupQuickInputBar(View view) {
+        View layoutQuickAdd = view.findViewById(R.id.layoutQuickAdd);
+        EditText etQuickInputName = view.findViewById(R.id.etQuickInputName);
+        View btnQuickAddPlus = view.findViewById(R.id.btnQuickAddPlus);
+
+        if (currentSpace != null && currentSpace.isHasQuickInput()) {
+            if (layoutQuickAdd != null) layoutQuickAdd.setVisibility(View.VISIBLE);
+
+            Runnable performQuickAdd = () -> {
+                if (etQuickInputName != null) {
+                    String name = etQuickInputName.getText().toString().trim();
+                    if (!name.isEmpty() && currentSpace != null) {
+                        CustomSpaceItem newItem = new CustomSpaceItem(
+                            currentSpace.getId(),
+                            name,
+                            1.0,
+                            "pcs",
+                            "",
+                            null,
+                            ""
+                        );
+                        viewModel.insertItem(newItem);
+                        etQuickInputName.setText("");
+                        Toast.makeText(getContext(), "Added: " + name, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            };
+
+            if (btnQuickAddPlus != null) {
+                btnQuickAddPlus.setOnClickListener(v -> performQuickAdd.run());
+            }
+
+            if (etQuickInputName != null) {
+                etQuickInputName.setOnEditorActionListener((v, actionId, event) -> {
+                    performQuickAdd.run();
+                    return true;
+                });
+            }
+        } else {
+            if (layoutQuickAdd != null) layoutQuickAdd.setVisibility(View.GONE);
+        }
     }
 
     private void deleteSpace() {
